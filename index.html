@@ -90,12 +90,12 @@ canvas#cnf{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;display:
 
 <div class="top-header">
   <h1>💻 GAMBA 高認 情報Ⅰ 単元表</h1>
-  <p>高認情報Ⅰ 最短合格ルート — 4割で合格！この5単元だけ完走しよう</p>
+  <p>高認情報Ⅰ 最短合格ルート — 4割で合格！この6単元だけ完走しよう</p>
   <div class="summary-bar">
     <div class="sum-item"><span class="sum-dot sum-dot-a"></span>A わかった <span class="sum-count" id="cnt-a">0</span></div>
     <div class="sum-item"><span class="sum-dot sum-dot-b"></span>B 要復習 <span class="sum-count" id="cnt-b">0</span></div>
     <div class="sum-item"><span class="sum-dot sum-dot-c"></span>C 何度も <span class="sum-count" id="cnt-c">0</span></div>
-    <div class="sum-item"><span class="sum-dot sum-dot-n"></span>未実施 <span class="sum-count" id="cnt-n">5</span></div>
+    <div class="sum-item"><span class="sum-dot sum-dot-n"></span>未実施 <span class="sum-count" id="cnt-n">6</span></div>
   </div>
 </div>
 
@@ -114,19 +114,19 @@ canvas#cnf{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;display:
       <div class="flow-step">④ A/B/C 自己評価</div>
     </div>
     <div class="flow-note">
-      💡 <strong>合格のコツ</strong>：高認情報Ⅰは <strong>4割の正答で合格</strong> できます。全部完璧に覚えなくてOK。1日1単元、5日間で完走できます。「LINE＝SNS」「メルカリ＝CtoC」など、身近な例で覚えると定着します。
+      💡 <strong>合格のコツ</strong>：高認情報Ⅰは <strong>4割の正答で合格</strong> できます。全部完璧に覚えなくてOK。1日1単元、6日間で完走できます。「LINE＝SNS」「メルカリ＝CtoC」など、身近な例で覚えると定着します。
     </div>
   </div>
 
-  <!-- ══ 高認 合格ルート 5単元 ══ -->
+  <!-- ══ 高認 合格ルート 6単元 ══ -->
   <div class="unit">
     <div class="unit-hd">
       <span class="unit-num">🎯 高認</span>
-      <span class="unit-title">合格ルート 必修5単元</span>
-      <span class="unit-badge">joho1〜5</span>
+      <span class="unit-title">合格ルート 必修6単元</span>
+      <span class="unit-badge">joho1〜6</span>
     </div>
     <div class="unit-body">
-      <div class="group-label">📋 この5つだけ。順番通りに進めましょう</div>
+      <div class="group-label">📋 順番通りに進めましょう</div>
       <div class="sec-grid">
 
         <!-- ① 情報社会と権利 -->
@@ -219,6 +219,25 @@ canvas#cnf{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;display:
           </div>
         </div>
 
+
+        <!-- ⑥ アルゴリズムとプログラミング -->
+        <div class="sec-card" data-id="k6">
+          <div class="sc-hd"><span class="sc-num">⑥</span><span class="sc-title">アルゴリズムとプログラミング</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>アルゴリズムの基本（順次・分岐・繰り返し）</li>
+            <li>フローチャートの読み方・書き方</li>
+            <li>プログラミングの基礎概念</li>
+          </ul></div>
+          <div class="sc-btn-row">
+            <a class="sc-btn" href="kouninjoho6.html">解説・練習</a>
+          </div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('k6','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('k6','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('k6','c',this)">C もう一度</button>
+          </div>
+        </div>
+
       </div><!-- /sec-grid -->
     </div><!-- /unit-body -->
   </div><!-- /unit -->
@@ -229,7 +248,7 @@ canvas#cnf{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;display:
 
 <script>
 const STORAGE_KEY = 'gamba_joho_status_v1';
-const ACTIVE_IDS = ['k1','k2','k3','k4','k5'];
+const ACTIVE_IDS = ['k1','k2','k3','k4','k5','k6'];
 let status = {};
 try { const s = localStorage.getItem(STORAGE_KEY); if(s) status = JSON.parse(s); } catch(e){}
 
