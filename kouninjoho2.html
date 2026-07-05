@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>高認 情報Ⅰ ②：情報社会の課題</title>
+  <style>
+    :root {
+      --primary: #185FA5;
+      --teal:    #0F6E56;
+      --purple:  #534AB7;
+      --amber:   #BA7517;
+      --coral:   #993C1D;
+      --gray:    #5F5E5A;
+      --bg:      #f5f7fa;
+      --drop-bg: #fff9c4;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: "Yu Gothic","游ゴシック",sans-serif; background: var(--bg); margin: 0; padding: 0; font-size: 14px; line-height: 1.9; color: #222; }
+
+    /* ── sticky header ── */
+    .sticky-header { position: sticky; top: 0; background: var(--bg); z-index: 1000; border-bottom: 2px solid #ddd; padding: 8px 0; }
+    .page-nav { max-width: 1050px; margin: 0 auto 6px; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+    .nav-btn { text-decoration: none; background: #7f8c8d; color: #fff; padding: 5px 13px; border-radius: 4px; font-size: .78em; font-weight: bold; transition: .2s; }
+    .nav-btn:hover { background: #34495e; }
+    .nav-btn.active { background: var(--coral); border: 2px solid #f1c40f; }
+    .nav-btn.nav-home { background: #c0392b; }
+    .nav-btn.nav-home:hover { background: #922b21; }
+
+    /* ── challenge panel ── */
+    .challenge-panel {
+      background: #fbeae5; border: 1.5px solid #f5b7a8; color: var(--coral);
+      padding: 8px 20px; border-radius: 8px;
+      display: flex; justify-content: space-around; align-items: center;
+      max-width: 1050px; margin: 0 auto 8px; flex-wrap: wrap; gap: 8px;
+    }
+    .timer { font-size: 1.5em; font-family: monospace; font-weight: bold; color: var(--coral); }
+    .ch-btn { border: none; cursor: pointer; padding: 7px 18px; border-radius: 20px; font-weight: bold; font-size: .9em; transition: .2s; }
+    .ch-btn.start  { background: var(--teal);    color: #fff; }
+    .ch-btn.start:hover  { background: #0a4f3c; }
+    .ch-btn.answer { background: #f39c12;        color: #fff; }
+    .ch-btn.answer:hover { background: #d68910; }
+    .ch-btn.check  { background: var(--coral);   color: #fff; }
+    .ch-btn.check:hover  { background: #7a2f17; }
+    #recordDisplay { font-weight: bold; font-size: .9em; color: #8B6914; }
+
+    /* ── word bank（joho3風：緑系の上品なピル形） ── */
+    .word-bank-wrap { max-width: 1050px; margin: 0 auto; }
+    .word-bank-container {
+      background: #f0fdf4;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid #86efac;
+    }
+    .wb-label {
+      font-size: .82em;
+      color: #166534;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+    .word-bank { display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px; }
+    .drag-item {
+      background: white;
+      color: #166534;
+      border: 2px solid #22c55e;
+      padding: 5px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.92em;
+      border-radius: 18px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .drag-item:hover {
+      background: #22c55e;
+      color: white;
+      transform: scale(1.05);
+    }
+    .drag-item.selected {
+      background: #fed7aa;
+      color: #9a3412;
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px #fdba74;
+      transform: scale(1.08);
+    }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+    .word-bank-container.shake { animation: shake .4s ease; }
+
+    /* ── drop zone（joho3風：上品な淡い黄色＋点線枠） ── */
+    .dz {
+      display: inline-block;
+      min-width: 110px;
+      min-height: 1.7em;
+      padding: 4px 14px;
+      margin: 0 4px;
+      border: 2px dashed #94a3b8;
+      border-radius: 6px;
+      background: #fef9c3;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      color: #1e293b;
+      transition: all 0.2s;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 0.95em;
+      line-height: 1.7em;
+      box-sizing: border-box;
+    }
+    .dz:hover { background: #fef08a; border-color: #64748b; }
+    .dz.filled {
+      background: #dbeafe;
+      border-style: solid;
+      border-color: #3b82f6;
+      color: #1e3a8a;
+    }
+    .dz.correct {
+      background: #bbf7d0 !important;
+      border-style: solid !important;
+      border-color: #16a34a !important;
+      color: #166534 !important;
+      font-weight: bold;
+    }
+    .dz.wrong {
+      background: #fecaca !important;
+      border-style: solid !important;
+      border-color: #dc2626 !important;
+      color: #991b1b !important;
+      animation: shake 0.4s;
+    }
+
+    /* ── main ── */
+    .container { max-width: 1050px; margin: 16px auto; background: #fff; padding: 28px 32px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+
+    /* ── section heading ── */
+    .sec-h1 { font-size: 1.25em; font-weight: bold; color: var(--coral); border-bottom: 3px solid var(--coral); padding-bottom: 6px; margin: 28px 0 14px; }
+    .sec-h1 .num { font-size: .95em; margin-right: 8px; }
+    .sec-h2 { font-size: 1em; font-weight: bold; color: var(--coral); border-left: 5px solid var(--coral); padding-left: 10px; margin: 20px 0 10px; }
+
+    /* ── つかみ ── */
+    .intro-box {
+      background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+      border-left: 5px solid var(--amber); border-radius: 6px;
+      padding: 14px 18px; margin: 16px 0; font-size: .92em;
+    }
+    .intro-box .intro-title {
+      color: var(--amber); font-weight: bold; font-size: 1em; margin-bottom: 6px;
+    }
+
+    /* ── 図表ボックス ── */
+    .figure-box {
+      background: #f9fafb;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    .figure-box img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .figure-box .fig-caption {
+      font-size: .85em;
+      color: #555;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    /* ── table共通 ── */
+    table.godan { border-collapse: collapse; width: 100%; margin: 12px 0; }
+    table.godan th { background: var(--coral); color: #fff; padding: 8px 12px; text-align: center; font-size: .9em; }
+    table.godan td { padding: 8px 12px; border: 1px solid #ddd; font-size: .9em; vertical-align: top; }
+    table.godan tr:nth-child(even) td { background: #fdf3f0; }
+    .tag { display: inline-block; font-weight: bold; padding: 2px 8px; border-radius: 3px; font-size: .88em; }
+    .tag-amber  { background: #faeeda; color: var(--amber);  border: 1px solid var(--amber); }
+    .tag-teal   { background: #edfaf4; color: var(--teal);   border: 1px solid var(--teal); }
+    .tag-blue   { background: #eff5fc; color: var(--primary);border: 1px solid var(--primary); }
+    .tag-purple { background: #f2f1fd; color: var(--purple); border: 1px solid var(--purple); }
+    .tag-coral  { background: #fdf3f0; color: var(--coral);  border: 1px solid var(--coral); }
+
+    /* ── 3カード ── */
+    .props-row { display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
+    .prop-card { flex: 1; min-width: 220px; border: 2px solid; border-radius: 8px; padding: 12px 14px; background: #fff; }
+    .prop-card.p1 { border-color: var(--coral); background: #fdf3f0; }
+    .prop-card.p2 { border-color: var(--purple); background: #f2f1fd; }
+    .prop-card.p3 { border-color: var(--teal); background: #edfaf4; }
+    .prop-card .p-title { font-weight: bold; font-size: 1em; margin-bottom: 4px; }
+    .prop-card.p1 .p-title { color: var(--coral); }
+    .prop-card.p2 .p-title { color: var(--purple); }
+    .prop-card.p3 .p-title { color: var(--teal); }
+    .prop-card .p-sub { font-size: .82em; color: #666; margin-bottom: 6px; }
+    .prop-card .p-body { font-size: .88em; }
+
+    /* ── 覚え方 ── */
+    .memo-box {
+      background: #f9f3ff; border: 2px dashed var(--purple); border-radius: 8px;
+      padding: 12px 16px; margin: 14px 0; font-size: .9em;
+    }
+    .memo-box .memo-title {
+      color: var(--purple); font-weight: bold; margin-bottom: 4px;
+    }
+
+    /* ── よくある間違い ── */
+    .trap-box {
+      background: #fff3f0; border-left: 5px solid var(--coral); border-radius: 6px;
+      padding: 12px 16px; margin: 14px 0; font-size: .9em;
+    }
+    .trap-box .trap-title {
+      color: var(--coral); font-weight: bold; margin-bottom: 6px;
+    }
+
+    /* ── popup ── */
+    .pb {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: var(--coral); color: #fff;
+      border: none; cursor: pointer; padding: 2px 10px 2px 8px;
+      border-radius: 12px; font-size: .82em; font-weight: bold;
+      margin: 2px; transition: .15s; vertical-align: middle;
+    }
+    .pb:hover { background: #7a2f17; }
+
+    /* ── modal ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9000; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: #fff; border-radius: 12px; padding: 26px 30px; max-width: 500px; width: 92%; box-shadow: 0 8px 32px rgba(0,0,0,.2); position: relative; animation: fadeIn .2s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+    .modal-title   { font-size: 1.1em; font-weight: bold; color: var(--coral); margin-bottom: 6px; border-bottom: 2px solid var(--coral); padding-bottom: 6px; }
+    .modal-english { font-family: monospace; font-size: .95em; color: var(--teal); margin-bottom: 10px; font-weight: bold; }
+    .modal-meaning { background: #f0f4fa; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; font-size: .88em; color: #333; }
+    .modal-body    { font-size: .92em; line-height: 1.9; color: #333; }
+    .modal-example { background: #f5f5f5; border-left: 4px solid var(--teal); padding: 8px 12px; border-radius: 0 6px 6px 0; margin-top: 10px; font-size: .88em; }
+    .modal-close   { position: absolute; top: 12px; right: 14px; background: none; border: none; font-size: 1.4em; cursor: pointer; color: #888; }
+    .modal-close:hover { color: #333; }
+
+    #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+
+
+    /* ══════════════════════════════════════
+       ホバー型ポップアップ（重要語にカーソルを当てると表示）
+       ══════════════════════════════════════ */
+    .term {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+      color: var(--coral);
+      font-weight: bold;
+      border-bottom: 2px dotted var(--coral);
+      padding: 0 1px;
+      transition: background 0.15s;
+    }
+    .term:hover {
+      background: #fef3c7;
+      border-bottom-style: solid;
+    }
+    .term-popup {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: normal;
+      white-space: normal;
+      min-width: 240px;
+      max-width: 340px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      z-index: 200;
+      line-height: 1.7;
+      text-align: left;
+      display: none;
+      pointer-events: none;
+    }
+    .term:hover .term-popup { display: block; }
+    .term-popup::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-top-color: #1e293b;
+    }
+    .term-popup .tp-title { color: #fbbf24; font-weight: bold; font-size: 1em; margin-bottom: 4px; display: block; border-bottom: 1px solid #475569; padding-bottom: 4px; }
+    .term-popup .tp-en { color: #86efac; font-family: monospace; font-size: 0.88em; display: block; margin-bottom: 5px; }
+    .term-popup .tp-meaning { color: #fcd34d; font-size: 0.85em; display: block; margin-bottom: 5px; font-style: italic; }
+    .term-popup .tp-body { color: #f1f5f9; font-size: 0.88em; }
+    @media (max-width: 640px) {
+      .term-popup { min-width: 200px; max-width: 280px; font-size: 12px; }
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 14px; }
+      .props-row { flex-direction: column; }
+    }
+
+    /* ══════════════════════════════════════
+       ミニテストモジュール（章末展開式）
+       ══════════════════════════════════════ */
+    .minitest {
+      margin: 24px 0 12px;
+    }
+    .mt-toggle {
+      width: 100%;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 3px solid #f59e0b;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 1.05em;
+      font-weight: bold;
+      color: #92400e;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .mt-toggle:hover {
+      background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+      transform: translateY(-1px);
+    }
+    .mt-toggle .arrow {
+      transition: transform 0.3s;
+      font-size: 1.2em;
+    }
+    .mt-toggle.open .arrow { transform: rotate(180deg); }
+
+    .mt-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      border-right: 4px solid #f59e0b;
+      border-bottom: 4px solid #f59e0b;
+      border-radius: 0 0 12px 12px;
+    }
+    .mt-body.open { max-height: 5000px; }
+    .mt-inner { padding: 18px 22px; }
+
+    .mt-section-title {
+      color: #92400e;
+      font-weight: bold;
+      font-size: 1em;
+      margin: 14px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px dashed #fbbf24;
+    }
+    .mt-section-title:first-child { margin-top: 0; }
+
+    /* 穴埋め部分（joho3スタイル） */
+    .mt-fill-passage {
+      background: #fff;
+      border-left: 5px solid #f59e0b;
+      padding: 14px 18px;
+      border-radius: 8px;
+      line-height: 2.4;
+      font-size: 0.95em;
+      margin-bottom: 12px;
+    }
+    .mt-blank {
+      display: inline-block;
+      min-width: 110px;
+      min-height: 1.7em;
+      padding: 4px 14px;
+      margin: 0 4px;
+      border: 2px dashed #94a3b8;
+      border-radius: 6px;
+      background: #fef9c3;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      color: #166534;
+      transition: all 0.2s;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 0.95em;
+      line-height: 1.7em;
+      box-sizing: border-box;
+    }
+    .mt-blank:hover { background: #fef08a; }
+    .mt-blank.empty { color: #1e293b; }
+    .mt-blank.filled {
+      background: #dbeafe;
+      border-style: solid;
+      border-color: #3b82f6;
+      color: #1e3a8a;
+    }
+    .mt-blank.correct {
+      background: #bbf7d0;
+      border-style: solid;
+      border-color: #16a34a;
+      color: #166534;
+    }
+    .mt-blank.wrong {
+      background: #fecaca;
+      border-style: solid;
+      border-color: #dc2626;
+      color: #991b1b;
+      animation: shake 0.4s;
+    }
+
+    .mt-wordbank {
+      background: #f0fdf4;
+      border: 2px solid #86efac;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .mt-wordbank-label {
+      font-size: 0.82em;
+      color: #166534;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .mt-words { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mt-chip {
+      background: white;
+      color: #166534;
+      border: 2px solid #22c55e;
+      padding: 5px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.92em;
+      border-radius: 18px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .mt-chip:hover { background: #22c55e; color: white; transform: scale(1.05); }
+    .mt-chip.selected {
+      background: #fed7aa;
+      color: #9a3412;
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px #fdba74;
+      transform: scale(1.08);
+    }
+    .mt-chip.used { opacity: 0.3; pointer-events: none; }
+
+    .mt-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+    .mt-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.88em;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .mt-btn-start { background: #dc2626; color: white; }
+    .mt-btn-start:hover { background: #991b1b; }
+    .mt-btn-check { background: #22c55e; color: white; }
+    .mt-btn-check:hover { background: #16a34a; }
+    .mt-btn-show { background: #f59e0b; color: white; }
+    .mt-btn-show:hover { background: #d97706; }
+
+    /* 4択練習部分 */
+    .mt-quiz-card {
+      background: #fff;
+      border-left: 5px solid #dc2626;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .mt-quiz-num {
+      display: inline-block;
+      background: #dc2626;
+      color: white;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 0.82em;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .mt-quiz-q {
+      font-weight: bold;
+      font-size: 0.98em;
+      margin-bottom: 12px;
+      color: #1e293b;
+    }
+    .mt-quiz-options { display: grid; gap: 8px; }
+    .mt-quiz-opt {
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.92em;
+      text-align: left;
+      font-family: inherit;
+      width: 100%;
+    }
+    .mt-quiz-opt:hover { background: #f1f5f9; border-color: #dc2626; }
+    .mt-quiz-opt.correct {
+      background: #bbf7d0;
+      border-color: #16a34a;
+      color: #166534;
+      font-weight: bold;
+    }
+    .mt-quiz-opt.wrong {
+      background: #fecaca;
+      border-color: #dc2626;
+      color: #991b1b;
+    }
+    .mt-quiz-opt:disabled { cursor: default; }
+    .mt-quiz-explain {
+      display: none;
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: #fef9c3;
+      border-left: 5px solid #facc15;
+      border-radius: 8px;
+      font-size: 0.9em;
+      line-height: 1.7;
+      color: #713f12;
+    }
+    .mt-quiz-explain.show { display: block; }
+    .mt-quiz-explain .ex-title {
+      font-weight: bold;
+      color: #a16207;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .mt-result {
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-align: center;
+      margin: 8px 0;
+      font-size: 0.92em;
+    }
+    .mt-result.success { background: #bbf7d0; color: #166534; }
+    .mt-result.warning { background: #fed7aa; color: #9a3412; }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- modal -->
+<div class="modal-overlay" id="popupModal" onclick="closePopup(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closePopup()">✕</button>
+    <div class="modal-title"   id="popupTitle"></div>
+    <div class="modal-english" id="popupEnglish"></div>
+    <div class="modal-meaning" id="popupMeaning" style="display:none"></div>
+    <div class="modal-body"    id="popupBody"></div>
+    <div class="modal-example" id="popupExample" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══ sticky header ══ -->
+<div class="sticky-header">
+  <div class="page-nav">
+    <a class="nav-btn nav-home" href="kouninjoho_index.html">🏠 単元表</a>
+    <a class="nav-btn" href="kouninjoho1.html">① 情報社会と権利</a>
+    <a class="nav-btn active" href="kouninjoho2.html">② 情報社会の課題</a>
+    <a class="nav-btn" href="kouninjoho3.html">③ メディアと通信</a>
+    <a class="nav-btn" href="kouninjoho4.html">④ コンピュータの基礎</a>
+    <a class="nav-btn" href="kouninjoho5.html">⑤ 問題解決とデータ</a>
+  </div>
+
+  <div class="challenge-panel">
+    <div>
+      <span style="font-size:.85em;font-weight:bold;">⏱ チャレンジタイム</span><br>
+      <span class="timer" id="timerDisplay">00:00.0</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="ch-btn start"  onclick="startChallenge()">▶ チャレンジ開始</button>
+      <button class="ch-btn check"  onclick="checkAnswers()">✓ 答え合わせ</button>
+      <button class="ch-btn answer" onclick="showModel()">📖 お手本を見る</button>
+    </div>
+    <div id="recordDisplay">🏆 ベスト：—</div>
+  </div>
+
+  <div class="word-bank-wrap">
+    <div class="word-bank-container" id="wordBankContainer">
+      <div class="wb-label">📦 語句バンク（クリックで選択 → 空欄をクリックで入力）</div>
+      <div class="word-bank" id="wordBank"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ content ══ -->
+<div class="container">
+
+  <!-- ページタイトル -->
+  <div style="text-align:center;margin-bottom:20px;">
+    <div style="font-size:1.5em;font-weight:bold;color:var(--coral);margin-bottom:4px;">② 情報社会の課題</div>
+    <div style="color:var(--teal);font-size:.95em;">サイバー犯罪・テクノストレス・デジタルデバイド</div>
+    <p style="font-size:.92em;color:#444;line-height:1.9;text-align:left;margin-top:12px;">
+      便利な情報社会には、影の部分もあります。SNSでの誹謗中傷、クレジットカード情報の盗難、スマホ依存、世代間の情報格差――どれも、今や日常で耳にする問題です。<br>
+      この単元では、<strong>高認で必ず出る3つの課題</strong>を整理します。試験対策としても、自分の身を守るためにも重要な内容です。
+    </p>
+  </div>
+
+  <!-- 全体図 -->
+  <div class="figure-box">
+    <img src="images/fig_kadai.png" alt="現代の情報化社会における課題と用語解説の全体図">
+    <div class="fig-caption">▲ 現代の情報化社会における4つの主要課題（クリックで拡大できます）</div>
+  </div>
+
+  <!-- ══ 1. サイバー犯罪 ══ -->
+  <div class="sec-h1"><span class="num">1</span>サイバー犯罪とクラッキング</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 こんなニュースを聞いたことはありませんか？</div>
+    <p style="margin:0;">
+      「企業のサーバーがハッキングされ、顧客の個人情報100万件が流出した」――こうしたニュースは、毎月のように報道されています。<br>
+      コンピュータやネットワークを悪用した犯罪を、まとめて<span data-term="cybercrime">サイバー犯罪</span>と呼びます。試験では、その種類と具体例が問われます。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ サイバー犯罪とは</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('cybercrime')">💡 【サイバー犯罪】</button>
+    とは、<strong>コンピュータやネットワークを悪用した犯罪</strong>のことです。
+    インターネットの普及とともに被害が増え、警察にも専門の部署（サイバー犯罪対策課）が置かれています。
+  </p>
+
+  <table class="godan">
+    <tr><th>分類</th><th>内容</th><th>具体例</th></tr>
+    <tr>
+      <td><span class="tag tag-coral">不正アクセス</span></td>
+      <td>他人のID・パスワードで無断侵入</td>
+      <td>友達のSNSに勝手にログインする</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-coral">情報の盗み出し</span></td>
+      <td>個人情報・クレジットカード情報の窃取</td>
+      <td>フィッシングサイトで個人情報を入力させる</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-coral">破壊・改ざん</span></td>
+      <td>ファイルの削除・書き換え</td>
+      <td>会社のホームページを書き換える</td>
+    </tr>
+  </table>
+
+  <div class="sec-h2">▶ クラッキングとクラッカー</div>
+
+  <p>サイバー犯罪の代表的な手口が<span data-term="cracking">クラッキング</span>です。よくニュースで聞く「ハッキング」と似ていますが、別物として区別されます。</p>
+
+  <table class="godan">
+    <tr><th>用語</th><th>意味</th><th>合法／違法</th></tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('cracking')">💡 【クラッキング】</button></td>
+      <td>不正アクセスやファイルの削除・改ざんなど、悪意のある行為</td>
+      <td><strong style="color:var(--coral);">違法</strong></td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('cracker')">💡 【クラッカー】</button></td>
+      <td>クラッキングを行う人。犯罪者</td>
+      <td><strong style="color:var(--coral);">違法</strong></td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-teal">ハッカー</span></td>
+      <td>本来は「コンピュータに詳しい人」という中立的な言葉</td>
+      <td>合法的な技術者を指すことが多い</td>
+    </tr>
+  </table>
+
+  <div class="trap-box">
+    <div class="trap-title">⚠️ ここで9割が間違える！</div>
+    <p style="margin:0;">
+      <strong>Q. ハッカー = 悪い人？</strong><br>
+      → <strong>答え：必ずしも違法ではない</strong>。本来「ハッカー」はコンピュータに詳しい技術者を指す中立的な言葉です。<br>
+      悪意を持って不正アクセスをする人は<span data-term="cracker">クラッカー</span>と呼びます。ニュースでは混同されがちですが、試験では区別が問われます。
+    </p>
+  </div>
+
+  <!-- 穴埋め1 -->
+  <p style="font-size:.95em;">
+    ※ コンピュータやネットワークを悪用した犯罪を
+    <span class="dz" data-ans="サイバー犯罪" data-id="c1"></span>
+    という。不正アクセスやファイルの改ざんなどの悪意ある行為を
+    <span class="dz" data-ans="クラッキング" data-id="c2"></span>
+    といい、それを行う人を
+    <span class="dz" data-ans="クラッカー" data-id="c3"></span>
+    という。
+  </p>
+
+  <!-- ════ ミニテスト①：サイバー犯罪 ════ -->
+  <div class="minitest" data-mt="mt1">
+    <button class="mt-toggle" onclick="toggleMt('mt1')">
+      <span>📝 ミニテスト①：サイバー犯罪を確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt1-body">
+      <div class="mt-inner">
+
+        <!-- 穴埋め -->
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt1-passage">
+          コンピュータやネットワークを悪用した犯罪を
+          <span class="mt-blank" data-ans="サイバー犯罪">サイバー犯罪</span>
+          といいます。中でも、不正アクセスやファイルの改ざんなど悪意のある行為を
+          <span class="mt-blank" data-ans="クラッキング">クラッキング</span>
+          といい、それを行う人を
+          <span class="mt-blank" data-ans="クラッカー">クラッカー</span>
+          と呼びます。
+        </div>
+        <div class="mt-wordbank" id="mt1-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt1-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt1')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt1')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt1')">📖 答えを見る</button>
+        </div>
+        <div id="mt1-result"></div>
+
+        <!-- 4択練習 -->
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            「ハッカー」と「クラッカー」の違いとして正しいものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q1" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',0)">どちらも犯罪者を指す</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',1)">ハッカーは技術者、クラッカーは犯罪行為を行う人</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',2)">どちらも合法的な技術者を指す</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',3)">ハッカーは犯罪者、クラッカーは技術者</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            「ハッカー」は本来、コンピュータに詳しい技術者を指す中立的な言葉です。悪意を持って不正アクセスをする人は「クラッカー」と区別されます。ニュースでは混同されがちですが、試験では正確に区別されます。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            サイバー犯罪に<strong>当てはまらない</strong>ものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q2" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',0)">他人のIDでSNSに勝手にログインする</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',1)">企業のサーバーに侵入し顧客情報を盗む</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',2)">自分のスマホで自分の写真を加工する</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',3)">他人のホームページを書き換える</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            サイバー犯罪は「コンピュータやネットワークを悪用した犯罪」です。自分の写真を自分で加工するのは犯罪ではありません。他の3つはすべて不正アクセスや改ざんに該当する犯罪行為です。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 2. テクノストレス ══ -->
+  <div class="sec-h1"><span class="num">2</span>テクノストレスの2つの症状</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 こんな経験はありませんか？</div>
+    <p style="margin:0;">
+      パソコンの調子が悪いとき、強いストレスを感じてイライラした…<br>
+      逆に、スマホが手元にないと落ち着かず、何度もポケットを確認してしまう…<br>
+      これらは<span data-term="technostress">テクノストレス</span>の代表的な症状です。情報機器が日常になった現代の、新しい心の病として注目されています。
+    </p>
+  </div>
+
+  <p>
+    <button class="pb" onclick="openPopup('technostress')">💡 【テクノストレス】</button>
+    は、情報機器との関わりから生まれる心理的なストレスです。症状は大きく<strong>2タイプ</strong>に分かれます。
+  </p>
+
+  <div class="props-row">
+    <div class="prop-card p1">
+      <div class="p-title">😰 テクノ不安症</div>
+      <div class="p-sub">「適応できない」タイプ</div>
+      <div class="p-body">
+        コンピュータやスマホがうまく使えず、<strong>最新技術への恐怖心や不安</strong>を感じる症状です。新しい機械が苦手な人に多く見られます。
+      </div>
+    </div>
+    <div class="prop-card p2">
+      <div class="p-title">📱 テクノ依存症</div>
+      <div class="p-sub">「離れられない」タイプ</div>
+      <div class="p-body">
+        情報機器に過度に依存し、<strong>離れると落ち着かなくなる</strong>症状です。スマホ依存・ゲーム依存などが代表例で、日常生活に支障が出ることもあります。
+      </div>
+    </div>
+  </div>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方：「不安」と「依存」は正反対</div>
+    <p style="margin:0;">
+      テクノ<strong>不安症</strong>＝機械が<strong>怖い・苦手</strong>（離れたい）<br>
+      テクノ<strong>依存症</strong>＝機械が<strong>ないと不安</strong>（離れられない）<br>
+      → どちらも「機械との距離感」の問題ですが、向きが真逆です。
+    </p>
+  </div>
+
+  <!-- 穴埋め2 -->
+  <p style="font-size:.95em;">
+    ※ コンピュータ環境に適応できず、最新技術への恐怖心や不安を感じる症状を
+    <span class="dz" data-ans="テクノ不安症" data-id="c4"></span>、
+    情報機器に過度に依存し、離れると落ち着かなくなる症状を
+    <span class="dz" data-ans="テクノ依存症" data-id="c5"></span>
+    という。
+  </p>
+
+  <!-- ════ ミニテスト②：テクノストレス ════ -->
+  <div class="minitest" data-mt="mt2">
+    <button class="mt-toggle" onclick="toggleMt('mt2')">
+      <span>📝 ミニテスト②：テクノストレスを確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt2-body">
+      <div class="mt-inner">
+
+        <!-- 穴埋め -->
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt2-passage">
+          コンピュータ環境にうまく適応できず、機械への恐怖心や不安を感じる症状を
+          <span class="mt-blank" data-ans="テクノ不安症">テクノ不安症</span>
+          といいます。一方、情報機器に過度に依存し、離れると落ち着かなくなる症状は
+          <span class="mt-blank" data-ans="テクノ依存症">テクノ依存症</span>
+          と呼ばれます。どちらも現代社会の新しい
+          <span class="mt-blank" data-ans="テクノストレス">テクノストレス</span>
+          の症状として注目されています。
+        </div>
+        <div class="mt-wordbank" id="mt2-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt2-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt2')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt2')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt2')">📖 答えを見る</button>
+        </div>
+        <div id="mt2-result"></div>
+
+        <!-- 4択練習 -->
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            「スマホが手元にないと落ち着かず、何度もポケットを確認してしまう」という症状はどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q1" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',0)">テクノ不安症</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',1)">VDT症候群</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',2)">テクノ依存症</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',3)">デジタルデバイド</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            情報機器に過度に依存し、離れると落ち着かなくなる症状は「テクノ依存症」です。スマホ依存・ゲーム依存などが代表例で、日常生活に支障が出ることもあります。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            「テクノ不安症」の説明として正しいものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q2" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',0)">機械が苦手で、最新技術への恐怖心や不安を感じる症状</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',1)">スマホがないと落ち着かない症状</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',2)">パソコン作業による目の疲れや肩こり</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',3)">情報を得る機会の格差</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            「テクノ不安症」は、コンピュータ環境にうまく適応できず、最新技術への恐怖心や不安を感じる症状です。テクノ依存症とは逆向きの問題で、「機械が怖い・苦手」というタイプです。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 3. デジタルデバイド ══ -->
+  <div class="sec-h1"><span class="num">3</span>デジタルデバイド（情報格差）</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 同じ日本でも、こんな違いがあります</div>
+    <p style="margin:0;">
+      若い世代はスマホで情報を素早く集められますが、高齢者の中にはスマホの使い方がわからず、お得な情報やサービスにたどり着けない人がいます。<br>
+      また、都市部では光回線が当たり前ですが、地方では電波の届かない地域もあります。<br>
+      こうした<strong>情報を得る機会の差</strong>のことを、デジタルデバイドといいます。
+    </p>
+  </div>
+
+  <p>
+    <button class="pb" onclick="openPopup('digitaldivide')">💡 【デジタルデバイド】</button>
+    は、<strong>情報通信技術を使える人と使えない人の間に生じる格差</strong>のことで、日本語では「情報格差」と訳されます。
+  </p>
+
+  <table class="godan">
+    <tr><th>格差の種類</th><th>具体例</th></tr>
+    <tr>
+      <td><span class="tag tag-blue">年齢による格差</span></td>
+      <td>若者と高齢者：スマホ・SNSの利用率に大きな差</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">地域による格差</span></td>
+      <td>都市部と地方：通信インフラの整備状況の差</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">収入による格差</span></td>
+      <td>パソコン・スマホを買えるかどうか、通信料を払えるか</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">国家間の格差</span></td>
+      <td>先進国と発展途上国：インターネット普及率の差</td>
+    </tr>
+  </table>
+
+  <div class="trap-box">
+    <div class="trap-title">⚠️ ここで9割が間違える！</div>
+    <p style="margin:0;">
+      <strong>Q. デジタルデバイドは「個人の問題」？</strong><br>
+      → <strong>答え：社会全体の問題</strong>。「使えない人が悪い」ではなく、教育・技術・社会システムで支援すべき課題とされています。<br>
+      高齢者向けスマホ教室や、過疎地への光回線整備などは、この問題を解決するための取り組みです。
+    </p>
+  </div>
+
+  <!-- 穴埋め3 -->
+  <p style="font-size:.95em;">
+    ※ 情報通信技術を使える人と使えない人の間に生じる格差を
+    <span class="dz" data-ans="デジタルデバイド" data-id="c6"></span>
+    （情報格差）という。年齢・地域・収入などの差により、情報を得る機会や量に差が生じる現象である。
+  </p>
+
+  <!-- ════ ミニテスト③：デジタルデバイド ════ -->
+  <div class="minitest" data-mt="mt3">
+    <button class="mt-toggle" onclick="toggleMt('mt3')">
+      <span>📝 ミニテスト③：デジタルデバイドを確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt3-body">
+      <div class="mt-inner">
+
+        <!-- 穴埋め -->
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt3-passage">
+          情報通信技術を使える人と使えない人の間に生じる格差を
+          <span class="mt-blank" data-ans="デジタルデバイド">デジタルデバイド</span>
+          といい、日本語では
+          <span class="mt-blank" data-ans="情報格差">情報格差</span>
+          と訳されます。年齢・地域・収入などの差により情報を得る機会に違いが生じる問題で、解決には教育や
+          <span class="mt-blank" data-ans="社会システム">社会システム</span>
+          の整備が必要とされています。
+        </div>
+        <div class="mt-wordbank" id="mt3-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt3-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt3')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt3')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt3')">📖 答えを見る</button>
+        </div>
+        <div id="mt3-result"></div>
+
+        <!-- 4択練習 -->
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            「デジタルデバイド」を生む要因として<strong>当てはまらない</strong>ものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q1" data-ans="3">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',0)">年齢の違い（若者と高齢者）</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',1)">地域の違い（都市部と地方）</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',2)">収入の違い（機器を買えるか）</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',3)">利き手の違い（右利きと左利き）</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            デジタルデバイドは「年齢・地域・収入・国家間」などの要因によって生じます。利き手の違いは情報格差とは無関係です。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            デジタルデバイドの解決について、最も適切な考え方はどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q2" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',0)">使えない人の自己責任なので、本人が努力すればよい</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',1)">教育・技術・社会システムの整備で社会全体として支援すべき問題</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',2)">情報機器を使える人だけにサービスを提供すればよい</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',3)">デジタル機器の使用を制限すれば解決する</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            デジタルデバイドは個人の問題ではなく、社会全体で取り組むべき課題です。高齢者向けスマホ教室、過疎地への光回線整備など、教育・技術・社会システムでの支援が必要とされています。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 4. 試験対策まとめ ══ -->
+  <div class="sec-h1"><span class="num">4</span>試験ではこう出る！</div>
+
+  <table class="godan">
+    <tr><th>出題パターン</th><th>問われ方の例</th><th>答えの出し方</th></tr>
+    <tr>
+      <td><span class="tag tag-coral">用語の意味</span></td>
+      <td>「クラッキングとは何か」</td>
+      <td>→ 不正アクセスや改ざんなど悪意ある行為</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-coral">用語の区別</span></td>
+      <td>「ハッカーとクラッカーの違い」</td>
+      <td>→ ハッカーは技術者、クラッカーは犯罪者</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-purple">テクノストレス</span></td>
+      <td>「スマホがないと落ち着かない症状は？」</td>
+      <td>→ テクノ依存症</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">格差の名称</span></td>
+      <td>「年齢・地域による情報の差を何という」</td>
+      <td>→ デジタルデバイド（情報格差）</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-teal">対策の方向性</span></td>
+      <td>「これらの課題を解決するには？」</td>
+      <td>→ 教育・技術・社会システムの整備</td>
+    </tr>
+  </table>
+
+  <div class="memo-box" style="background:#fbeae5;border-color:var(--coral);">
+    <div class="memo-title" style="color:var(--coral);">🎯 この単元で覚えるべきキーワード</div>
+    <p style="margin:0;">
+      サイバー犯罪／クラッキング／クラッカー／不正アクセス／<br>
+      テクノストレス／テクノ不安症／テクノ依存症／<br>
+      デジタルデバイド（情報格差）
+    </p>
+  </div>
+
+  <!-- 単元まとめ -->
+  <div class="intro-box" style="background:linear-gradient(135deg,#edfaf4 0%,#d4edda 100%);border-left-color:var(--teal);">
+    <div class="intro-title" style="color:var(--teal);">✅ この単元のまとめ（30秒で振り返り）</div>
+    <p style="margin:0;">
+      ① <span data-term="cybercrime">サイバー犯罪</span>＝コンピュータを悪用した犯罪。クラッキングとクラッカー。<br>
+      ② <span data-term="technostress">テクノストレス</span>＝不安症（怖がる）と依存症（離れられない）の2タイプ。<br>
+      ③ <strong>デジタルデバイド</strong>＝年齢・地域・収入による情報格差。社会全体で解決すべき課題。<br>
+      この3つの用語と例が言えれば、高認の関連問題は確実に得点できます。
+    </p>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ══ popup data ══ -->
+<script>
+const POPUP_DATA = {
+  cybercrime: {
+    title:   "サイバー犯罪",
+    english: "cybercrime",
+    meaning: "cyber（コンピュータ・ネット上の）＋ crime（犯罪）",
+    body:    "コンピュータやネットワークを悪用した犯罪の総称です。不正アクセス・情報の盗み出し・データの改ざん・なりすまし・ウイルスばらまきなど、幅広い犯罪が含まれます。警察庁にもサイバー犯罪対策課が設置されており、専門の取り締まりが行われています。",
+    example: "個人情報の流出事件、クレジットカード情報の不正利用、SNSアカウントの乗っ取りなど。"
+  },
+  cracking: {
+    title:   "クラッキング",
+    english: "cracking",
+    meaning: "crack（破る・割る）+ -ing",
+    body:    "不正な目的でコンピュータシステムに侵入し、データを盗み出したり破壊したりする違法行為です。「ハッキング」と混同されますが、悪意のある場合は正確には「クラッキング」と呼びます。",
+    example: "企業のサーバーに侵入して顧客情報を盗む、ウェブサイトを書き換える、ウイルスをばらまくなど。"
+  },
+  cracker: {
+    title:   "クラッカー",
+    english: "cracker",
+    meaning: "クラッキングを行う人",
+    body:    "クラッキング（悪意のあるコンピュータ侵入行為）を行う人のことです。法律で処罰される犯罪者です。ニュースで「ハッカー」と呼ばれることが多いですが、技術的には区別されます。",
+    example: "他人のIDを使ってSNSに不正ログインする者、企業システムに侵入してデータを盗む者など。"
+  },
+  technostress: {
+    title:   "テクノストレス",
+    english: "technostress",
+    meaning: "techno（技術）＋ stress（ストレス）",
+    body:    "コンピュータやスマホなどの情報機器との関わりから生じる心理的なストレスの総称です。1980年代にアメリカの心理学者ブロッドが提唱した概念で、現代では子どもから大人まで広く影響が指摘されています。",
+    example: "テクノ不安症（機械が苦手で恐怖を感じる）と、テクノ依存症（機械がないと落ち着かない）の2タイプがある。"
+  },
+  digitaldivide: {
+    title:   "デジタルデバイド",
+    english: "digital divide",
+    meaning: "digital（デジタル）＋ divide（分ける・隔たり）",
+    body:    "情報通信技術を使える人と使えない人の間に生じる、情報や機会の格差のことです。日本語では「情報格差」と訳されます。原因は年齢・地域・収入・教育水準など多岐にわたり、社会問題として認識されています。",
+    example: "高齢者がオンライン手続きについていけない、地方でインターネット環境が整っていない、低所得世帯でパソコンが買えないなど。"
+  },
+};
+
+function openPopup(key) {
+  const d = POPUP_DATA[key]; if (!d) return;
+  document.getElementById('popupTitle').textContent   = d.title;
+  document.getElementById('popupEnglish').textContent = d.english || '';
+  const mg = document.getElementById('popupMeaning');
+  if (d.meaning) { mg.textContent = d.meaning; mg.style.display=''; }
+  else { mg.style.display='none'; }
+  document.getElementById('popupBody').textContent    = d.body;
+  const ex = document.getElementById('popupExample');
+  if (d.example) { ex.textContent = '📌 ' + d.example; ex.style.display=''; }
+  else { ex.style.display='none'; }
+  document.getElementById('popupModal').classList.add('show');
+}
+function closePopup(e) {
+  if (!e || e.target === document.getElementById('popupModal'))
+    document.getElementById('popupModal').classList.remove('show');
+}
+
+// ── 穴埋め：6か所 ──
+const WORDS = ["サイバー犯罪", "クラッキング", "クラッカー", "テクノ不安症", "テクノ依存症", "デジタルデバイド"];
+
+let selectedWord = null, isRunning = false, startTime = null, timerInt = null, bestTime = null;
+
+function fmtTime(ms) {
+  const m = Math.floor(ms/60000).toString().padStart(2,'0');
+  const s = Math.floor((ms%60000)/1000).toString().padStart(2,'0');
+  return `${m}:${s}.${Math.floor((ms%1000)/100)}`;
+}
+
+function startChallenge() {
+  document.querySelectorAll('.dz').forEach(z => {
+    z.textContent = '';
+    z.classList.remove('correct','wrong','filled');
+  });
+  selectedWord = null;
+  renderWordBank([...WORDS].sort(()=>Math.random()-.5));
+  clearInterval(timerInt);
+  startTime = Date.now(); isRunning = true;
+  timerInt = setInterval(()=>{ document.getElementById('timerDisplay').textContent = fmtTime(Date.now()-startTime); }, 100);
+}
+
+function renderWordBank(words) {
+  const wb = document.getElementById('wordBank'); wb.innerHTML='';
+  words.forEach(w => { wb.appendChild(makeItem(w)); });
+}
+
+function makeItem(w) {
+  const el = document.createElement('span');
+  el.className='drag-item'; el.textContent=w;
+  el.onclick = () => {
+    document.querySelectorAll('.drag-item').forEach(d=>d.classList.remove('selected'));
+    if (selectedWord===w) { selectedWord=null; return; }
+    el.classList.add('selected'); selectedWord=w;
+  };
+  return el;
+}
+
+document.querySelectorAll('.dz').forEach(z => {
+  z.addEventListener('click', () => {
+    if (!isRunning) return;
+    if (selectedWord) {
+      // 既に何か入っている場合は語群に戻す
+      if (z.textContent.trim()) {
+        const oldWord = z.textContent.trim();
+        document.getElementById('wordBank').appendChild(makeItem(oldWord));
+      }
+      z.textContent = selectedWord;
+      z.classList.remove('correct','wrong');
+      z.classList.add('filled');
+      const found = [...document.querySelectorAll('#wordBank .drag-item')].find(i=>i.textContent===selectedWord);
+      if (found) found.remove();
+      selectedWord=null;
+      document.querySelectorAll('.drag-item').forEach(d=>d.classList.remove('selected'));
+    } else if (z.textContent.trim()) {
+      // 何も選択していない状態で空欄をクリック → 語群に戻す
+      const word = z.textContent.trim();
+      z.textContent = '';
+      z.classList.remove('correct','wrong','filled');
+      document.getElementById('wordBank').appendChild(makeItem(word));
+    }
+  });
+});
+
+function checkAnswers() {
+  if (!isRunning) return;
+  let allOk=true;
+  document.querySelectorAll('.dz').forEach(z => {
+    const input = z.textContent.trim().replace(/　/g,'');
+    if (!input) { allOk=false; return; }
+    if (input===z.dataset.ans) { z.classList.add('correct'); z.classList.remove('wrong'); }
+    else { z.classList.add('wrong'); z.classList.remove('correct'); allOk=false; }
+  });
+  if (allOk) {
+    clearInterval(timerInt); isRunning=false;
+    const elapsed = Date.now()-startTime;
+    if (bestTime===null||elapsed<bestTime) { bestTime=elapsed; document.getElementById('recordDisplay').textContent='🏆 ベスト：'+fmtTime(bestTime); }
+    startConfetti();
+  } else {
+    const wbc=document.getElementById('wordBankContainer');
+    wbc.classList.remove('shake'); void wbc.offsetWidth; wbc.classList.add('shake');
+    setTimeout(()=>wbc.classList.remove('shake'),500);
+  }
+}
+
+function showModel() {
+  clearInterval(timerInt); isRunning=false; selectedWord=null;
+  document.querySelectorAll('.dz').forEach(z=>{
+    z.textContent = z.dataset.ans;
+    z.classList.remove('correct','wrong');
+    z.classList.add('filled');
+  });
+  document.getElementById('wordBank').innerHTML='<span style="color:#888;font-size:.9em;">お手本表示中。「チャレンジ開始」で練習できます。</span>';
+  document.getElementById('timerDisplay').textContent='00:00.0';
+}
+
+// confetti
+const cvs=document.getElementById('confetti-canvas'), ctx=cvs.getContext('2d');
+let pts=[], cnfOn=false;
+function startConfetti() {
+  cvs.width=window.innerWidth; cvs.height=window.innerHeight; pts=[];
+  for(let i=0;i<200;i++) pts.push({x:Math.random()*cvs.width,y:Math.random()*cvs.height-cvs.height,s:Math.random()*9+4,c:`hsl(${Math.random()*360},75%,65%)`,sp:Math.random()*3+2});
+  cnfOn=true; animCnf();
+  setTimeout(()=>{cnfOn=false;ctx.clearRect(0,0,cvs.width,cvs.height);pts=[];},4000);
+}
+function animCnf() {
+  if(!cnfOn)return;
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  pts.forEach(p=>{p.y+=p.sp;ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,p.s,p.s);if(p.y>cvs.height)p.y=-20;});
+  requestAnimationFrame(animCnf);
+}
+
+showModel();
+
+// ══════════════════════════════════════════
+// ホバー型ポップアップの初期化
+// ══════════════════════════════════════════
+function initTermPopups() {
+  document.querySelectorAll('[data-term]').forEach(el => {
+    const key = el.dataset.term;
+    const d = POPUP_DATA[key];
+    if (!d) return;
+    el.classList.add('term');
+    const old = el.querySelector('.term-popup');
+    if (old) old.remove();
+    const popup = document.createElement('span');
+    popup.className = 'term-popup';
+    let html = `<span class="tp-title">${d.title}</span>`;
+    if (d.english) html += `<span class="tp-en">${d.english}</span>`;
+    if (d.meaning) html += `<span class="tp-meaning">${d.meaning}</span>`;
+    html += `<span class="tp-body">${d.body}</span>`;
+    popup.innerHTML = html;
+    el.appendChild(popup);
+  });
+}
+initTermPopups();
+
+
+// ══════════════════════════════════════════
+// ミニテスト機能（章末展開式）
+// ══════════════════════════════════════════
+const mtState = {}; // { mt1: { selectedWord, running }, mt2: {...}, ... }
+
+// 開閉トグル
+function toggleMt(mtId) {
+  const body = document.getElementById(mtId + '-body');
+  const toggle = document.querySelector(`[data-mt="${mtId}"] .mt-toggle`);
+  if (!body || !toggle) return;
+  const isOpen = body.classList.contains('open');
+  if (isOpen) {
+    body.classList.remove('open');
+    toggle.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    toggle.classList.add('open');
+  }
+}
+
+// 穴埋めチャレンジ開始：空欄をクリアし、語群を生成
+function mtStart(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  const words = [];
+  blanks.forEach(b => {
+    words.push(b.dataset.ans);
+    b.textContent = '';
+    b.classList.remove('filled','correct','wrong');
+    b.classList.add('empty');
+  });
+  // 語群を表示
+  const wordsEl = document.getElementById(mtId + '-words');
+  const bankLabel = document.querySelector(`#${mtId}-bank-wrap .mt-wordbank-label`);
+  if (bankLabel) bankLabel.textContent = '📦 語群（タップして選択 → 空欄をクリックで入力）';
+  wordsEl.innerHTML = '';
+  const shuffled = [...words].sort(() => Math.random() - 0.5);
+  shuffled.forEach(w => wordsEl.appendChild(mtMakeChip(mtId, w)));
+  mtState[mtId] = { selectedWord: null, running: true };
+  // 結果表示クリア
+  document.getElementById(mtId + '-result').innerHTML = '';
+  // 空欄にクリックハンドラを設定
+  blanks.forEach(b => {
+    b.onclick = () => mtBlankClick(mtId, b);
+  });
+}
+
+// 語群チップ生成
+function mtMakeChip(mtId, word) {
+  const chip = document.createElement('span');
+  chip.className = 'mt-chip';
+  chip.textContent = word;
+  chip.onclick = () => {
+    const s = mtState[mtId];
+    if (!s || !s.running) return;
+    // 同じものを再選択 → 解除
+    if (s.selectedWord === word) {
+      chip.classList.remove('selected');
+      s.selectedWord = null;
+      return;
+    }
+    // 他の選択を解除
+    document.querySelectorAll(`#${mtId}-words .mt-chip`).forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    s.selectedWord = word;
+  };
+  return chip;
+}
+
+// 空欄クリック
+function mtBlankClick(mtId, blank) {
+  const s = mtState[mtId];
+  if (!s || !s.running) return;
+  if (s.selectedWord) {
+    // 既に何か入っていたら語群に戻す
+    if (blank.textContent.trim()) {
+      const old = blank.textContent.trim();
+      document.getElementById(mtId + '-words').appendChild(mtMakeChip(mtId, old));
+    }
+    // 語句を入れる
+    blank.textContent = s.selectedWord;
+    blank.classList.remove('empty','correct','wrong');
+    blank.classList.add('filled');
+    // 語群から削除
+    const chips = document.querySelectorAll(`#${mtId}-words .mt-chip`);
+    chips.forEach(c => {
+      if (c.textContent === s.selectedWord && !c.classList.contains('used')) {
+        c.remove();
+        return;
+      }
+    });
+    s.selectedWord = null;
+    document.querySelectorAll(`#${mtId}-words .mt-chip`).forEach(c => c.classList.remove('selected'));
+  } else if (blank.textContent.trim()) {
+    // 何も選択していないとき → 中身を語群に戻す
+    const word = blank.textContent.trim();
+    blank.textContent = '';
+    blank.classList.remove('filled','correct','wrong');
+    blank.classList.add('empty');
+    document.getElementById(mtId + '-words').appendChild(mtMakeChip(mtId, word));
+  }
+}
+
+// 答え合わせ
+function mtCheck(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  let allOk = true;
+  let unanswered = 0;
+  blanks.forEach(b => {
+    const input = b.textContent.trim();
+    if (!input) { allOk = false; unanswered++; return; }
+    if (input === b.dataset.ans) {
+      b.classList.add('correct');
+      b.classList.remove('wrong','filled');
+    } else {
+      b.classList.add('wrong');
+      b.classList.remove('correct','filled');
+      allOk = false;
+    }
+  });
+  const result = document.getElementById(mtId + '-result');
+  if (allOk) {
+    result.innerHTML = '<div class="mt-result success">🎉 全問正解！すばらしいです。</div>';
+    startConfetti();  // 🎊 花吹雪
+  } else if (unanswered === blanks.length) {
+    result.innerHTML = '<div class="mt-result warning">📝 「チャレンジ開始」を押してから始めてください。</div>';
+  } else {
+    result.innerHTML = '<div class="mt-result warning">⚠️ 赤くなった箇所をもう一度考えてみましょう。</div>';
+  }
+}
+
+// 答えを見る（お手本）
+function mtShowAns(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  blanks.forEach(b => {
+    b.textContent = b.dataset.ans;
+    b.classList.remove('empty','correct','wrong','filled');
+  });
+  // 語群をクリア
+  const wordsEl = document.getElementById(mtId + '-words');
+  if (wordsEl) wordsEl.innerHTML = '<span style="color:#888;font-size:.85em;">お手本表示中。チャレンジ開始で練習できます。</span>';
+  document.getElementById(mtId + '-result').innerHTML = '';
+  if (mtState[mtId]) mtState[mtId].running = false;
+}
+
+// 4択：回答
+function mtAnswer(btnEl, qId, idx) {
+  const optionsEl = document.querySelector(`[data-q="${qId}"]`);
+  if (!optionsEl) return;
+  const correct = parseInt(optionsEl.dataset.ans, 10);
+  // 既に回答済みならスキップ
+  if (optionsEl.dataset.answered === 'yes') return;
+  optionsEl.dataset.answered = 'yes';
+  // 正誤判定（後で参照できるよう保存）
+  const isRight = (idx === correct);
+  optionsEl.dataset.result = isRight ? 'correct' : 'wrong';
+  // 全ボタンを無効化
+  const opts = optionsEl.querySelectorAll('.mt-quiz-opt');
+  opts.forEach((o, i) => {
+    o.disabled = true;
+    if (i === correct) o.classList.add('correct');
+    if (i === idx && idx !== correct) o.classList.add('wrong');
+  });
+  // 解説表示
+  const ex = document.getElementById(qId + '-ex');
+  if (ex) ex.classList.add('show');
+
+  // 同じミニテスト内の4択がすべて正解か判定
+  // qId は "mt1-q1" のような形式
+  const mtId = qId.split('-')[0];  // "mt1"
+  checkAllQuizCorrect(mtId);
+}
+
+// 同じミニテスト内の4択がすべて回答済みかつ全問正解なら花吹雪
+function checkAllQuizCorrect(mtId) {
+  const mtBody = document.getElementById(mtId + '-body');
+  if (!mtBody) return;
+  const allOptions = mtBody.querySelectorAll('.mt-quiz-options');
+  if (allOptions.length === 0) return;
+  let allAnswered = true;
+  let allCorrect = true;
+  allOptions.forEach(o => {
+    if (o.dataset.answered !== 'yes') allAnswered = false;
+    if (o.dataset.result !== 'correct') allCorrect = false;
+  });
+  if (allAnswered && allCorrect) {
+    startConfetti();
+  }
+}
+</script>
+</body>
+</html>

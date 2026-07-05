@@ -1,0 +1,3519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>高認 情報Ⅰ ④：コンピュータの基礎</title>
+  <style>
+    :root {
+      --primary:       #0891B2;  /* ティール */
+      --primary-dark:  #0E7490;  /* 濃いティール */
+      --primary-light: #CFFAFE;  /* 薄いティール */
+      --primary-pale:  #ECFEFF;  /* 極薄ティール */
+      --accent-amber:  #F59E0B;
+      --accent-amber-light: #FEF3C7;
+      --accent-pink:   #EC4899;
+      --green:         #10B981;
+      --red:           #EF4444;
+      --teal:          #0F6E56;
+      --purple:        #7C3AED;
+      --amber:         #BA7517;
+      --coral:         #0891B2;  /* coral互換でティールに */
+      --gray:          #6B7280;
+      --bg:            #F9FAFB;
+      --card-bg:       #FFFFFF;
+      --border:        #E5E7EB;
+      --text:          #1F2937;
+      --drop-bg:       #FEF9C3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Hiragino Sans','Yu Gothic','游ゴシック',sans-serif;
+      background: var(--bg);
+      margin: 0; padding: 0 0 40px;
+      font-size: 14px; line-height: 1.7;
+      color: var(--text);
+    }
+
+    /* ── sticky header（joho4風グラデーション） ── */
+    .sticky-header {
+      position: sticky; top: 0;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 10px 0;
+      color: #fff;
+    }
+    .page-nav { max-width: 1100px; margin: 0 auto; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; padding: 0 16px; }
+    .nav-btn {
+      text-decoration: none;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: .82em;
+      font-weight: 700;
+      transition: .2s;
+      border: 2px solid transparent;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.28); }
+    .nav-btn.active {
+      background: #fff;
+      color: var(--primary-dark);
+      border-color: rgba(255,255,255,0.5);
+    }
+    .nav-btn.nav-home {
+      background: #fff;
+      color: var(--primary-dark);
+    }
+    .nav-btn.nav-home:hover { background: var(--primary-pale); color: var(--primary-dark); }
+
+    /* ── challenge panel（joho4風） ── */
+    .challenge-panel {
+      background: #fff;
+      border: 2px solid var(--primary);
+      color: var(--primary-dark);
+      padding: 12px 20px;
+      border-radius: 12px;
+      display: flex; justify-content: space-around; align-items: center;
+      max-width: 1100px; margin: 16px auto 12px;
+      flex-wrap: wrap; gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .timer {
+      font-size: 1.3em;
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--primary-dark);
+      background: var(--primary-pale);
+      padding: 4px 14px;
+      border-radius: 14px;
+    }
+    .ch-btn {
+      border: none; cursor: pointer;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: .9em;
+      transition: .2s;
+      color: #fff;
+    }
+    .ch-btn.start  { background: var(--green); }
+    .ch-btn.start:hover  { background: #059669; }
+    .ch-btn.answer { background: var(--accent-amber); }
+    .ch-btn.answer:hover { background: #D97706; }
+    .ch-btn.check  { background: var(--primary); }
+    .ch-btn.check:hover  { background: var(--primary-dark); }
+    #recordDisplay { font-weight: 700; font-size: .88em; color: var(--accent-amber); }
+
+    /* ── word bank（joho4風：上品なピル） ── */
+    .word-bank-wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+    .word-bank-container {
+      background: #fff;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 2px dashed var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .wb-label {
+      font-size: .85em;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .word-bank { display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; }
+    .drag-item {
+      padding: 6px 14px;
+      background: linear-gradient(135deg, #fff, var(--primary-pale));
+      border: 2px solid var(--primary);
+      color: var(--primary-dark);
+      cursor: pointer;
+      font-weight: 700;
+      font-size: .9em;
+      border-radius: 18px;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .drag-item:hover { transform: scale(1.05); }
+    .drag-item.selected {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 0 3px rgba(8,145,178,0.3);
+      transform: scale(1.08);
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+    .word-bank-container.shake { animation: shake .4s ease; }
+
+    /* ── drop zone（joho4風） ── */
+    .dz {
+      display: inline-block;
+      min-width: 90px;
+      min-height: 32px;
+      padding: 4px 12px;
+      margin: 0 4px;
+      background: #fff;
+      border: 2px dashed var(--primary);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--primary-dark);
+      transition: all 0.2s;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 0.95em;
+      line-height: 1.7em;
+      box-sizing: border-box;
+    }
+    .dz:hover { background: var(--primary-pale); }
+    .dz.filled {
+      background: var(--primary);
+      color: #fff;
+      border-style: solid;
+    }
+    .dz.correct {
+      background: var(--green) !important;
+      color: #fff !important;
+      border-color: var(--green) !important;
+      border-style: solid !important;
+    }
+    .dz.wrong {
+      background: var(--red) !important;
+      color: #fff !important;
+      border-color: var(--red) !important;
+      border-style: solid !important;
+      animation: shake 0.4s;
+    }
+
+    /* ── main（joho4風カード） ── */
+    .container {
+      max-width: 1100px;
+      margin: 24px auto;
+      background: var(--card-bg);
+      padding: 24px 28px;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* ── section heading（joho4風） ── */
+    .sec-h1 {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #fff;
+      padding: 14px 20px;
+      font-size: 1.15em;
+      font-weight: 700;
+      margin: 28px -28px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sec-h1:first-child { margin-top: -24px; }
+    .sec-h1 .num {
+      background: rgba(255,255,255,0.25);
+      padding: 3px 11px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.85em;
+    }
+    .sec-h2 {
+      font-size: 1em;
+      font-weight: 700;
+      color: var(--primary-dark);
+      border-left: 5px solid var(--primary);
+      padding-left: 12px;
+      margin: 24px 0 12px;
+    }
+
+    /* ── つかみ ── */
+    .intro-box {
+      background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+      border-left: 5px solid var(--amber); border-radius: 6px;
+      padding: 14px 18px; margin: 16px 0; font-size: .92em;
+    }
+    .intro-box .intro-title {
+      color: var(--amber); font-weight: bold; font-size: 1em; margin-bottom: 6px;
+    }
+
+    /* ── 図表ボックス ── */
+    .figure-box {
+      background: #f9fafb;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    .figure-box img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .figure-box .fig-caption {
+      font-size: .85em;
+      color: #555;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    /* ── table共通 ── */
+    table.godan { border-collapse: collapse; width: 100%; margin: 12px 0; }
+    table.godan th { background: var(--coral); color: #fff; padding: 8px 12px; text-align: center; font-size: .9em; }
+    table.godan td { padding: 8px 12px; border: 1px solid #ddd; font-size: .9em; vertical-align: top; }
+    table.godan tr:nth-child(even) td { background: #fdf3f0; }
+    .tag { display: inline-block; font-weight: bold; padding: 2px 8px; border-radius: 3px; font-size: .88em; }
+    .tag-amber  { background: #faeeda; color: var(--amber);  border: 1px solid var(--amber); }
+    .tag-teal   { background: #edfaf4; color: var(--teal);   border: 1px solid var(--teal); }
+    .tag-blue   { background: #eff5fc; color: var(--primary);border: 1px solid var(--primary); }
+    .tag-purple { background: #f2f1fd; color: var(--purple); border: 1px solid var(--purple); }
+    .tag-coral  { background: #fdf3f0; color: var(--coral);  border: 1px solid var(--coral); }
+
+    /* ── 3カード ── */
+    .props-row { display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
+    .prop-card { flex: 1; min-width: 220px; border: 2px solid; border-radius: 8px; padding: 12px 14px; background: #fff; }
+    .prop-card.p1 { border-color: var(--coral); background: #fdf3f0; }
+    .prop-card.p2 { border-color: var(--purple); background: #f2f1fd; }
+    .prop-card.p3 { border-color: var(--teal); background: #edfaf4; }
+    .prop-card .p-title { font-weight: bold; font-size: 1em; margin-bottom: 4px; }
+    .prop-card.p1 .p-title { color: var(--coral); }
+    .prop-card.p2 .p-title { color: var(--purple); }
+    .prop-card.p3 .p-title { color: var(--teal); }
+    .prop-card .p-sub { font-size: .82em; color: #666; margin-bottom: 6px; }
+    .prop-card .p-body { font-size: .88em; }
+
+    /* ── 覚え方 ── */
+    .memo-box {
+      background: #f9f3ff; border: 2px dashed var(--purple); border-radius: 8px;
+      padding: 12px 16px; margin: 14px 0; font-size: .9em;
+    }
+    .memo-box .memo-title {
+      color: var(--purple); font-weight: bold; margin-bottom: 4px;
+    }
+
+    /* ── よくある間違い ── */
+    .trap-box {
+      background: #fff3f0; border-left: 5px solid var(--coral); border-radius: 6px;
+      padding: 12px 16px; margin: 14px 0; font-size: .9em;
+    }
+    .trap-box .trap-title {
+      color: var(--coral); font-weight: bold; margin-bottom: 6px;
+    }
+
+    /* ── popup ── */
+    .pb {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: var(--coral); color: #fff;
+      border: none; cursor: pointer; padding: 2px 10px 2px 8px;
+      border-radius: 12px; font-size: .82em; font-weight: bold;
+      margin: 2px; transition: .15s; vertical-align: middle;
+    }
+    .pb:hover { background: #7a2f17; }
+
+    /* ── modal ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9000; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: #fff; border-radius: 12px; padding: 26px 30px; max-width: 600px; width: 92%; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,.2); position: relative; animation: fadeIn .2s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+    .modal-title   { font-size: 1.1em; font-weight: bold; color: var(--coral); margin-bottom: 6px; border-bottom: 2px solid var(--coral); padding-bottom: 6px; }
+    .modal-english { font-family: monospace; font-size: .95em; color: var(--teal); margin-bottom: 10px; font-weight: bold; }
+    .modal-meaning { background: #f0f4fa; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; font-size: .88em; color: #333; }
+    .modal-body    { font-size: .92em; line-height: 1.9; color: #333; }
+    .modal-example { background: #f5f5f5; border-left: 4px solid var(--teal); padding: 8px 12px; border-radius: 0 6px 6px 0; margin-top: 10px; font-size: .88em; }
+    .modal-close   { position: absolute; top: 12px; right: 14px; background: none; border: none; font-size: 1.4em; cursor: pointer; color: #888; }
+    .modal-close:hover { color: #333; }
+
+    #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+
+    /* ══════════════════════════════════════
+       ホバー型ポップアップ（重要語にカーソルを当てると表示）
+       ══════════════════════════════════════ */
+    .term {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+      color: var(--coral);
+      font-weight: bold;
+      border-bottom: 2px dotted var(--coral);
+      padding: 0 1px;
+      transition: background 0.15s;
+    }
+    .term:hover {
+      background: #fef3c7;
+      border-bottom-style: solid;
+    }
+    .term-popup {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: normal;
+      white-space: normal;
+      min-width: 240px;
+      max-width: 340px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      z-index: 200;
+      line-height: 1.7;
+      text-align: left;
+      display: none;
+      pointer-events: none;
+    }
+    .term:hover .term-popup { display: block; }
+    .term-popup::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-top-color: #1e293b;
+    }
+    .term-popup .tp-title {
+      color: #fbbf24;
+      font-weight: bold;
+      font-size: 1em;
+      margin-bottom: 4px;
+      display: block;
+      border-bottom: 1px solid #475569;
+      padding-bottom: 4px;
+    }
+    .term-popup .tp-en {
+      color: #86efac;
+      font-family: monospace;
+      font-size: 0.88em;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .term-popup .tp-meaning {
+      color: #fcd34d;
+      font-size: 0.85em;
+      display: block;
+      margin-bottom: 5px;
+      font-style: italic;
+    }
+    .term-popup .tp-body {
+      color: #f1f5f9;
+      font-size: 0.88em;
+    }
+    /* スマホでは左右の余白を考慮 */
+    @media (max-width: 640px) {
+      .term-popup {
+        min-width: 200px;
+        max-width: 280px;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 14px; }
+      .props-row { flex-direction: column; }
+    }
+
+    /* ══════════════════════════════════════
+       ミニテストモジュール（章末展開式）
+       ══════════════════════════════════════ */
+    .minitest {
+      margin: 24px 0 12px;
+    }
+    .mt-toggle {
+      width: 100%;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 3px solid #f59e0b;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 1.05em;
+      font-weight: bold;
+      color: #92400e;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .mt-toggle:hover {
+      background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+      transform: translateY(-1px);
+    }
+    .mt-toggle .arrow {
+      transition: transform 0.3s;
+      font-size: 1.2em;
+    }
+    .mt-toggle.open .arrow { transform: rotate(180deg); }
+
+    .mt-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      border-right: 4px solid #f59e0b;
+      border-bottom: 4px solid #f59e0b;
+      border-radius: 0 0 12px 12px;
+    }
+    .mt-body.open { max-height: 5000px; }
+    .mt-inner { padding: 18px 22px; }
+
+    .mt-section-title {
+      color: #92400e;
+      font-weight: bold;
+      font-size: 1em;
+      margin: 14px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px dashed #fbbf24;
+    }
+    .mt-section-title:first-child { margin-top: 0; }
+
+    /* 穴埋め部分（joho3スタイル） */
+    .mt-fill-passage {
+      background: #fff;
+      border-left: 5px solid #f59e0b;
+      padding: 14px 18px;
+      border-radius: 8px;
+      line-height: 2.4;
+      font-size: 0.95em;
+      margin-bottom: 12px;
+    }
+    .mt-blank {
+      display: inline-block;
+      min-width: 110px;
+      min-height: 1.7em;
+      padding: 4px 14px;
+      margin: 0 4px;
+      border: 2px dashed #94a3b8;
+      border-radius: 6px;
+      background: #fef9c3;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      color: #166534;
+      transition: all 0.2s;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 0.95em;
+      line-height: 1.7em;
+      box-sizing: border-box;
+    }
+    .mt-blank:hover { background: #fef08a; }
+    .mt-blank.empty { color: #1e293b; }
+    .mt-blank.filled {
+      background: #dbeafe;
+      border-style: solid;
+      border-color: #3b82f6;
+      color: #1e3a8a;
+    }
+    .mt-blank.correct {
+      background: #bbf7d0;
+      border-style: solid;
+      border-color: #16a34a;
+      color: #166534;
+    }
+    .mt-blank.wrong {
+      background: #fecaca;
+      border-style: solid;
+      border-color: #dc2626;
+      color: #991b1b;
+      animation: shake 0.4s;
+    }
+
+    .mt-wordbank {
+      background: #f0fdf4;
+      border: 2px solid #86efac;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .mt-wordbank-label {
+      font-size: 0.82em;
+      color: #166534;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .mt-words { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mt-chip {
+      background: white;
+      color: #166534;
+      border: 2px solid #22c55e;
+      padding: 5px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.92em;
+      border-radius: 18px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .mt-chip:hover { background: #22c55e; color: white; transform: scale(1.05); }
+    .mt-chip.selected {
+      background: #fed7aa;
+      color: #9a3412;
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px #fdba74;
+      transform: scale(1.08);
+    }
+    .mt-chip.used { opacity: 0.3; pointer-events: none; }
+
+    .mt-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+    .mt-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.88em;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .mt-btn-start { background: #dc2626; color: white; }
+    .mt-btn-start:hover { background: #991b1b; }
+    .mt-btn-check { background: #22c55e; color: white; }
+    .mt-btn-check:hover { background: #16a34a; }
+    .mt-btn-show { background: #f59e0b; color: white; }
+    .mt-btn-show:hover { background: #d97706; }
+
+    /* 4択練習部分 */
+    .mt-quiz-card {
+      background: #fff;
+      border-left: 5px solid #dc2626;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .mt-quiz-num {
+      display: inline-block;
+      background: #dc2626;
+      color: white;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 0.82em;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .mt-quiz-q {
+      font-weight: bold;
+      font-size: 0.98em;
+      margin-bottom: 12px;
+      color: #1e293b;
+    }
+    .mt-quiz-options { display: grid; gap: 8px; }
+    .mt-quiz-opt {
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.92em;
+      text-align: left;
+      font-family: inherit;
+      width: 100%;
+    }
+    .mt-quiz-opt:hover { background: #f1f5f9; border-color: #dc2626; }
+    .mt-quiz-opt.correct {
+      background: #bbf7d0;
+      border-color: #16a34a;
+      color: #166534;
+      font-weight: bold;
+    }
+    .mt-quiz-opt.wrong {
+      background: #fecaca;
+      border-color: #dc2626;
+      color: #991b1b;
+    }
+    .mt-quiz-opt:disabled { cursor: default; }
+    .mt-quiz-explain {
+      display: none;
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: #fef9c3;
+      border-left: 5px solid #facc15;
+      border-radius: 8px;
+      font-size: 0.9em;
+      line-height: 1.7;
+      color: #713f12;
+    }
+    .mt-quiz-explain.show { display: block; }
+    .mt-quiz-explain .ex-title {
+      font-weight: bold;
+      color: #a16207;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .mt-result {
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-align: center;
+      margin: 8px 0;
+      font-size: 0.92em;
+    }
+    .mt-result.success { background: #bbf7d0; color: #166534; }
+    .mt-result.warning { background: #fed7aa; color: #9a3412; }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- modal -->
+<div class="modal-overlay" id="popupModal" onclick="closePopup(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closePopup()">✕</button>
+    <div class="modal-title"   id="popupTitle"></div>
+    <div class="modal-english" id="popupEnglish"></div>
+    <div class="modal-meaning" id="popupMeaning" style="display:none"></div>
+    <div class="modal-body"    id="popupBody"></div>
+    <div class="modal-example" id="popupExample" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══ sticky header ══ -->
+<div class="sticky-header">
+  <div class="page-nav">
+    <a class="nav-btn nav-home" href="kouninjoho_index.html">🏠 単元表</a>
+    <a class="nav-btn" href="kouninjoho1.html">① 情報社会と権利</a>
+    <a class="nav-btn" href="kouninjoho2.html">② 情報社会の課題</a>
+    <a class="nav-btn" href="kouninjoho3.html">③ メディアと通信</a>
+    <a class="nav-btn active" href="kouninjoho4.html">④ コンピュータの基礎</a>
+    <a class="nav-btn" href="kouninjoho5.html">⑤ 問題解決とデータ</a>
+  </div>
+
+  <div class="challenge-panel">
+    <div>
+      <span style="font-size:.85em;font-weight:bold;">⏱ チャレンジタイム</span><br>
+      <span class="timer" id="timerDisplay">00:00.0</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="ch-btn start"  onclick="startChallenge()">▶ チャレンジ開始</button>
+      <button class="ch-btn check"  onclick="checkAnswers()">✓ 答え合わせ</button>
+      <button class="ch-btn answer" onclick="showModel()">📖 お手本を見る</button>
+    </div>
+    <div id="recordDisplay">🏆 ベスト：—</div>
+  </div>
+
+  <div class="word-bank-wrap">
+    <div class="word-bank-container" id="wordBankContainer">
+      <div class="wb-label">📦 語句バンク（クリックで選択 → 空欄をクリックで入力）</div>
+      <div class="word-bank" id="wordBank"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ content ══ -->
+<div class="container">
+
+  <!-- ページタイトル -->
+  <div style="text-align:center;margin-bottom:20px;">
+    <div style="font-size:1.5em;font-weight:700;color:var(--primary-dark);margin-bottom:4px;">④ コンピュータの基礎</div>
+    <div style="color:var(--gray);font-size:.95em;">発達史・5大装置・ハード/ソフト・2進数・ディジタル化</div>
+    <p style="font-size:.92em;color:#444;line-height:1.9;text-align:left;margin-top:12px;">
+      スマートフォン、パソコン、ゲーム機、家電――どれもコンピュータが入っています。<br>
+      この単元では、コンピュータの<strong>歴史</strong>と<strong>しくみ</strong>、数字の表し方である<strong>2進数</strong>、そして文字・音・画像をコンピュータが扱う<strong>ディジタル化</strong>を学びます。高認大問4の中心領域です。
+    </p>
+  </div>
+
+  <!-- ══ 1. コンピュータの発達史 ══ -->
+  <div class="sec-h1"><span class="num">1</span>コンピュータの発達史</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 こんなことを考えたことはありますか？</div>
+    <p style="margin:0;">
+      今、手のひらに乗るスマホには、月面着陸を成功させたアポロ計画のコンピュータより何百万倍も強い計算能力があります。<br>
+      コンピュータはどうやってここまで進化したのでしょうか？ 歴史を知ると、現在のコンピュータの仕組みも自然に理解できます。
+    </p>
+  </div>
+
+  <!-- 発達史図 -->
+  <div class="figure-box">
+    <img src="images/fig_history.png" alt="コンピュータの発達史">
+    <div class="fig-caption">▲ MARK I → ENIAC → ノイマン型 → ムーアの法則</div>
+  </div>
+
+  <div class="sec-h2">▶ 歴史的なコンピュータと重要人物</div>
+
+  <table class="godan">
+    <tr><th>名称・人物</th><th>年代</th><th>特徴</th></tr>
+    <tr>
+      <td><span data-term="markone"><strong>MARK I（マーク・ワン）</strong></span></td>
+      <td>1944年</td>
+      <td>エイケンらが開発したリレー式計算機。歯車とリレー（電磁スイッチ）で動作する大型機械</td>
+    </tr>
+    <tr>
+      <td><span data-term="eniac"><strong>ENIAC（エニアック）</strong></span></td>
+      <td>1946年</td>
+      <td>エッカートとモークリーが開発した真空管式コンピュータ。世界初の汎用電子計算機の一つ</td>
+    </tr>
+    <tr>
+      <td><span data-term="neumann"><strong>ノイマン</strong></span></td>
+      <td>1945年提唱</td>
+      <td><span data-term="programstore">プログラム内蔵方式</span>を提唱。現代のコンピュータの基本設計</td>
+    </tr>
+  </table>
+
+  <div class="sec-h2">▶ プログラム内蔵方式（ノイマン型）</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('programstore')">💡 【プログラム内蔵方式】</button>
+    は、<strong>プログラムをメモリ（記憶装置）に格納して、CPUがそれを順に読み出して実行する</strong>方式です。現代のコンピュータはほぼすべてこの方式で動いています。
+  </p>
+
+  <table class="godan">
+    <tr><th>項目</th><th>内容</th></tr>
+    <tr>
+      <td><span class="tag tag-coral">提唱者</span></td>
+      <td>ジョン・フォン・ノイマン（1945年）</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-coral">仕組み</span></td>
+      <td>プログラムとデータを<strong>同じメモリ</strong>に格納し、CPUが順番に読んで実行</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-coral">メリット</span></td>
+      <td>プログラムを変えるだけで違う処理ができる（汎用性）</td>
+    </tr>
+  </table>
+
+  <div class="sec-h2">▶ ムーアの法則</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('moore')">💡 【ムーアの法則】</button>
+    は、<strong>半導体の集積密度が1〜2年で倍になる</strong>という経験則です。インテル社の創業者の一人ゴードン・ムーアが1965年に提唱しました。
+  </p>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方：「倍々で成長」</div>
+    <p style="margin:0;">
+      1〜2年で<strong>倍々</strong>になる → 10年で約32倍 → 20年で約1000倍<br>
+      この法則のおかげで、コンピュータは毎年どんどん高性能・小型・安価になっています。スマホがアポロ計画のコンピュータより高性能なのも、この法則の結果です。
+    </p>
+  </div>
+
+  <!-- 穴埋め1 -->
+  <p style="font-size:.95em;">
+    ※ 世界初の電子計算機の一つは
+    <span class="dz" data-ans="ENIAC" data-id="c1"></span>
+    である。プログラムをメモリに格納し、順に実行する方式を
+    <span class="dz" data-ans="プログラム内蔵方式" data-id="c2"></span>
+    といい、提唱者は
+    <span class="dz" data-ans="ノイマン" data-id="c3"></span>
+    である。
+  </p>
+
+  <!-- ════ ミニテスト①：発達史 ════ -->
+  <div class="minitest" data-mt="mt1">
+    <button class="mt-toggle" onclick="toggleMt('mt1')">
+      <span>📝 ミニテスト①：コンピュータの発達史を確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt1-body">
+      <div class="mt-inner">
+
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt1-passage">
+          1946年に開発された真空管式コンピュータは
+          <span class="mt-blank" data-ans="ENIAC">ENIAC</span>
+          といいます。プログラムをメモリに格納し、CPUが順に読み出して実行する方式を
+          <span class="mt-blank" data-ans="プログラム内蔵方式">プログラム内蔵方式</span>
+          といい、これを提唱したのは
+          <span class="mt-blank" data-ans="ノイマン">ノイマン</span>
+          です。半導体の集積密度が1〜2年で倍になるという経験則は
+          <span class="mt-blank" data-ans="ムーアの法則">ムーアの法則</span>
+          と呼ばれています。
+        </div>
+        <div class="mt-wordbank" id="mt1-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt1-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt1')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt1')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt1')">📖 答えを見る</button>
+        </div>
+        <div id="mt1-result"></div>
+
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            プログラム内蔵方式を提唱したのは誰ですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q1" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',0)">エイケン</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',1)">エッカート</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',2)">ノイマン</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',3)">ムーア</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            プログラム内蔵方式（ノイマン型）を提唱したのはジョン・フォン・ノイマンです。1945年に提唱され、現代のコンピュータの基本設計となっています。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            「ムーアの法則」の説明として正しいものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q2" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',0)">コンピュータの値段が毎年安くなるという法則</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',1)">半導体の集積密度が1〜2年で倍になるという経験則</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',2)">プログラムを書くとバグが必ず発生するという法則</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',3)">インターネットの利用者が10年で10倍になる法則</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            ムーアの法則は、半導体の集積密度（トランジスタの数）が1〜2年で倍になるという経験則です。この法則によって、コンピュータは年々高性能・小型・安価になり続けています。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第3問</span>
+            世界初の汎用電子計算機の一つとされ、約18,000本の真空管を使ったコンピュータはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q3" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q3',0)">MARK I</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q3',1)">ENIAC</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q3',2)">UNIVAC</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q3',3)">IBM PC</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q3-ex">
+            <span class="ex-title">💡 解説</span>
+            ENIAC（エニアック）は1946年にエッカートとモークリーらが開発した、約18,000本の真空管を使った世界初の汎用電子計算機の一つです。それまでの機械式計算機とは比べ物にならない速度で計算できました。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第4問</span>
+            プログラム内蔵方式の最大の特徴として正しいものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q4" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q4',0)">特殊な配線によってのみ動作する</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q4',1)">1つの決まった計算しかできない</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q4',2)">プログラムを変えれば違う処理ができる</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q4',3)">人手で計算結果を確認する必要がある</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q4-ex">
+            <span class="ex-title">💡 解説</span>
+            プログラム内蔵方式（ノイマン型）の最大の特徴は、プログラムをメモリに格納し、それを入れ替えるだけで異なる処理ができる「汎用性」です。だから1台のパソコンでWord・ブラウザ・ゲームなど色々動かせます。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 2. コンピュータシステムの構成 ══ -->
+  <div class="sec-h1"><span class="num">2</span>コンピュータシステムの構成</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 パソコンの中身、説明できますか？</div>
+    <p style="margin:0;">
+      パソコンは「キーボード」「マウス」「ディスプレイ」「本体」と複数の部分でできています。それぞれに役割があり、5つの基本機能に分類できます。<br>
+      また、目に見える機械の部分（ハードウェア）と、その中で動くプログラムの部分（ソフトウェア）の区別も大事です。
+    </p>
+  </div>
+
+  <!-- 5大装置の中央配置図（joho7より） -->
+  <div style="background: linear-gradient(135deg, #fafdff, #f0f9ff); border: 1px dashed #fee2e2; border-radius: 10px; padding: 14px; margin: 14px 0; text-align: center;">
+    <svg viewBox="0 0 660 400" xmlns="http://www.w3.org/2000/svg" style="max-width:100%; height:auto;">
+      <defs>
+        <marker id="arDat" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <polygon points="0 0, 10 3, 0 6" fill="#10B981"/>
+        </marker>
+        <marker id="arMem" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <polygon points="0 0, 10 3, 0 6" fill="#F59E0B"/>
+        </marker>
+      </defs>
+
+      <!-- CPU 枠（中央上） -->
+      <rect x="220" y="20" width="220" height="140" fill="none" stroke="#DC2626" stroke-width="2" stroke-dasharray="6,4" rx="6"/>
+      <text x="330" y="14" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B">CPU（中央処理装置）</text>
+
+      <!-- 制御装置 -->
+      <g transform="translate(240, 35)">
+        <rect x="0" y="0" width="180" height="48" fill="#FEE2E2" stroke="#DC2626" stroke-width="2" rx="6"/>
+        <text x="90" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#991B1B">制御装置</text>
+        <text x="90" y="40" text-anchor="middle" font-size="10" fill="#991B1B">司令塔：他の装置に指示</text>
+      </g>
+
+      <!-- 演算装置 -->
+      <g transform="translate(240, 96)">
+        <rect x="0" y="0" width="180" height="48" fill="#FEE2E2" stroke="#DC2626" stroke-width="2" rx="6"/>
+        <text x="90" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#991B1B">演算装置</text>
+        <text x="90" y="40" text-anchor="middle" font-size="10" fill="#991B1B">計算を行う</text>
+      </g>
+
+      <!-- 主記憶装置（中央） -->
+      <g transform="translate(250, 200)">
+        <rect x="0" y="0" width="160" height="60" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2.5" rx="6"/>
+        <text x="80" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#92400E">主記憶装置</text>
+        <text x="80" y="40" text-anchor="middle" font-size="10" fill="#92400E">メモリ・一時保管</text>
+        <text x="80" y="54" text-anchor="middle" font-size="10" fill="#92400E">（RAM）</text>
+      </g>
+
+      <!-- 補助記憶装置（右） -->
+      <g transform="translate(470, 200)">
+        <rect x="0" y="0" width="160" height="60" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2.5" rx="6"/>
+        <text x="80" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#92400E">補助記憶装置</text>
+        <text x="80" y="40" text-anchor="middle" font-size="10" fill="#92400E">長期保管</text>
+        <text x="80" y="54" text-anchor="middle" font-size="10" fill="#92400E">（SSD・HDD・USB）</text>
+      </g>
+
+      <!-- 入力装置（左） -->
+      <g transform="translate(30, 200)">
+        <rect x="0" y="0" width="160" height="60" fill="#D1FAE5" stroke="#10B981" stroke-width="2.5" rx="6"/>
+        <text x="80" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#065F46">入力装置</text>
+        <text x="80" y="40" text-anchor="middle" font-size="10" fill="#065F46">キーボード・マウス等</text>
+        <text x="80" y="54" text-anchor="middle" font-size="10" fill="#065F46">（IN）</text>
+      </g>
+
+      <!-- 出力装置（下中央） -->
+      <g transform="translate(250, 290)">
+        <rect x="0" y="0" width="160" height="60" fill="#D1FAE5" stroke="#10B981" stroke-width="2.5" rx="6"/>
+        <text x="80" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#065F46">出力装置</text>
+        <text x="80" y="40" text-anchor="middle" font-size="10" fill="#065F46">モニタ・スピーカ等</text>
+        <text x="80" y="54" text-anchor="middle" font-size="10" fill="#065F46">（OUT）</text>
+      </g>
+
+      <!-- 矢印群 -->
+      <!-- 入力 → 主記憶 -->
+      <line x1="190" y1="230" x2="250" y2="230" stroke="#10B981" stroke-width="3" marker-end="url(#arDat)"/>
+      <!-- 主記憶 ↔ CPU演算 -->
+      <line x1="320" y1="200" x2="320" y2="148" stroke="#10B981" stroke-width="3" marker-end="url(#arDat)"/>
+      <line x1="340" y1="148" x2="340" y2="200" stroke="#10B981" stroke-width="3" marker-end="url(#arDat)"/>
+      <!-- 主記憶 ↔ 補助記憶 -->
+      <line x1="410" y1="225" x2="470" y2="225" stroke="#F59E0B" stroke-width="2.5" marker-end="url(#arMem)"/>
+      <line x1="470" y1="240" x2="410" y2="240" stroke="#F59E0B" stroke-width="2.5" marker-end="url(#arMem)"/>
+      <!-- 主記憶 → 出力 -->
+      <line x1="330" y1="260" x2="330" y2="290" stroke="#10B981" stroke-width="3" marker-end="url(#arDat)"/>
+
+      <!-- 凡例 -->
+      <g transform="translate(40, 385)">
+        <line x1="0" y1="0" x2="22" y2="0" stroke="#10B981" stroke-width="3"/>
+        <text x="28" y="4" font-size="11" fill="#065F46">緑：データの流れ</text>
+        <line x1="180" y1="0" x2="202" y2="0" stroke="#F59E0B" stroke-width="2.5"/>
+        <text x="208" y="4" font-size="11" fill="#92400E">橙：主記憶 ↔ 補助記憶</text>
+        <text x="380" y="4" font-size="11" fill="#991B1B">※赤点線の制御指示は省略</text>
+      </g>
+    </svg>
+    <div style="margin-top:8px; font-size:.85em; color:#6B7280; font-weight:700;">図：コンピュータの5大装置。データは「入力 → 主記憶 → 演算 → 主記憶 → 出力」の流れで処理される</div>
+  </div>
+
+  <div class="sec-h2">▶ ハードウェアとソフトウェア</div>
+
+  <table class="cmp-table">
+    <tr>
+      <th class="a-head">【ハードウェア】</th>
+      <th class="b-head">【ソフトウェア】</th>
+    </tr>
+    <tr>
+      <td class="a-body">
+        <strong>機械の部分（目に見える）</strong><br>
+        パソコン本体・キーボード・<br>マウス・モニター・プリンター
+      </td>
+      <td class="b-body">
+        <strong>プログラムの部分（目に見えない）</strong><br>
+        OS・ブラウザ・Word・<br>ゲームアプリ
+      </td>
+    </tr>
+  </table>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方：「hard（硬い）／soft（柔らかい）」</div>
+    <p style="margin:0;">
+      <strong>ハードウェア</strong>＝硬いもの（触れる物体）<br>
+      <strong>ソフトウェア</strong>＝柔らかいもの（実体のないプログラム）<br>
+      パソコン本体やキーボードは「触れる」、Wordやゲームは「触れない」と覚えると分かりやすいです。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ 5大装置（5大機能）</div>
+
+  <p>コンピュータは、機能ごとに5つの装置に分けられます。これを<strong>5大装置</strong>といい、高認では必出です。</p>
+
+  <table class="godan">
+    <tr><th>装置</th><th>役割</th><th>具体例</th></tr>
+    <tr>
+      <td><span data-term="seigyo"><strong>制御装置</strong></span></td>
+      <td>全体の動きを指揮する</td>
+      <td>CPUの一部（CU：Control Unit）</td>
+    </tr>
+    <tr>
+      <td><span data-term="enzan"><strong>演算装置</strong></span></td>
+      <td>計算を行う</td>
+      <td>CPUの一部（ALU：Arithmetic Logic Unit）</td>
+    </tr>
+    <tr>
+      <td><span data-term="kioku"><strong>記憶装置</strong></span></td>
+      <td>データやプログラムを保存する</td>
+      <td>メモリ・HDD・SSD・USBメモリ</td>
+    </tr>
+    <tr>
+      <td><span data-term="nyuryoku"><strong>入力装置</strong></span></td>
+      <td>外部からデータを取り込む</td>
+      <td>キーボード・マウス・タッチパネル</td>
+    </tr>
+    <tr>
+      <td><span data-term="shutsuryoku"><strong>出力装置</strong></span></td>
+      <td>処理結果を外に出す</td>
+      <td>ディスプレイ・プリンター・スピーカー</td>
+    </tr>
+  </table>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方：「せい・えん・き・にゅう・しゅつ」</div>
+    <p style="margin:0;">
+      <strong>制</strong>御 → <strong>演</strong>算 → <strong>記</strong>憶 → <strong>入</strong>力 → <strong>出</strong>力<br>
+      頭文字を取って「せい・えん・き・にゅう・しゅつ」と何度も声に出すと、自然に5つが言えるようになります。<br>
+      制御と演算は<strong>CPU</strong>（中央処理装置）の中にあり、これらが「コンピュータの頭脳」です。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ CPU ＝ コンピュータの「脳みそ」</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('cpu')">💡 【CPU】</button>
+    （Central Processing Unit：中央処理装置）は、<strong>制御装置と演算装置を1つにまとめたもの</strong>で、コンピュータの<strong>脳みそ</strong>にあたります。プログラムの命令を1つずつ読み取り、計算したり、他の装置に指示を出したりします。
+  </p>
+
+  <table class="godan">
+    <tr><th>性能を決める要素</th><th>内容</th></tr>
+    <tr>
+      <td><span data-term="clock"><strong>クロック周波数（GHz）</strong></span></td>
+      <td>1秒間に何回処理できるかを示す数値。<strong>大きいほど高速</strong>。3GHzなら1秒に30億回処理</td>
+    </tr>
+    <tr>
+      <td><span data-term="core"><strong>コア数</strong></span></td>
+      <td>CPU内の「脳みそ」の数。<strong>多いほど同時処理可能</strong>。4コアなら4つの脳みそ</td>
+    </tr>
+  </table>
+
+  <!-- CPU本体図（joho7より） -->
+  <div style="background: linear-gradient(135deg, #fafdff, #f0f9ff); border: 1px dashed #fee2e2; border-radius: 10px; padding: 14px; margin: 14px 0; text-align: center;">
+    <svg viewBox="0 0 580 200" xmlns="http://www.w3.org/2000/svg" style="max-width:100%; height:auto;">
+      <!-- CPU本体 -->
+      <g transform="translate(40, 30)">
+        <rect x="0" y="0" width="180" height="140" fill="#FEE2E2" stroke="#DC2626" stroke-width="3" rx="10"/>
+        <text x="90" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#991B1B">CPU</text>
+        <text x="90" y="48" text-anchor="middle" font-size="10" fill="#991B1B">（Central Processing Unit）</text>
+        <line x1="20" y1="60" x2="160" y2="60" stroke="#991B1B" stroke-width="1"/>
+        <text x="90" y="82" text-anchor="middle" font-size="12" font-weight="700" fill="#991B1B">制御装置</text>
+        <text x="90" y="110" text-anchor="middle" font-size="12" font-weight="700" fill="#991B1B">＋</text>
+        <text x="90" y="130" text-anchor="middle" font-size="12" font-weight="700" fill="#991B1B">演算装置</text>
+      </g>
+
+      <!-- 性能を決めるもの -->
+      <g transform="translate(260, 30)">
+        <text x="0" y="14" font-size="13" font-weight="700" fill="#991B1B">📊 CPUの性能を決めるもの</text>
+        <g transform="translate(0, 28)">
+          <rect x="0" y="0" width="280" height="44" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2" rx="6"/>
+          <text x="10" y="20" font-size="12" font-weight="700" fill="#92400E">① クロック周波数（GHz）</text>
+          <text x="10" y="36" font-size="11" fill="#92400E">1秒間に何回処理できるか（数値が大きいほど速い）</text>
+        </g>
+        <g transform="translate(0, 80)">
+          <rect x="0" y="0" width="280" height="44" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2" rx="6"/>
+          <text x="10" y="20" font-size="12" font-weight="700" fill="#92400E">② コア数</text>
+          <text x="10" y="36" font-size="11" fill="#92400E">脳みその数。多いほど同時に処理できる</text>
+        </g>
+      </g>
+    </svg>
+    <div style="margin-top:8px; font-size:.85em; color:#6B7280; font-weight:700;">図：CPUは制御装置と演算装置からなる。性能はクロック周波数とコア数で決まる</div>
+  </div>
+
+  <div class="sec-h2">▶ 主記憶装置 と 補助記憶装置 ― 2種類の記憶装置</div>
+
+  <p>記憶装置には2種類あります。試験ではしっかり区別を問われます。</p>
+
+  <!-- 主記憶 vs 補助記憶 SVG図 -->
+  <div style="background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%); border: 2px dashed #f59e0b; border-radius: 10px; padding: 16px; margin: 14px 0; text-align: center;">
+    <svg viewBox="0 0 580 240" xmlns="http://www.w3.org/2000/svg" style="max-width:100%; height:auto;">
+      <!-- 主記憶 -->
+      <g transform="translate(20, 20)">
+        <rect x="0" y="0" width="260" height="200" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2.5" rx="8"/>
+        <text x="130" y="26" text-anchor="middle" font-size="16" font-weight="700" fill="#92400E">主記憶装置（メモリ）</text>
+        <text x="130" y="46" text-anchor="middle" font-size="11" fill="#92400E">作業机のような場所</text>
+        <line x1="20" y1="60" x2="240" y2="60" stroke="#F59E0B" stroke-width="1"/>
+        <text x="20" y="80" font-size="12" font-weight="700" fill="#92400E">🏃 速さ：速い</text>
+        <text x="20" y="100" font-size="12" font-weight="700" fill="#92400E">📏 容量：小さい（GB単位）</text>
+        <text x="20" y="120" font-size="12" font-weight="700" fill="#92400E">⚡ 電源切ると：消える</text>
+        <text x="20" y="140" font-size="12" font-weight="700" fill="#92400E">💡 例：RAM（DDR4等）</text>
+        <text x="130" y="180" text-anchor="middle" font-size="11" fill="#92400E" font-style="italic">作業中の道具を置く「机の上」</text>
+      </g>
+      <!-- 補助記憶 -->
+      <g transform="translate(300, 20)">
+        <rect x="0" y="0" width="260" height="200" fill="#D1FAE5" stroke="#10B981" stroke-width="2.5" rx="8"/>
+        <text x="130" y="26" text-anchor="middle" font-size="16" font-weight="700" fill="#065F46">補助記憶装置</text>
+        <text x="130" y="46" text-anchor="middle" font-size="11" fill="#065F46">本棚のような場所</text>
+        <line x1="20" y1="60" x2="240" y2="60" stroke="#10B981" stroke-width="1"/>
+        <text x="20" y="80" font-size="12" font-weight="700" fill="#065F46">🐢 速さ：遅い</text>
+        <text x="20" y="100" font-size="12" font-weight="700" fill="#065F46">📏 容量：大きい（TB単位）</text>
+        <text x="20" y="120" font-size="12" font-weight="700" fill="#065F46">🔋 電源切っても：残る</text>
+        <text x="20" y="140" font-size="12" font-weight="700" fill="#065F46">💡 例：SSD・HDD・USB</text>
+        <text x="130" y="180" text-anchor="middle" font-size="11" fill="#065F46" font-style="italic">ファイルや写真をしまう「本棚」</text>
+      </g>
+    </svg>
+    <div style="margin-top:8px; font-size:.85em; color:#6B7280; font-weight:700;">図：主記憶＝机の上（速いが揮発）、補助記憶＝本棚（遅いが残る）</div>
+  </div>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 暗記のコツ：「主」役のデータか、「補助」でしまうか</div>
+    <p style="margin:0;">
+      作業中の<strong>主</strong>役のデータを置くのが<strong>主記憶</strong>。<strong>補助</strong>でしまっておくのが<strong>補助記憶</strong>。<br>
+      「主記憶＝メモリ」「補助記憶＝ストレージ（SSD・HDD）」と覚えるのも便利です。
+    </p>
+  </div>
+
+  <table class="godan">
+    <tr><th>用語</th><th>意味</th></tr>
+    <tr>
+      <td><span data-term="ram"><strong>RAM</strong></span></td>
+      <td>Random Access Memory。主記憶装置（メモリ）のこと。電源を切るとデータが消える（揮発性）</td>
+    </tr>
+    <tr>
+      <td><span data-term="hdd"><strong>HDD</strong></span></td>
+      <td>Hard Disk Drive。磁性体を塗った円盤を回転させて読み書きする。容量大だがSSDより遅い</td>
+    </tr>
+    <tr>
+      <td><span data-term="ssd"><strong>SSD</strong></span></td>
+      <td>Solid State Drive。可動部品なしの半導体メモリを使う。HDDより高速で衝撃に強い</td>
+    </tr>
+    <tr>
+      <td><span data-term="usb"><strong>USB</strong></span></td>
+      <td>Universal Serial Bus。さまざまな機器をパソコンに接続するための共通規格</td>
+    </tr>
+  </table>
+
+  <div class="sec-h2">▶ コンピュータの動く仕組み（命令サイクル）</div>
+
+  <p>プログラムが実行される流れは、次の<strong>4ステップ</strong>で<strong>無限にくり返されます</strong>。</p>
+
+  <!-- 命令サイクル SVG図 -->
+  <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 2px dashed #dc2626; border-radius: 10px; padding: 16px; margin: 14px 0; text-align: center;">
+    <svg viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" style="max-width:100%; height:auto;">
+      <defs>
+        <marker id="arCom2" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto">
+          <polygon points="0 0, 6 3, 0 6" fill="#DC2626"/>
+        </marker>
+      </defs>
+      <!-- ステップ1 -->
+      <g transform="translate(20, 30)">
+        <rect x="0" y="0" width="120" height="80" fill="#FEE2E2" stroke="#DC2626" stroke-width="2" rx="8"/>
+        <text x="60" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B">① 命令を</text>
+        <text x="60" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B">読み込む</text>
+        <text x="60" y="62" text-anchor="middle" font-size="10" fill="#991B1B">主記憶→CPU</text>
+        <text x="60" y="76" text-anchor="middle" font-size="10" fill="#991B1B">(フェッチ)</text>
+      </g>
+      <line x1="140" y1="70" x2="170" y2="70" stroke="#DC2626" stroke-width="2.5" marker-end="url(#arCom2)"/>
+      <!-- ステップ2 -->
+      <g transform="translate(170, 30)">
+        <rect x="0" y="0" width="120" height="80" fill="#FEE2E2" stroke="#DC2626" stroke-width="2" rx="8"/>
+        <text x="60" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B">② 命令を</text>
+        <text x="60" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B">解読する</text>
+        <text x="60" y="62" text-anchor="middle" font-size="10" fill="#991B1B">制御装置</text>
+        <text x="60" y="76" text-anchor="middle" font-size="10" fill="#991B1B">(デコード)</text>
+      </g>
+      <line x1="290" y1="70" x2="320" y2="70" stroke="#DC2626" stroke-width="2.5" marker-end="url(#arCom2)"/>
+      <!-- ステップ3 -->
+      <g transform="translate(320, 30)">
+        <rect x="0" y="0" width="120" height="80" fill="#FEE2E2" stroke="#DC2626" stroke-width="2" rx="8"/>
+        <text x="60" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B">③ 命令を</text>
+        <text x="60" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B">実行する</text>
+        <text x="60" y="62" text-anchor="middle" font-size="10" fill="#991B1B">演算装置</text>
+        <text x="60" y="76" text-anchor="middle" font-size="10" fill="#991B1B">(実行)</text>
+      </g>
+      <line x1="440" y1="70" x2="470" y2="70" stroke="#DC2626" stroke-width="2.5" marker-end="url(#arCom2)"/>
+      <!-- ステップ4 -->
+      <g transform="translate(470, 30)">
+        <rect x="0" y="0" width="120" height="80" fill="#FEE2E2" stroke="#DC2626" stroke-width="2" rx="8"/>
+        <text x="60" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B">④ 結果を</text>
+        <text x="60" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B">書き出す</text>
+        <text x="60" y="62" text-anchor="middle" font-size="10" fill="#991B1B">主記憶に保存</text>
+        <text x="60" y="76" text-anchor="middle" font-size="10" fill="#991B1B">(ライトバック)</text>
+      </g>
+      <!-- 矢印で①に戻る -->
+      <path d="M 530 110 L 530 160 L 80 160 L 80 110" fill="none" stroke="#DC2626" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arCom2)"/>
+      <text x="305" y="185" text-anchor="middle" font-size="12" font-weight="700" fill="#991B1B">↑ ①〜④を無限にくり返す（これが「処理」）</text>
+    </svg>
+    <div style="margin-top:8px; font-size:.85em; color:#6B7280; font-weight:700;">図：CPUは「読み込む→解読→実行→書き出す」をくり返している（命令サイクル）</div>
+  </div>
+
+  <div class="sec-h2">▶ OS と GUI／CUI</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('os')">💡 【OS】</button>
+    （オペレーティングシステム）は、応用ソフトと周辺機器を仲介する基本ソフトウェアです。WindowsやmacOSが代表例です。
+  </p>
+
+  <table class="cmp-table">
+    <tr>
+      <th class="a-head">【GUI】</th>
+      <th class="b-head">【CUI】</th>
+    </tr>
+    <tr>
+      <td class="a-body">
+        <strong>Graphical User Interface</strong><br>
+        アイコンとマウスで操作<br>
+        誰でも使いやすい
+      </td>
+      <td class="b-body">
+        <strong>Character User Interface</strong><br>
+        文字列で命令を入力<br>
+        専門家・サーバー管理向け
+      </td>
+    </tr>
+    <tr>
+      <td class="a-body">
+        <strong>例：</strong>Windows・macOS・スマホの画面
+      </td>
+      <td class="b-body">
+        <strong>例：</strong>コマンドプロンプト・ターミナル
+      </td>
+    </tr>
+  </table>
+
+  <!-- 穴埋め2 -->
+  <p style="font-size:.95em;">
+    ※ コンピュータの機械部分を
+    <span class="dz" data-ans="ハードウェア" data-id="c4"></span>、
+    プログラム部分を
+    <span class="dz" data-ans="ソフトウェア" data-id="c5"></span>
+    という。アイコンとマウスで操作する画面方式を
+    <span class="dz" data-ans="GUI" data-id="c6"></span>
+    という。
+  </p>
+
+  <!-- ════ ミニテスト②：システム構成 ════ -->
+  <div class="minitest" data-mt="mt2">
+    <button class="mt-toggle" onclick="toggleMt('mt2')">
+      <span>📝 ミニテスト②：システム構成を確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt2-body">
+      <div class="mt-inner">
+
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt2-passage">
+          コンピュータの機械部分を
+          <span class="mt-blank" data-ans="ハードウェア">ハードウェア</span>、
+          中で動くプログラム部分を
+          <span class="mt-blank" data-ans="ソフトウェア">ソフトウェア</span>
+          といいます。応用ソフトと周辺機器を仲介する基本ソフトウェアを
+          <span class="mt-blank" data-ans="OS">OS</span>
+          といい、計算を行う部品である
+          <span class="mt-blank" data-ans="CPU">CPU</span>
+          には制御装置と演算装置が含まれます。
+        </div>
+        <div class="mt-wordbank" id="mt2-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt2-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt2')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt2')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt2')">📖 答えを見る</button>
+        </div>
+        <div id="mt2-result"></div>
+
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            5大装置に<strong>当てはまらない</strong>ものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q1" data-ans="3">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',0)">制御装置</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',1)">演算装置</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',2)">入力装置</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',3)">通信装置</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            5大装置は「制御・演算・記憶・入力・出力」の5つです。通信装置は5大装置には含まれません。「せい・えん・き・にゅう・しゅつ」と覚えましょう。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            「アイコンをマウスでクリックして操作する画面方式」を何といいますか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q2" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',0)">GUI</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',1)">CUI</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',2)">OS</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',3)">CPU</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            アイコンとマウスで操作する画面方式は「GUI（Graphical User Interface）」です。Windows・macOS・スマホの画面はすべてGUIです。一方、文字列で命令を入力する方式は「CUI（Character User Interface）」と呼ばれます。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第3問</span>
+            主記憶装置（メモリ）と補助記憶装置（HDD・SSD）の違いとして正しいものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q3" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q3',0)">主記憶は速いが電源を切ると消える、補助記憶は遅いが残る</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q3',1)">主記憶は遅いが残る、補助記憶は速いが消える</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q3',2)">どちらも電源を切るとデータが消える</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q3',3)">どちらも電源を切っても残る</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q3-ex">
+            <span class="ex-title">💡 解説</span>
+            主記憶装置（RAM）は<strong>速いが揮発性</strong>（電源を切ると消える）。補助記憶装置（HDD・SSD）は<strong>遅いが不揮発性</strong>（電源を切っても残る）。「主記憶＝机の上」「補助記憶＝本棚」と覚えましょう。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第4問</span>
+            CPUの性能を決める要素として、正しい組み合わせはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q4" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q4',0)">画面の解像度と色数</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q4',1)">クロック周波数（GHz）とコア数</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q4',2)">ハードディスクの容量と回転数</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q4',3)">USB端子の数と種類</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q4-ex">
+            <span class="ex-title">💡 解説</span>
+            CPUの性能は「<strong>クロック周波数（GHz）</strong>」と「<strong>コア数</strong>」で決まります。クロック周波数は1秒間に何回処理できるか、コア数は同時に処理できる「脳みそ」の数を表します。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 3. 2進数と情報量 ══ -->
+  <div class="sec-h1"><span class="num">3</span>2進数と情報量</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 なぜコンピュータは「0と1」だけで動くのでしょう？</div>
+    <p style="margin:0;">
+      コンピュータの中は、電気が「流れる／流れない」の2つの状態しかありません。これを<strong>0と1</strong>で表すと、すべての情報が表現できます。<br>
+      この「0と1だけで数を表す方法」を<strong>2進数</strong>といいます。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ ステップ1：私たちが使っている「10進数」のしくみ</div>
+
+  <p>2進数を学ぶ前に、まずは私たちが普段使っている<strong>10進数</strong>のしくみを思い出しましょう。</p>
+
+  <p>例えば「<strong>347</strong>」という数。これは実は<strong>「位ごとの重み」</strong>でできています。</p>
+
+  <!-- 10進数の桁の重みSVG図 -->
+  <div style="background: linear-gradient(135deg, #fafdff, #f0f9ff); border: 2px dashed #3b82f6; border-radius: 10px; padding: 16px; margin: 14px 0; text-align: center;">
+    <svg viewBox="0 0 500 220" xmlns="http://www.w3.org/2000/svg" style="max-width:100%; height:auto;">
+      <!-- 数字 -->
+      <g transform="translate(140, 30)">
+        <rect x="0" y="0" width="60" height="60" fill="#DBEAFE" stroke="#3B82F6" stroke-width="2" rx="6"/>
+        <text x="30" y="44" text-anchor="middle" font-size="36" font-weight="700" fill="#1E40AF">3</text>
+      </g>
+      <g transform="translate(210, 30)">
+        <rect x="0" y="0" width="60" height="60" fill="#DBEAFE" stroke="#3B82F6" stroke-width="2" rx="6"/>
+        <text x="30" y="44" text-anchor="middle" font-size="36" font-weight="700" fill="#1E40AF">4</text>
+      </g>
+      <g transform="translate(280, 30)">
+        <rect x="0" y="0" width="60" height="60" fill="#DBEAFE" stroke="#3B82F6" stroke-width="2" rx="6"/>
+        <text x="30" y="44" text-anchor="middle" font-size="36" font-weight="700" fill="#1E40AF">7</text>
+      </g>
+
+      <!-- 位の名前 -->
+      <text x="170" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#1E40AF">百の位</text>
+      <text x="240" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#1E40AF">十の位</text>
+      <text x="310" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#1E40AF">一の位</text>
+
+      <!-- 重み -->
+      <text x="170" y="135" text-anchor="middle" font-size="11" fill="#3B82F6">100</text>
+      <text x="240" y="135" text-anchor="middle" font-size="11" fill="#3B82F6">10</text>
+      <text x="310" y="135" text-anchor="middle" font-size="11" fill="#3B82F6">1</text>
+
+      <!-- 計算 -->
+      <g transform="translate(60, 165)">
+        <text x="0" y="0" font-size="14" font-weight="700" fill="#1E40AF">3×100</text>
+        <text x="100" y="0" font-size="14" font-weight="700" fill="#1E40AF">＋</text>
+        <text x="130" y="0" font-size="14" font-weight="700" fill="#1E40AF">4×10</text>
+        <text x="220" y="0" font-size="14" font-weight="700" fill="#1E40AF">＋</text>
+        <text x="250" y="0" font-size="14" font-weight="700" fill="#1E40AF">7×1</text>
+        <text x="320" y="0" font-size="14" font-weight="700" fill="#1E40AF">＝</text>
+        <text x="350" y="0" font-size="14" font-weight="700" fill="#DC2626">347</text>
+      </g>
+      <text x="250" y="200" text-anchor="middle" font-size="13" fill="#6B7280">↑ 位が1つ上がると重みが <strong>10倍</strong> に</text>
+    </svg>
+    <div style="margin-top:8px; font-size:.85em; color:#6B7280; font-weight:700;">図：10進数の「347」は、各位の数字に重みを掛けて足したもの</div>
+  </div>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 ポイント</div>
+    <p style="margin:0;">
+      10進数では、位が1つ左に進むごとに<strong>重みが10倍</strong>になります。<br>
+      <strong>一の位 → 十の位 → 百の位 → 千の位 ...</strong> と、1・10・100・1000・10000... という具合です。<br>
+      これが「<strong>10</strong>進数」と呼ばれる理由です。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ ステップ2：「2進数」は何が違うの？</div>
+
+  <p>2進数も同じしくみです。でも違うのは、<strong>使える数字が「0」と「1」の2種類だけ</strong>。そして、位が1つ進むと<strong>重みが2倍</strong>になります。</p>
+
+  <!-- 2進数の桁の重みSVG図 -->
+  <div style="background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 2px dashed #dc2626; border-radius: 10px; padding: 16px; margin: 14px 0; text-align: center;">
+    <svg viewBox="0 0 500 240" xmlns="http://www.w3.org/2000/svg" style="max-width:100%; height:auto;">
+      <!-- 数字 -->
+      <g transform="translate(120, 30)">
+        <rect x="0" y="0" width="50" height="50" fill="#FEE2E2" stroke="#DC2626" stroke-width="2" rx="6"/>
+        <text x="25" y="38" text-anchor="middle" font-size="30" font-weight="700" fill="#991B1B">1</text>
+      </g>
+      <g transform="translate(180, 30)">
+        <rect x="0" y="0" width="50" height="50" fill="#FEE2E2" stroke="#DC2626" stroke-width="2" rx="6"/>
+        <text x="25" y="38" text-anchor="middle" font-size="30" font-weight="700" fill="#991B1B">0</text>
+      </g>
+      <g transform="translate(240, 30)">
+        <rect x="0" y="0" width="50" height="50" fill="#FEE2E2" stroke="#DC2626" stroke-width="2" rx="6"/>
+        <text x="25" y="38" text-anchor="middle" font-size="30" font-weight="700" fill="#991B1B">1</text>
+      </g>
+      <g transform="translate(300, 30)">
+        <rect x="0" y="0" width="50" height="50" fill="#FEE2E2" stroke="#DC2626" stroke-width="2" rx="6"/>
+        <text x="25" y="38" text-anchor="middle" font-size="30" font-weight="700" fill="#991B1B">1</text>
+      </g>
+
+      <!-- 位の名前 -->
+      <text x="145" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#991B1B">8の位</text>
+      <text x="205" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#991B1B">4の位</text>
+      <text x="265" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#991B1B">2の位</text>
+      <text x="325" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#991B1B">1の位</text>
+
+      <!-- 重み -->
+      <text x="145" y="120" text-anchor="middle" font-size="11" fill="#DC2626">2³＝8</text>
+      <text x="205" y="120" text-anchor="middle" font-size="11" fill="#DC2626">2²＝4</text>
+      <text x="265" y="120" text-anchor="middle" font-size="11" fill="#DC2626">2¹＝2</text>
+      <text x="325" y="120" text-anchor="middle" font-size="11" fill="#DC2626">2⁰＝1</text>
+
+      <!-- 計算 -->
+      <g transform="translate(80, 155)">
+        <text x="0" y="0" font-size="14" font-weight="700" fill="#991B1B">1×8</text>
+        <text x="55" y="0" font-size="14" font-weight="700" fill="#991B1B">＋</text>
+        <text x="80" y="0" font-size="14" font-weight="700" fill="#991B1B">0×4</text>
+        <text x="135" y="0" font-size="14" font-weight="700" fill="#991B1B">＋</text>
+        <text x="160" y="0" font-size="14" font-weight="700" fill="#991B1B">1×2</text>
+        <text x="215" y="0" font-size="14" font-weight="700" fill="#991B1B">＋</text>
+        <text x="240" y="0" font-size="14" font-weight="700" fill="#991B1B">1×1</text>
+        <text x="295" y="0" font-size="14" font-weight="700" fill="#991B1B">＝</text>
+        <text x="325" y="0" font-size="14" font-weight="700" fill="#DC2626">11</text>
+      </g>
+      <text x="250" y="195" text-anchor="middle" font-size="13" fill="#6B7280">↑ 位が1つ上がると重みが <strong>2倍</strong> に</text>
+      <text x="250" y="220" text-anchor="middle" font-size="13" font-weight="700" fill="#991B1B">2進数の「1011」＝ 10進数の「11」</text>
+    </svg>
+    <div style="margin-top:8px; font-size:.85em; color:#6B7280; font-weight:700;">図：2進数「1011」は、各位の数字に重み（1, 2, 4, 8...）を掛けて足したもの</div>
+  </div>
+
+  <!-- 「2の0乗とは？」ボタン -->
+  <div style="text-align:center; margin: 10px 0 14px;">
+    <button class="pb" onclick="openPopup('zerojou')" style="background:#7c3aed; color:white; padding:8px 18px; font-size:.95em;">🔍 「2の0乗 ＝ 1」って、なぜ？ 深く知る</button>
+  </div>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 なぜコンピュータは2進数？</div>
+    <p style="margin:0;">
+      コンピュータの中は電気の<strong>「流れる／流れない」</strong>の2状態だけで動いています。<br>
+      ・電気が流れる → <strong>1</strong><br>
+      ・電気が流れない → <strong>0</strong><br>
+      だから、自然と2進数が使われるのです。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ ステップ3：10進数と2進数の対応表</div>
+
+  <p>0から順に並べてみましょう。<strong>2進数は0と1を使い切ったら、次の桁に繰り上がります。</strong></p>
+
+  <table class="godan">
+    <tr><th>10進数</th><th>2進数</th><th style="background:#FEF3C7;color:#92400E;">読み方のコツ</th></tr>
+    <tr><td>0</td><td>0</td><td>そのまま</td></tr>
+    <tr><td>1</td><td>1</td><td>そのまま</td></tr>
+    <tr><td>2</td><td><strong>10</strong></td><td>2は「1の位」では表せない → 桁上がり！</td></tr>
+    <tr><td>3</td><td>11</td><td>2 + 1 = 10 + 1</td></tr>
+    <tr><td>4</td><td><strong>100</strong></td><td>また桁上がり！（4の位に1）</td></tr>
+    <tr><td>5</td><td>101</td><td>4 + 1</td></tr>
+    <tr><td>6</td><td>110</td><td>4 + 2</td></tr>
+    <tr><td>7</td><td>111</td><td>4 + 2 + 1</td></tr>
+    <tr><td>8</td><td><strong>1000</strong></td><td>また桁上がり！（8の位に1）</td></tr>
+    <tr><td>10</td><td>1010</td><td>8 + 2</td></tr>
+  </table>
+
+  <div class="trap-box">
+    <div class="trap-title">⚠️ ここでつまずきやすい！</div>
+    <p style="margin:0;">
+      2進数の「<strong>10</strong>」は、10進数の「じゅう」ではなく<strong>「に」</strong>です！<br>
+      読むときは「<strong>イチゼロ</strong>」と1桁ずつ読みます。<br>
+      ・2進数の「10」→ イチゼロ → 10進数の「2」<br>
+      ・2進数の「11」→ イチイチ → 10進数の「3」
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ ステップ4：2進数 → 10進数の変換（例題）</div>
+
+  <p>変換のしかたは<strong>たった3ステップ</strong>です。</p>
+
+  <div class="memo-box">
+    <div class="memo-title">📝 変換の手順</div>
+    <p style="margin:0;">
+      <strong>STEP 1</strong>：右から順に、重み（<strong>1・2・4・8・16・32・64・128</strong>...）を書く<br>
+      <strong>STEP 2</strong>：2進数の各桁と重みをかける<br>
+      <strong>STEP 3</strong>：全部足す
+    </p>
+  </div>
+
+  <!-- 例題1 -->
+  <div style="background: #ecfdf5; border: 2px solid #10b981; border-radius: 10px; padding: 16px; margin: 14px 0;">
+    <div style="color:#065F46; font-weight:700; font-size:1.05em; margin-bottom:8px;">📘 例題1：2進数「1101」を10進数にしましょう</div>
+
+    <div style="background:white; padding:12px; border-radius:8px;">
+      <p style="margin:0 0 8px;"><strong>STEP 1</strong>：右から順に「2のn乗の位」と重みを書きます</p>
+      <table style="margin:0 0 12px; border-collapse: collapse; width:100%; text-align:center; font-size:.92em;">
+        <tr style="background:#fef9c3;">
+          <th style="padding:6px; border:1px solid #cbd5e1;">2進数</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">1</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">1</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">0</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">1</th>
+        </tr>
+        <tr style="background:#e0f2fe;">
+          <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">位の名前</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#1e40af; font-weight:bold;">2³の位</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#1e40af; font-weight:bold;">2²の位</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#1e40af; font-weight:bold;">2¹の位</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#1e40af; font-weight:bold;">2⁰の位</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">重み</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">8</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">4</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">2</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">1</td>
+        </tr>
+      </table>
+
+      <p style="margin:0 0 8px;"><strong>STEP 2 & 3</strong>：各桁と重みをかけて足します</p>
+      <div style="background:#fef9c3; padding:10px 14px; border-radius:6px; font-family: monospace; font-size:1.05em;">
+        <strong>1</strong>×8 ＋ <strong>1</strong>×4 ＋ <strong>0</strong>×2 ＋ <strong>1</strong>×1<br>
+        ＝ 8 ＋ 4 ＋ 0 ＋ 1<br>
+        ＝ <strong style="color:#dc2626;">13</strong>
+      </div>
+      <p style="margin:10px 0 0; color:#065F46;"><strong>答え：2進数「1101」＝ 10進数「13」</strong></p>
+    </div>
+  </div>
+
+  <!-- 例題2 -->
+  <div style="background: #ecfdf5; border: 2px solid #10b981; border-radius: 10px; padding: 16px; margin: 14px 0;">
+    <div style="color:#065F46; font-weight:700; font-size:1.05em; margin-bottom:8px;">📘 例題2：2進数「10101」を10進数にしましょう</div>
+
+    <div style="background:white; padding:12px; border-radius:8px;">
+      <p style="margin:0 0 8px;">5桁になっても同じです。右から1・2・4・8・<strong>16</strong>...と重みを書いていきます。</p>
+      <table style="margin:0 0 12px; border-collapse: collapse; width:100%; text-align:center;">
+        <tr style="background:#fef9c3;">
+          <th style="padding:6px; border:1px solid #cbd5e1;">2進数</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">1</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">0</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">1</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">0</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">1</th>
+        </tr>
+        <tr style="background:#e0f2fe;">
+          <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">位の名前</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#1e40af; font-weight:bold;">2⁴の位</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#1e40af; font-weight:bold;">2³の位</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#1e40af; font-weight:bold;">2²の位</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#1e40af; font-weight:bold;">2¹の位</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#1e40af; font-weight:bold;">2⁰の位</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">重み</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">16</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">8</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">4</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">2</td>
+          <td style="padding:6px; border:1px solid #cbd5e1; color:#dc2626; font-weight:bold;">1</td>
+        </tr>
+      </table>
+
+      <div style="background:#fef9c3; padding:10px 14px; border-radius:6px; font-family: monospace; font-size:1.05em;">
+        <strong>1</strong>×16 ＋ <strong>0</strong>×8 ＋ <strong>1</strong>×4 ＋ <strong>0</strong>×2 ＋ <strong>1</strong>×1<br>
+        ＝ 16 ＋ 0 ＋ 4 ＋ 0 ＋ 1<br>
+        ＝ <strong style="color:#dc2626;">21</strong>
+      </div>
+      <p style="margin:10px 0 0; color:#065F46;"><strong>答え：2進数「10101」＝ 10進数「21」</strong></p>
+    </div>
+  </div>
+
+  <div class="memo-box" style="background:#ede9fe;border-color:#7c3aed;">
+    <div class="memo-title" style="color:#4c1d95;">💡 暗記すべき重み（右から）</div>
+    <p style="margin:0; font-family:monospace; font-size:1.05em; color:#4c1d95; text-align:center;">
+      <strong>1 ・ 2 ・ 4 ・ 8 ・ 16 ・ 32 ・ 64 ・ 128 ・ 256</strong>
+    </p>
+    <p style="margin:6px 0 0; font-size:.9em;">
+      この数列を覚えておくと、変換がスムーズになります。「<strong>1から始めて、2倍ずつ</strong>」と覚えましょう。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ ステップ5：10進数 → 2進数の変換（例題）</div>
+
+  <p>逆向きの変換も大事です。「<strong>2で割って余りを書く</strong>」を繰り返します。</p>
+
+  <!-- 例題3 -->
+  <div style="background: #ecfdf5; border: 2px solid #10b981; border-radius: 10px; padding: 16px; margin: 14px 0;">
+    <div style="color:#065F46; font-weight:700; font-size:1.05em; margin-bottom:8px;">📘 例題3：10進数「13」を2進数にしましょう</div>
+
+    <div style="background:white; padding:12px; border-radius:8px;">
+      <p style="margin:0 0 8px;"><strong>2で割り続けて、余りを書く</strong>方法です。</p>
+      <table style="margin:0 0 12px; border-collapse: collapse; width:100%;">
+        <tr style="background:#fef9c3;">
+          <th style="padding:6px; border:1px solid #cbd5e1;">わり算</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">商</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">余り</th>
+        </tr>
+        <tr><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">13 ÷ 2</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">6</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#dc2626; font-weight:bold;">1</td></tr>
+        <tr><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">6 ÷ 2</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">3</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#dc2626; font-weight:bold;">0</td></tr>
+        <tr><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">3 ÷ 2</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">1</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#dc2626; font-weight:bold;">1</td></tr>
+        <tr><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">1 ÷ 2</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">0</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#dc2626; font-weight:bold;">1</td></tr>
+      </table>
+
+      <div style="background:#fef9c3; padding:10px 14px; border-radius:6px; font-size:1.0em;">
+        <strong>余りを下から上に読む</strong> → <strong style="color:#dc2626; font-family:monospace; font-size:1.2em;">1101</strong>
+      </div>
+      <p style="margin:10px 0 0; color:#065F46;"><strong>答え：10進数「13」＝ 2進数「1101」</strong></p>
+      <p style="margin:6px 0 0; font-size:.88em; color:#666;">※ 例題1で「1101 → 13」だったので、これで往復できることが確認できます！</p>
+    </div>
+  </div>
+
+  <!-- 例題4 -->
+  <div style="background: #ecfdf5; border: 2px solid #10b981; border-radius: 10px; padding: 16px; margin: 14px 0;">
+    <div style="color:#065F46; font-weight:700; font-size:1.05em; margin-bottom:8px;">📘 例題4：10進数「25」を2進数にしましょう</div>
+
+    <div style="background:white; padding:12px; border-radius:8px;">
+      <table style="margin:0 0 12px; border-collapse: collapse; width:100%;">
+        <tr style="background:#fef9c3;">
+          <th style="padding:6px; border:1px solid #cbd5e1;">わり算</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">商</th>
+          <th style="padding:6px; border:1px solid #cbd5e1;">余り</th>
+        </tr>
+        <tr><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">25 ÷ 2</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">12</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#dc2626; font-weight:bold;">1</td></tr>
+        <tr><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">12 ÷ 2</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">6</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#dc2626; font-weight:bold;">0</td></tr>
+        <tr><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">6 ÷ 2</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">3</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#dc2626; font-weight:bold;">0</td></tr>
+        <tr><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">3 ÷ 2</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">1</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#dc2626; font-weight:bold;">1</td></tr>
+        <tr><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">1 ÷ 2</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">0</td><td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#dc2626; font-weight:bold;">1</td></tr>
+      </table>
+
+      <div style="background:#fef9c3; padding:10px 14px; border-radius:6px; font-size:1.0em;">
+        余りを下から読む → <strong style="color:#dc2626; font-family:monospace; font-size:1.2em;">11001</strong>
+      </div>
+      <p style="margin:10px 0 0; color:#065F46;"><strong>答え：10進数「25」＝ 2進数「11001」</strong></p>
+      <p style="margin:6px 0 0; font-size:.88em; color:#666;">※ 検算：1×16 + 1×8 + 0×4 + 0×2 + 1×1 = 16+8+1 = <strong>25</strong> ✓</p>
+    </div>
+  </div>
+
+  <div class="sec-h2">▶ ステップ6：練習問題にチャレンジ！</div>
+
+  <p>下の練習問題で力を試しましょう。答えはクリックすると表示されます。</p>
+
+  <!-- 練習問題 -->
+  <div style="background: #fff7ed; border: 2px solid #fb923c; border-radius: 10px; padding: 16px; margin: 14px 0;">
+    <div style="color:#9a3412; font-weight:700; font-size:1.05em; margin-bottom:12px;">✏️ 練習問題（2進数 → 10進数）</div>
+
+    <div style="background:white; padding:12px 16px; border-radius:8px; margin-bottom:10px;">
+      <p style="margin:0 0 6px;"><strong>問1.</strong> 2進数「<span style="font-family:monospace; font-size:1.15em; background:#fef9c3; padding:2px 8px; border-radius:4px;">110</span>」を10進数にしましょう。</p>
+      <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';" style="background:#dc2626; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:.85em;">👁️ 答えを見る</button>
+      <div style="display:none; margin-top:8px; padding:10px; background:#fef9c3; border-radius:6px;">
+        <strong>答え：6</strong><br>
+        <span style="font-family:monospace; font-size:.95em;">1×4 + 1×2 + 0×1 = 4 + 2 + 0 = <strong>6</strong></span>
+      </div>
+    </div>
+
+    <div style="background:white; padding:12px 16px; border-radius:8px; margin-bottom:10px;">
+      <p style="margin:0 0 6px;"><strong>問2.</strong> 2進数「<span style="font-family:monospace; font-size:1.15em; background:#fef9c3; padding:2px 8px; border-radius:4px;">1001</span>」を10進数にしましょう。</p>
+      <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';" style="background:#dc2626; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:.85em;">👁️ 答えを見る</button>
+      <div style="display:none; margin-top:8px; padding:10px; background:#fef9c3; border-radius:6px;">
+        <strong>答え：9</strong><br>
+        <span style="font-family:monospace; font-size:.95em;">1×8 + 0×4 + 0×2 + 1×1 = 8 + 0 + 0 + 1 = <strong>9</strong></span>
+      </div>
+    </div>
+
+    <div style="background:white; padding:12px 16px; border-radius:8px; margin-bottom:10px;">
+      <p style="margin:0 0 6px;"><strong>問3.</strong> 2進数「<span style="font-family:monospace; font-size:1.15em; background:#fef9c3; padding:2px 8px; border-radius:4px;">1111</span>」を10進数にしましょう。</p>
+      <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';" style="background:#dc2626; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:.85em;">👁️ 答えを見る</button>
+      <div style="display:none; margin-top:8px; padding:10px; background:#fef9c3; border-radius:6px;">
+        <strong>答え：15</strong><br>
+        <span style="font-family:monospace; font-size:.95em;">1×8 + 1×4 + 1×2 + 1×1 = 8 + 4 + 2 + 1 = <strong>15</strong></span><br>
+        <span style="font-size:.85em; color:#666;">※ 4桁すべて1の場合、最大値の15になります（4ビットで表現できる最大数）</span>
+      </div>
+    </div>
+
+    <div style="background:white; padding:12px 16px; border-radius:8px;">
+      <p style="margin:0 0 6px;"><strong>問4.</strong> 2進数「<span style="font-family:monospace; font-size:1.15em; background:#fef9c3; padding:2px 8px; border-radius:4px;">11010</span>」を10進数にしましょう。</p>
+      <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';" style="background:#dc2626; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:.85em;">👁️ 答えを見る</button>
+      <div style="display:none; margin-top:8px; padding:10px; background:#fef9c3; border-radius:6px;">
+        <strong>答え：26</strong><br>
+        <span style="font-family:monospace; font-size:.95em;">1×16 + 1×8 + 0×4 + 1×2 + 0×1 = 16 + 8 + 0 + 2 + 0 = <strong>26</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: #fff7ed; border: 2px solid #fb923c; border-radius: 10px; padding: 16px; margin: 14px 0;">
+    <div style="color:#9a3412; font-weight:700; font-size:1.05em; margin-bottom:12px;">✏️ 練習問題（10進数 → 2進数）</div>
+
+    <div style="background:white; padding:12px 16px; border-radius:8px; margin-bottom:10px;">
+      <p style="margin:0 0 6px;"><strong>問5.</strong> 10進数「<span style="font-family:monospace; font-size:1.15em; background:#fef9c3; padding:2px 8px; border-radius:4px;">5</span>」を2進数にしましょう。</p>
+      <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';" style="background:#dc2626; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:.85em;">👁️ 答えを見る</button>
+      <div style="display:none; margin-top:8px; padding:10px; background:#fef9c3; border-radius:6px;">
+        <strong>答え：101</strong><br>
+        <span style="font-family:monospace; font-size:.92em;">5÷2=2余り<strong>1</strong>、2÷2=1余り<strong>0</strong>、1÷2=0余り<strong>1</strong> → 下から読む → <strong>101</strong></span>
+      </div>
+    </div>
+
+    <div style="background:white; padding:12px 16px; border-radius:8px; margin-bottom:10px;">
+      <p style="margin:0 0 6px;"><strong>問6.</strong> 10進数「<span style="font-family:monospace; font-size:1.15em; background:#fef9c3; padding:2px 8px; border-radius:4px;">12</span>」を2進数にしましょう。</p>
+      <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';" style="background:#dc2626; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:.85em;">👁️ 答えを見る</button>
+      <div style="display:none; margin-top:8px; padding:10px; background:#fef9c3; border-radius:6px;">
+        <strong>答え：1100</strong><br>
+        <span style="font-family:monospace; font-size:.92em;">12÷2=6余り<strong>0</strong>、6÷2=3余り<strong>0</strong>、3÷2=1余り<strong>1</strong>、1÷2=0余り<strong>1</strong> → 下から → <strong>1100</strong></span>
+      </div>
+    </div>
+
+    <div style="background:white; padding:12px 16px; border-radius:8px;">
+      <p style="margin:0 0 6px;"><strong>問7.</strong> 10進数「<span style="font-family:monospace; font-size:1.15em; background:#fef9c3; padding:2px 8px; border-radius:4px;">20</span>」を2進数にしましょう。</p>
+      <button onclick="this.nextElementSibling.style.display='block'; this.style.display='none';" style="background:#dc2626; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:.85em;">👁️ 答えを見る</button>
+      <div style="display:none; margin-top:8px; padding:10px; background:#fef9c3; border-radius:6px;">
+        <strong>答え：10100</strong><br>
+        <span style="font-family:monospace; font-size:.92em;">20÷2=10余り<strong>0</strong>、10÷2=5余り<strong>0</strong>、5÷2=2余り<strong>1</strong>、2÷2=1余り<strong>0</strong>、1÷2=0余り<strong>1</strong> → 下から → <strong>10100</strong></span><br>
+        <span style="font-size:.85em; color:#666;">※ 検算：1×16 + 0×8 + 1×4 + 0×2 + 0×1 = 16+4 = <strong>20</strong> ✓</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-h2">▶ ビットとバイト</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('bit')">💡 【ビット】</button>
+    は2進数の1桁分の情報量です。
+    <button class="pb" onclick="openPopup('byte')">💡 【バイト】</button>
+    は8ビットをまとめた単位です。
+  </p>
+
+  <table class="godan">
+    <tr><th>単位</th><th>大きさ</th><th>表現できる数</th></tr>
+    <tr>
+      <td><strong>1ビット</strong></td>
+      <td>2進数の1桁</td>
+      <td>2通り（0, 1）</td>
+    </tr>
+    <tr>
+      <td><strong>2ビット</strong></td>
+      <td>2進数の2桁</td>
+      <td>4通り（00, 01, 10, 11）</td>
+    </tr>
+    <tr>
+      <td><strong>3ビット</strong></td>
+      <td>2進数の3桁</td>
+      <td>8通り（000〜111）</td>
+    </tr>
+    <tr>
+      <td><strong>4ビット</strong></td>
+      <td>2進数の4桁</td>
+      <td>16通り（0000〜1111）</td>
+    </tr>
+    <tr>
+      <td><strong>1バイト</strong></td>
+      <td>8ビット</td>
+      <td>256通り（2の8乗）</td>
+    </tr>
+  </table>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方：「nビット → 2のn乗通り」</div>
+    <p style="margin:0;">
+      ビットが1つ増えると、表現できる数は2倍になります。<br>
+      ・1ビット → 2通り（2の1乗）<br>
+      ・2ビット → 4通り（2の2乗）<br>
+      ・3ビット → 8通り（2の3乗）<br>
+      ・8ビット（1バイト） → <strong>256通り</strong>（2の8乗）<br>
+      8ビットで256通り。これでアルファベット・記号・数字を全部表せます。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ 容量の単位</div>
+
+  <table class="godan">
+    <tr><th>単位</th><th>大きさ</th><th>例（おおよそ）</th></tr>
+    <tr>
+      <td><strong>1KB</strong>（キロバイト）</td>
+      <td>約1,000バイト</td>
+      <td>短い文章</td>
+    </tr>
+    <tr>
+      <td><strong>1MB</strong>（メガバイト）</td>
+      <td>約1,000KB</td>
+      <td>写真1枚、3分の音楽</td>
+    </tr>
+    <tr>
+      <td><strong>1GB</strong>（ギガバイト）</td>
+      <td>約1,000MB</td>
+      <td>映画1本、写真数百枚</td>
+    </tr>
+    <tr>
+      <td><strong>1TB</strong>（テラバイト）</td>
+      <td>約1,000GB</td>
+      <td>映画数百本、写真数十万枚</td>
+    </tr>
+  </table>
+
+  <!-- 穴埋め3 -->
+  <p style="font-size:.95em;">
+    ※ 0と1の2つの数字だけで数を表す方法を
+    <span class="dz" data-ans="2進数" data-id="c7"></span>
+    という。2進数1桁分の情報量を
+    <span class="dz" data-ans="ビット" data-id="c8"></span>
+    といい、8ビットをまとめた単位を
+    <span class="dz" data-ans="バイト" data-id="c9"></span>
+    という。
+  </p>
+
+  <!-- ════ ミニテスト③：2進数 ════ -->
+  <div class="minitest" data-mt="mt3">
+    <button class="mt-toggle" onclick="toggleMt('mt3')">
+      <span>📝 ミニテスト③：2進数と情報量を確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt3-body">
+      <div class="mt-inner">
+
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt3-passage">
+          0と1の2つの数字だけで数を表す方法を
+          <span class="mt-blank" data-ans="2進数">2進数</span>
+          といいます。2進数1桁分の情報量を
+          <span class="mt-blank" data-ans="ビット">ビット</span>、
+          8ビットをまとめた単位を
+          <span class="mt-blank" data-ans="バイト">バイト</span>
+          といい、1バイトでは
+          <span class="mt-blank" data-ans="256">256</span>
+          通りの情報を表現できます。
+        </div>
+        <div class="mt-wordbank" id="mt3-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt3-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt3')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt3')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt3')">📖 答えを見る</button>
+        </div>
+        <div id="mt3-result"></div>
+
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            2進数の「<strong>1101</strong>」を10進数に直すといくつになりますか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q1" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',0)">11</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',1)">12</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',2)">13</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',3)">14</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            右から順に重みを掛けて足します：1×<strong>1</strong> + 0×<strong>2</strong> + 1×<strong>4</strong> + 1×<strong>8</strong> = <strong>13</strong>。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            1バイトで表現できる情報の数は何通りですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q2" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',0)">8通り</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',1)">64通り</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',2)">256通り</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',3)">1024通り</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            1バイト＝8ビット。8ビットで表現できるのは2の8乗＝<strong>256通り</strong>です。「nビットなら2のn乗通り」と覚えましょう。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第3問</span>
+            10進数の「<strong>10</strong>」を2進数に直すといくつになりますか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q3" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q3',0)">1001</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q3',1)">1010</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q3',2)">1100</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q3',3)">1110</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q3-ex">
+            <span class="ex-title">💡 解説</span>
+            10 = 8 + 2 = 1×<strong>8</strong> + 0×<strong>4</strong> + 1×<strong>2</strong> + 0×<strong>1</strong> = <strong>1010</strong>。または、2で割り続けて余りを下から並べる方法：10÷2=5余り0、5÷2=2余り1、2÷2=1余り0、1÷2=0余り1 → <strong>1010</strong>。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第4問</span>
+            容量の単位の順番として、正しいものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q4" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q4',0)">KB → MB → GB → TB（1000倍ずつ大きくなる）</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q4',1)">KB → MB → TB → GB</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q4',2)">TB → GB → MB → KB（1000倍ずつ大きくなる）</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q4',3)">MB → KB → GB → TB</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q4-ex">
+            <span class="ex-title">💡 解説</span>
+            容量の単位は<strong>KB → MB → GB → TB</strong>の順に大きくなります（それぞれ約1000倍）。1KB≒1,000バイト、1MB≒1,000KB、1GB≒1,000MB、1TB≒1,000GB。スマホの容量は通常GB単位、外付けHDDはTB単位です。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 4. ディジタル化（joho4より） ══ -->
+  <div class="sec-h1"><span class="num">4</span>ディジタル化 ― 文字・音・画像をコンピュータで扱う</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 文字や音楽がパソコンの中で扱えるのはなぜ？</div>
+    <p style="margin:0;">
+      コンピュータは「0と1」しか分かりません。それなのにLINEで日本語の文字が送れて、Spotifyで音楽が聴けて、Instagramで写真が見られるのは、すべて<strong>「0と1の列」に変換する仕組み</strong>があるからです。<br>
+      この変換のことを<strong>ディジタル化</strong>といいます。これから10個のテーマで、ディジタル化のしくみをじっくり見ていきます。
+    </p>
+  </div>
+
+  <!-- ════════ 単元 1 (u1): 1. アナログとディジタル ════════ -->
+  <div class="sec-h2" style="margin-top:24px;">▶ 単元1：アナログとディジタル</div>
+
+<p>わたしたちの身の回りには、温度や音の強さ、光の明るさのように<b>連続的に変化する量</b>がたくさんあります。これを表現する方法には2種類あります。</p>
+
+<div class="figure">
+<svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- アナログ波形 -->
+  <text x="80" y="20" font-size="14" font-weight="bold" fill="#0E7490">アナログ(連続)</text>
+  <path d="M 30 100 Q 80 50, 130 100 T 230 100 T 330 100" stroke="#F59E0B" stroke-width="3" fill="none"/>
+  <line x1="20" y1="160" x2="340" y2="160" stroke="#666" stroke-width="1"/>
+  <line x1="20" y1="40" x2="20" y2="170" stroke="#666" stroke-width="1"/>
+  <text x="20" y="185" font-size="11" fill="#666">時間</text>
+  <text x="6" y="35" font-size="11" fill="#666">値</text>
+  <!-- ディジタル波形 -->
+  <text x="430" y="20" font-size="14" font-weight="bold" fill="#0E7490">ディジタル(階段状)</text>
+  <path d="M 380 130 L 410 130 L 410 70 L 440 70 L 440 110 L 470 110 L 470 60 L 500 60 L 500 100 L 530 100 L 530 130 L 560 130" stroke="#0891B2" stroke-width="3" fill="none"/>
+  <line x1="370" y1="160" x2="580" y2="160" stroke="#666" stroke-width="1"/>
+  <line x1="370" y1="40" x2="370" y2="170" stroke="#666" stroke-width="1"/>
+  <text x="370" y="185" font-size="11" fill="#666">時間</text>
+  <text x="356" y="35" font-size="11" fill="#666">値</text>
+</svg>
+<div class="figure-caption">図:アナログ(なめらかな曲線)とディジタル(階段状)</div>
+</div>
+
+<p><span class="term" data-term="アナログ">アナログ</span>とは、温度や音の強さなどの連続的な量を、<b>針の位置や水銀柱の長さ、電圧の高さ</b>などの連続的な量で表現することです。</p>
+
+<p>これに対し<span class="term" data-term="ディジタル">ディジタル</span>では、連続的に変化する量を、<b>一定の間隔で区切り、とびとびの数値</b>で表現します。例:最小単位0.1℃のディジタル温度計では、22.6℃の次は22.7℃で、22.64℃という温度は表現できません。</p>
+
+<p>身近な例では、アナログ時計は針の位置が連続的に動きますが、ディジタル時計は「12:34」のように1分ごとにカチッと切り替わります。</p>
+
+
+  <!-- ════════ 単元 2 (u5): 5. ペイント系とドロー系 ════════ -->
+  <div class="sec-h2" style="margin-top:24px;">▶ 単元2：ペイント系とドロー系</div>
+
+<p>ディジタル画像には大きく分けて2つの形式があります。それぞれ得意なことがちがうので、使い分けが大切です。</p>
+
+<div class="figure">
+<svg viewBox="0 0 600 240" xmlns="http://www.w3.org/2000/svg">
+  <!-- ペイント系(ラスタ) -->
+  <text x="100" y="20" font-weight="bold" fill="#0E7490" text-anchor="middle" font-size="14">ペイント系(ラスタ形式)</text>
+  <g transform="translate(20,30)">
+    <text x="80" y="15" font-size="11" text-anchor="middle">小さいとき</text>
+    <g transform="translate(50,25)">
+      <rect width="60" height="60" fill="#fff" stroke="#888"/>
+      <line x1="0" y1="0" x2="60" y2="60" stroke="#0891B2" stroke-width="2"/>
+    </g>
+    <text x="80" y="105" font-size="11" text-anchor="middle">→ 拡大すると</text>
+    <g transform="translate(20,115)">
+      <!-- ジャギー -->
+      <g font-size="0">
+        <rect width="20" height="20" x="0" y="100" fill="#0891B2"/>
+        <rect width="20" height="20" x="20" y="80" fill="#0891B2"/>
+        <rect width="20" height="20" x="40" y="60" fill="#0891B2"/>
+        <rect width="20" height="20" x="60" y="40" fill="#0891B2"/>
+        <rect width="20" height="20" x="80" y="20" fill="#0891B2"/>
+        <rect width="20" height="20" x="100" y="0" fill="#0891B2"/>
+      </g>
+      <rect width="120" height="120" fill="none" stroke="#888"/>
+    </g>
+    <text x="80" y="245" font-size="12" fill="#EF4444" text-anchor="middle" font-weight="bold">ジャギー(ギザギザ)</text>
+  </g>
+  <!-- 区切り線 -->
+  <line x1="300" y1="30" x2="300" y2="240" stroke="#ddd" stroke-dasharray="4 4"/>
+  <!-- ドロー系(ベクタ) -->
+  <text x="450" y="20" font-weight="bold" fill="#0E7490" text-anchor="middle" font-size="14">ドロー系(ベクタ形式)</text>
+  <g transform="translate(370,30)">
+    <text x="80" y="15" font-size="11" text-anchor="middle">小さいとき</text>
+    <g transform="translate(50,25)">
+      <rect width="60" height="60" fill="#fff" stroke="#888"/>
+      <line x1="0" y1="0" x2="60" y2="60" stroke="#0891B2" stroke-width="2"/>
+    </g>
+    <text x="80" y="105" font-size="11" text-anchor="middle">→ 拡大しても</text>
+    <g transform="translate(20,115)">
+      <rect width="120" height="120" fill="#fff" stroke="#888"/>
+      <line x1="0" y1="0" x2="120" y2="120" stroke="#0891B2" stroke-width="3"/>
+    </g>
+    <text x="80" y="245" font-size="12" fill="#10B981" text-anchor="middle" font-weight="bold">なめらか!</text>
+  </g>
+</svg>
+<div class="figure-caption">図:拡大時の違い — ラスタはギザギザ、ベクタはなめらか</div>
+</div>
+
+<p><span class="term" data-term="ペイント系">ペイント系ソフトウェア</span>は画像を画素(<span class="term" data-term="ピクセル">ピクセル</span>)と呼ばれる点の集まりとして表現します。この画像形式を<span class="term" data-term="ラスタ形式">ラスタ形式(ラスタグラフィックス)</span>といいます。</p>
+<p>ペイント系は、写真の加工(コントラスト調整、モザイク、ネガなど)に向いていますが、拡大するとジャギー(ギザギザ)が目立ちます。代表ソフトは Adobe Photoshop です。</p>
+
+<p><span class="term" data-term="ドロー系">ドロー系ソフトウェア</span>は画像を、基準点からの座標や角度、太さなどの数値で表現します。この画像形式を<span class="term" data-term="ベクタ形式">ベクタ形式(ベクタグラフィックス)</span>といいます。</p>
+<p>ドロー系は倍率に合わせて作画し直すため、拡大してもジャギーが生じません。ロゴやイラストの作成に適しています。代表ソフトは Adobe Illustrator です。</p>
+
+<p><b>レイヤーとトリミング</b>:レイヤー(層)を重ねて1枚の画像を合成できます。トリミングは画像から不要な部分を取り除く処理です。</p>
+
+
+  <!-- ════════ 単元 3 (u7): 7. 文字コード ════════ -->
+  <div class="sec-h2" style="margin-top:24px;">▶ 単元3：文字コード</div>
+
+<p>文字や記号も0と1の組み合わせで表現できます。<b>「どの数字をどの文字に対応させるか」</b>を決めたものを<span class="term" data-term="文字コード">文字コード</span>と呼びます。</p>
+
+<div class="figure">
+<svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+  <text x="300" y="20" text-anchor="middle" font-weight="bold" fill="#0E7490" font-size="14">文字コードによる対応の例</text>
+  <g font-size="14" font-weight="bold">
+    <!-- 文字 -->
+    <g transform="translate(20,40)">
+      <rect width="80" height="50" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2" rx="6"/>
+      <text x="40" y="32" text-anchor="middle" font-size="22">J</text>
+      <text x="40" y="68" text-anchor="middle" font-size="11" fill="#666">文字</text>
+    </g>
+    <text x="120" y="75" font-size="20" fill="#0891B2">→</text>
+    <!-- 16進 -->
+    <g transform="translate(160,40)">
+      <rect width="100" height="50" fill="#CFFAFE" stroke="#0891B2" stroke-width="2" rx="6"/>
+      <text x="50" y="30" text-anchor="middle" font-size="16">(4A)₁₆</text>
+      <text x="50" y="68" text-anchor="middle" font-size="11" fill="#666">16進数</text>
+    </g>
+    <text x="280" y="75" font-size="20" fill="#0891B2">→</text>
+    <!-- 2進 -->
+    <g transform="translate(320,40)">
+      <rect width="180" height="50" fill="#A5F3FC" stroke="#0891B2" stroke-width="2" rx="6"/>
+      <text x="90" y="30" text-anchor="middle" font-family="monospace" font-size="16">01001010</text>
+      <text x="90" y="68" text-anchor="middle" font-size="11" fill="#666">2進数(8ビット=1バイト)</text>
+    </g>
+  </g>
+  <text x="300" y="155" text-anchor="middle" font-size="13" fill="#0E7490">大文字「J」は16進数で(4A)₁₆ → 2進数で01001010</text>
+</svg>
+<div class="figure-caption">図:文字「J」の文字コードによる表現</div>
+</div>
+
+<p><b>文字コードのバイト数</b></p>
+<ul style="margin-left:24px;">
+<li>英数字や記号 → 1バイト(=2⁸=256種類)</li>
+<li>漢字など → 2バイト以上(=2¹⁶=65536種類)</li>
+</ul>
+
+<p><b>主な文字コード</b></p>
+<ul style="margin-left:24px;">
+<li><span class="term" data-term="JISコード">JISコード</span>:1バイト文字。半角英数字・半角カタカナなど。</li>
+<li>シフトJIS:JISを拡張して全角文字も表現。</li>
+<li>EUC:UNIX系で使われる。</li>
+<li><span class="term" data-term="Unicode">Unicode</span>:世界各国の文字を1つの体系で扱える。</li>
+</ul>
+
+<p><b>制御コード</b>:文字コードのうち(00)₁₆〜(1F)₁₆および(7F)₁₆の部分は、文字の表示や周辺機器を制御するための特殊なコードが割り当てられています。例:改行を表すコード(0D)₁₆と(0A)₁₆。</p>
+
+
+  <!-- ════════ 単元 4 (u8): 8. 音のディジタル化 ════════ -->
+  <div class="sec-h2" style="margin-top:24px;">▶ 単元4：音のディジタル化</div>
+
+<p>音は空気の振動が伝わる波で、連続的に変化する<b>アナログ</b>です。これをコンピュータで扱える<b>ディジタル</b>に変換する3ステップ「<b>標本化→量子化→符号化</b>」を学びましょう。</p>
+
+<div class="figure">
+<svg viewBox="0 0 640 380" xmlns="http://www.w3.org/2000/svg">
+  <!-- アナログ波形 -->
+  <text x="20" y="20" font-weight="bold" fill="#0E7490" font-size="13">① もとのアナログ波形</text>
+  <g transform="translate(20,30)">
+    <line x1="0" y1="50" x2="280" y2="50" stroke="#888"/>
+    <line x1="0" y1="0" x2="0" y2="100" stroke="#888"/>
+    <path d="M 0 70 Q 35 20, 70 50 T 140 60 T 210 35 T 280 55" stroke="#F59E0B" stroke-width="2.5" fill="none"/>
+    <text x="-12" y="55" font-size="10" fill="#666">電圧</text>
+    <text x="285" y="55" font-size="10" fill="#666">時間</text>
+  </g>
+  <!-- 標本化 -->
+  <text x="340" y="20" font-weight="bold" fill="#0E7490" font-size="13">② 標本化(時間で区切り点を取る)</text>
+  <g transform="translate(340,30)">
+    <line x1="0" y1="50" x2="280" y2="50" stroke="#888"/>
+    <line x1="0" y1="0" x2="0" y2="100" stroke="#888"/>
+    <path d="M 0 70 Q 35 20, 70 50 T 140 60 T 210 35 T 280 55" stroke="#F59E0B" stroke-width="1.5" fill="none" opacity="0.4"/><line x1="0" y1="0" x2="0" y2="100" stroke="#0891B2" stroke-dasharray="2 3" opacity="0.5"/><line x1="35" y1="0" x2="35" y2="100" stroke="#0891B2" stroke-dasharray="2 3" opacity="0.5"/><line x1="70" y1="0" x2="70" y2="100" stroke="#0891B2" stroke-dasharray="2 3" opacity="0.5"/><line x1="105" y1="0" x2="105" y2="100" stroke="#0891B2" stroke-dasharray="2 3" opacity="0.5"/><line x1="140" y1="0" x2="140" y2="100" stroke="#0891B2" stroke-dasharray="2 3" opacity="0.5"/><line x1="175" y1="0" x2="175" y2="100" stroke="#0891B2" stroke-dasharray="2 3" opacity="0.5"/><line x1="210" y1="0" x2="210" y2="100" stroke="#0891B2" stroke-dasharray="2 3" opacity="0.5"/><line x1="245" y1="0" x2="245" y2="100" stroke="#0891B2" stroke-dasharray="2 3" opacity="0.5"/><line x1="280" y1="0" x2="280" y2="100" stroke="#0891B2" stroke-dasharray="2 3" opacity="0.5"/><circle cx="0" cy="70" r="4" fill="#0891B2"/><circle cx="35" cy="32" r="4" fill="#0891B2"/><circle cx="70" cy="50" r="4" fill="#0891B2"/><circle cx="105" cy="55" r="4" fill="#0891B2"/><circle cx="140" cy="60" r="4" fill="#0891B2"/><circle cx="175" cy="52" r="4" fill="#0891B2"/><circle cx="210" cy="35" r="4" fill="#0891B2"/><circle cx="245" cy="42" r="4" fill="#0891B2"/><circle cx="280" cy="55" r="4" fill="#0891B2"/>
+  </g>
+  <!-- 量子化 -->
+  <text x="20" y="200" font-weight="bold" fill="#0E7490" font-size="13">③ 量子化(縦軸を段階値にそろえる)</text>
+  <g transform="translate(20,210)">
+    <line x1="0" y1="100" x2="280" y2="100" stroke="#888"/>
+    <line x1="0" y1="0" x2="0" y2="100" stroke="#888"/><line x1="0" y1="12" x2="280" y2="12" stroke="#ddd" stroke-dasharray="2 2"/><line x1="0" y1="25" x2="280" y2="25" stroke="#ddd" stroke-dasharray="2 2"/><line x1="0" y1="38" x2="280" y2="38" stroke="#ddd" stroke-dasharray="2 2"/><line x1="0" y1="51" x2="280" y2="51" stroke="#ddd" stroke-dasharray="2 2"/><line x1="0" y1="64" x2="280" y2="64" stroke="#ddd" stroke-dasharray="2 2"/><line x1="0" y1="77" x2="280" y2="77" stroke="#ddd" stroke-dasharray="2 2"/><line x1="0" y1="90" x2="280" y2="90" stroke="#ddd" stroke-dasharray="2 2"/><line x1="0" y1="100" x2="30" y2="100" stroke="#0891B2" stroke-width="3" stroke-linecap="round" transform="translate(0,-23)"/><line x1="35" y1="100" x2="65" y2="100" stroke="#0891B2" stroke-width="3" stroke-linecap="round" transform="translate(0,-75)"/><line x1="70" y1="100" x2="100" y2="100" stroke="#0891B2" stroke-width="3" stroke-linecap="round" transform="translate(0,-49)"/><line x1="105" y1="100" x2="135" y2="100" stroke="#0891B2" stroke-width="3" stroke-linecap="round" transform="translate(0,-36)"/><line x1="140" y1="100" x2="170" y2="100" stroke="#0891B2" stroke-width="3" stroke-linecap="round" transform="translate(0,-36)"/><line x1="175" y1="100" x2="205" y2="100" stroke="#0891B2" stroke-width="3" stroke-linecap="round" transform="translate(0,-49)"/><line x1="210" y1="100" x2="240" y2="100" stroke="#0891B2" stroke-width="3" stroke-linecap="round" transform="translate(0,-62)"/><line x1="245" y1="100" x2="275" y2="100" stroke="#0891B2" stroke-width="3" stroke-linecap="round" transform="translate(0,-62)"/><line x1="280" y1="100" x2="310" y2="100" stroke="#0891B2" stroke-width="3" stroke-linecap="round" transform="translate(0,-49)"/><rect x="-2" y="77" width="4" height="23" fill="#0891B2" opacity="0.6"/><rect x="33" y="25" width="4" height="75" fill="#0891B2" opacity="0.6"/><rect x="68" y="51" width="4" height="49" fill="#0891B2" opacity="0.6"/><rect x="103" y="64" width="4" height="36" fill="#0891B2" opacity="0.6"/><rect x="138" y="64" width="4" height="36" fill="#0891B2" opacity="0.6"/><rect x="173" y="51" width="4" height="49" fill="#0891B2" opacity="0.6"/><rect x="208" y="38" width="4" height="62" fill="#0891B2" opacity="0.6"/><rect x="243" y="38" width="4" height="62" fill="#0891B2" opacity="0.6"/>
+  </g>
+  <!-- 符号化 -->
+  <text x="340" y="200" font-weight="bold" fill="#0E7490" font-size="13">④ 符号化(値を2進数に変換)</text>
+  <g transform="translate(340,210)" font-family="monospace" font-size="12">
+    <text x="0" y="20">2 5 7 5 5 4 3 3 4</text>
+    <text x="0" y="40">↓ 各値を3ビットで符号化</text>
+    <text x="0" y="65">010</text><text x="35" y="65">101</text><text x="70" y="65">111</text>
+    <text x="105" y="65">101</text><text x="140" y="65">101</text><text x="175" y="65">100</text>
+    <text x="210" y="65">011</text><text x="245" y="65">011</text><text x="280" y="65">100</text>
+    <text x="0" y="95" fill="#10B981" font-weight="bold">→ 010101111101101100011011100</text>
+  </g>
+</svg>
+<div class="figure-caption">図:音のディジタル化(標本化→量子化→符号化)</div>
+</div>
+
+<p><b>3つのステップ</b></p>
+
+<p><b>① <span class="term" data-term="標本化">標本化(サンプリング)</span></b>:横軸(時間)を一定の時間間隔で区切り、その時間ごとに音の振れの値を取り出します。区切る時間間隔を<b>標本化周期</b>、その逆数(1秒間に標本化する回数)を<b>標本化周波数</b>といい、単位はHz。</p>
+
+<p><b>② <span class="term" data-term="量子化">量子化</span></b>:縦軸(電圧)を一定の間隔で区切って段階値を決め、標本化した点を最も近い段階値にそろえます。段階数を決めるのが<b>量子化ビット数</b>(nビット → 2ⁿ段階)。</p>
+
+<p><b>③ <span class="term" data-term="符号化">符号化</span></b>:量子化した値を2進数で表現することです。音などの情報を2進数の符号に変換する方式を<span class="term" data-term="PCM">PCM(パルス符号変調)</span>といいます。</p>
+
+<p><b>標本化周波数と量子化ビット数の関係</b>:両方とも値が大きいほどもとの波形に近くなりますが、データ量も増えます。</p>
+<ul style="margin-left:24px;">
+<li>音楽CD:標本化周波数=44100Hz、量子化ビット数=16ビット(=65536段階)</li>
+</ul>
+
+
+  <!-- ════════ 単元 5 (u9): 9. 光の三原色とRGB ════════ -->
+  <div class="sec-h2" style="margin-top:24px;">▶ 単元5：光の三原色とRGB</div>
+
+<p>テレビやコンピュータの<b>ディスプレイ</b>は、赤・緑・青の光を組み合わせてさまざまな色を表現しています。これを<b>光の三原色</b>といいます。</p>
+
+<div class="figure">
+<svg viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="280" fill="#000"/>
+  <text x="160" y="20" text-anchor="middle" font-weight="bold" fill="#fff" font-size="13">光の三原色(加法混色)</text>
+  <!-- 赤 -->
+  <circle cx="120" cy="120" r="70" fill="rgb(255,0,0)" opacity="0.85"/>
+  <!-- 緑 -->
+  <circle cx="200" cy="120" r="70" fill="rgb(0,255,0)" opacity="0.85" style="mix-blend-mode:screen"/>
+  <!-- 青 -->
+  <circle cx="160" cy="180" r="70" fill="rgb(0,0,255)" opacity="0.85" style="mix-blend-mode:screen"/>
+  <text x="80" y="100" font-weight="bold" fill="#fff" font-size="13">R</text>
+  <text x="235" y="100" font-weight="bold" fill="#fff" font-size="13">G</text>
+  <text x="155" y="240" font-weight="bold" fill="#fff" font-size="13">B</text>
+  <text x="160" y="155" text-anchor="middle" font-weight="bold" fill="#000" font-size="11">白</text>
+  <text x="160" y="100" text-anchor="middle" font-size="10" fill="#000">Y</text>
+  <text x="125" y="155" text-anchor="middle" font-size="10" fill="#fff">M</text>
+  <text x="195" y="155" text-anchor="middle" font-size="10" fill="#fff">C</text>
+</svg>
+<div class="figure-caption">図:RGBの加法混色 — 混ぜると明るくなり、白に近づく</div>
+</div>
+
+<p><span class="term" data-term="光の三原色">光の三原色</span>は<b>R(Red:赤)・G(Green:緑)・B(Blue:青)</b>の3色です。これらを混ぜると明るさが増し、白に近づくことを<span class="term" data-term="加法混色">加法混色</span>といいます。</p>
+
+<p><b>2階調(各色1ビット:0=非発光、1=発光)で表すと8色</b></p>
+
+<table style="border-collapse: collapse; margin: 8px 0; font-size: 0.9em;">
+<tr style="background: #0891B2; color: #fff;"><th style="padding:4px 8px; border:1px solid #ccc;">色</th><th style="padding:4px 8px; border:1px solid #ccc;">R</th><th style="padding:4px 8px; border:1px solid #ccc;">G</th><th style="padding:4px 8px; border:1px solid #ccc;">B</th></tr>
+<tr><td style="padding:3px 8px; border:1px solid #ccc;">黒(K)</td><td style="border:1px solid #ccc; text-align:center;">0</td><td style="border:1px solid #ccc; text-align:center;">0</td><td style="border:1px solid #ccc; text-align:center;">0</td></tr>
+<tr style="background:#f0f9ff;"><td style="padding:3px 8px; border:1px solid #ccc;">青</td><td style="border:1px solid #ccc; text-align:center;">0</td><td style="border:1px solid #ccc; text-align:center;">0</td><td style="border:1px solid #ccc; text-align:center;">1</td></tr>
+<tr><td style="padding:3px 8px; border:1px solid #ccc;">緑</td><td style="border:1px solid #ccc; text-align:center;">0</td><td style="border:1px solid #ccc; text-align:center;">1</td><td style="border:1px solid #ccc; text-align:center;">0</td></tr>
+<tr style="background:#f0f9ff;"><td style="padding:3px 8px; border:1px solid #ccc;">シアン</td><td style="border:1px solid #ccc; text-align:center;">0</td><td style="border:1px solid #ccc; text-align:center;">1</td><td style="border:1px solid #ccc; text-align:center;">1</td></tr>
+<tr><td style="padding:3px 8px; border:1px solid #ccc;">赤</td><td style="border:1px solid #ccc; text-align:center;">1</td><td style="border:1px solid #ccc; text-align:center;">0</td><td style="border:1px solid #ccc; text-align:center;">0</td></tr>
+<tr style="background:#f0f9ff;"><td style="padding:3px 8px; border:1px solid #ccc;">マゼンタ</td><td style="border:1px solid #ccc; text-align:center;">1</td><td style="border:1px solid #ccc; text-align:center;">0</td><td style="border:1px solid #ccc; text-align:center;">1</td></tr>
+<tr><td style="padding:3px 8px; border:1px solid #ccc;">イエロー</td><td style="border:1px solid #ccc; text-align:center;">1</td><td style="border:1px solid #ccc; text-align:center;">1</td><td style="border:1px solid #ccc; text-align:center;">0</td></tr>
+<tr style="background:#f0f9ff;"><td style="padding:3px 8px; border:1px solid #ccc;">白(W)</td><td style="border:1px solid #ccc; text-align:center;">1</td><td style="border:1px solid #ccc; text-align:center;">1</td><td style="border:1px solid #ccc; text-align:center;">1</td></tr>
+</table>
+
+<p><b>256段階(各色8ビット)で表すと約1677万色</b>:256×256×256 = 256³ = 2²⁴ = 16,777,216通り。これを<b>24ビットフルカラー</b>といいます。</p>
+
+<p><b>RGB値の例</b>:赤=(255,0,0) / 黄=(255,255,0) / 白=(255,255,255) / 黒=(0,0,0)</p>
+
+<p>「K」は <b>key plate(印刷の輪郭線用の版)</b>の頭文字に由来します。BlackのBではないことに注意!</p>
+
+
+  <!-- ════════ 単元 6 (u10): 10. 色の三原色とCMY ════════ -->
+  <div class="sec-h2" style="margin-top:24px;">▶ 単元6：色の三原色とCMY</div>
+
+<p><b>カラー印刷機やプリンタ</b>は、シアン・マゼンタ・イエローの3色の組み合わせでさまざまな色を表現します。これを<b>色の三原色</b>といいます。</p>
+
+<div class="figure">
+<svg viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="280" fill="#fff"/>
+  <text x="160" y="20" text-anchor="middle" font-weight="bold" fill="#0E7490" font-size="13">色の三原色(減法混色)</text>
+  <!-- シアン -->
+  <circle cx="120" cy="120" r="70" fill="rgb(0,255,255)" opacity="0.7" style="mix-blend-mode:multiply"/>
+  <!-- マゼンタ -->
+  <circle cx="200" cy="120" r="70" fill="rgb(255,0,255)" opacity="0.7" style="mix-blend-mode:multiply"/>
+  <!-- イエロー -->
+  <circle cx="160" cy="180" r="70" fill="rgb(255,255,0)" opacity="0.7" style="mix-blend-mode:multiply"/>
+  <text x="80" y="100" font-weight="bold" fill="#0E7490" font-size="13">C</text>
+  <text x="235" y="100" font-weight="bold" fill="#0E7490" font-size="13">M</text>
+  <text x="155" y="240" font-weight="bold" fill="#0E7490" font-size="13">Y</text>
+  <text x="160" y="155" text-anchor="middle" font-weight="bold" fill="#fff" font-size="11">黒(K)</text>
+</svg>
+<div class="figure-caption">図:CMYの減法混色 — 混ぜると暗くなり、黒に近づく</div>
+</div>
+
+<p><span class="term" data-term="色の三原色">色の三原色</span>は<b>C(Cyan:シアン)・M(Magenta:マゼンタ)・Y(Yellow:イエロー)</b>の3色です。混ぜると暗くなり、黒に近づくことを<span class="term" data-term="減法混色">減法混色</span>といいます。</p>
+
+<p>CMYのインクだけでは正確な黒を出せないため、<b>黒色(K)を加えた4色(CMYK)</b>で印刷します。</p>
+
+<p><b>RGB と CMY の対応(補色関係)</b>:光の三原色のうち1つだけ抜けると、色の三原色の色になります。</p>
+<ul style="margin-left:24px;">
+<li>R(赤)が抜けると → C(シアン)</li>
+<li>G(緑)が抜けると → M(マゼンタ)</li>
+<li>B(青)が抜けると → Y(イエロー)</li>
+</ul>
+
+<p><b>身近な例</b>:カラープリンタのインクカートリッジを見るとC・M・Y・Kの4色が入っています。テレビやスマホのディスプレイは光なのでR・G・Bを使います。</p>
+
+
+  <!-- ════════ 単元 7 (u11): 11. 解像度と階調 ════════ -->
+  <div class="sec-h2" style="margin-top:24px;">▶ 単元7：解像度と階調</div>
+
+<p>画像も0と1の組み合わせで表現できます。前節で学んだ色のディジタル表現を使って、画像をどのようにディジタル化するか見てみましょう。</p>
+
+<div class="figure">
+<svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+  <text x="300" y="20" text-anchor="middle" font-weight="bold" fill="#0E7490" font-size="14">解像度の違い(画素数の違い)</text>
+<g transform="translate(20,35)"><text x="55" y="0" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">2×2 画素</text><rect x="0" y="5" width="54" height="54" fill="hsl(0,60%,55%)"/><rect x="55" y="5" width="54" height="54" fill="hsl(37,60%,55%)"/><rect x="0" y="60" width="54" height="54" fill="hsl(74,60%,55%)"/><rect x="55" y="60" width="54" height="54" fill="hsl(111,60%,55%)"/></g><g transform="translate(170,35)"><text x="55" y="0" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">4×4 画素</text><rect x="0" y="5" width="26" height="26" fill="hsl(0,60%,55%)"/><rect x="27" y="5" width="26" height="26" fill="hsl(37,60%,55%)"/><rect x="54" y="5" width="26" height="26" fill="hsl(74,60%,55%)"/><rect x="81" y="5" width="26" height="26" fill="hsl(111,60%,55%)"/><rect x="0" y="32" width="26" height="26" fill="hsl(148,60%,55%)"/><rect x="27" y="32" width="26" height="26" fill="hsl(185,60%,55%)"/><rect x="54" y="32" width="26" height="26" fill="hsl(222,60%,55%)"/><rect x="81" y="32" width="26" height="26" fill="hsl(259,60%,55%)"/><rect x="0" y="59" width="26" height="26" fill="hsl(296,60%,55%)"/><rect x="27" y="59" width="26" height="26" fill="hsl(333,60%,55%)"/><rect x="54" y="59" width="26" height="26" fill="hsl(10,60%,55%)"/><rect x="81" y="59" width="26" height="26" fill="hsl(47,60%,55%)"/><rect x="0" y="86" width="26" height="26" fill="hsl(84,60%,55%)"/><rect x="27" y="86" width="26" height="26" fill="hsl(121,60%,55%)"/><rect x="54" y="86" width="26" height="26" fill="hsl(158,60%,55%)"/><rect x="81" y="86" width="26" height="26" fill="hsl(195,60%,55%)"/></g><g transform="translate(320,35)"><text x="55" y="0" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">8×8 画素</text><rect x="0" y="5" width="12" height="12" fill="hsl(0,60%,55%)"/><rect x="13" y="5" width="12" height="12" fill="hsl(37,60%,55%)"/><rect x="26" y="5" width="12" height="12" fill="hsl(74,60%,55%)"/><rect x="39" y="5" width="12" height="12" fill="hsl(111,60%,55%)"/><rect x="52" y="5" width="12" height="12" fill="hsl(148,60%,55%)"/><rect x="65" y="5" width="12" height="12" fill="hsl(185,60%,55%)"/><rect x="78" y="5" width="12" height="12" fill="hsl(222,60%,55%)"/><rect x="91" y="5" width="12" height="12" fill="hsl(259,60%,55%)"/><rect x="0" y="18" width="12" height="12" fill="hsl(296,60%,55%)"/><rect x="13" y="18" width="12" height="12" fill="hsl(333,60%,55%)"/><rect x="26" y="18" width="12" height="12" fill="hsl(10,60%,55%)"/><rect x="39" y="18" width="12" height="12" fill="hsl(47,60%,55%)"/><rect x="52" y="18" width="12" height="12" fill="hsl(84,60%,55%)"/><rect x="65" y="18" width="12" height="12" fill="hsl(121,60%,55%)"/><rect x="78" y="18" width="12" height="12" fill="hsl(158,60%,55%)"/><rect x="91" y="18" width="12" height="12" fill="hsl(195,60%,55%)"/><rect x="0" y="31" width="12" height="12" fill="hsl(232,60%,55%)"/><rect x="13" y="31" width="12" height="12" fill="hsl(269,60%,55%)"/><rect x="26" y="31" width="12" height="12" fill="hsl(306,60%,55%)"/><rect x="39" y="31" width="12" height="12" fill="hsl(343,60%,55%)"/><rect x="52" y="31" width="12" height="12" fill="hsl(20,60%,55%)"/><rect x="65" y="31" width="12" height="12" fill="hsl(57,60%,55%)"/><rect x="78" y="31" width="12" height="12" fill="hsl(94,60%,55%)"/><rect x="91" y="31" width="12" height="12" fill="hsl(131,60%,55%)"/><rect x="0" y="44" width="12" height="12" fill="hsl(168,60%,55%)"/><rect x="13" y="44" width="12" height="12" fill="hsl(205,60%,55%)"/><rect x="26" y="44" width="12" height="12" fill="hsl(242,60%,55%)"/><rect x="39" y="44" width="12" height="12" fill="hsl(279,60%,55%)"/><rect x="52" y="44" width="12" height="12" fill="hsl(316,60%,55%)"/><rect x="65" y="44" width="12" height="12" fill="hsl(353,60%,55%)"/><rect x="78" y="44" width="12" height="12" fill="hsl(30,60%,55%)"/><rect x="91" y="44" width="12" height="12" fill="hsl(67,60%,55%)"/><rect x="0" y="57" width="12" height="12" fill="hsl(104,60%,55%)"/><rect x="13" y="57" width="12" height="12" fill="hsl(141,60%,55%)"/><rect x="26" y="57" width="12" height="12" fill="hsl(178,60%,55%)"/><rect x="39" y="57" width="12" height="12" fill="hsl(215,60%,55%)"/><rect x="52" y="57" width="12" height="12" fill="hsl(252,60%,55%)"/><rect x="65" y="57" width="12" height="12" fill="hsl(289,60%,55%)"/><rect x="78" y="57" width="12" height="12" fill="hsl(326,60%,55%)"/><rect x="91" y="57" width="12" height="12" fill="hsl(3,60%,55%)"/><rect x="0" y="70" width="12" height="12" fill="hsl(40,60%,55%)"/><rect x="13" y="70" width="12" height="12" fill="hsl(77,60%,55%)"/><rect x="26" y="70" width="12" height="12" fill="hsl(114,60%,55%)"/><rect x="39" y="70" width="12" height="12" fill="hsl(151,60%,55%)"/><rect x="52" y="70" width="12" height="12" fill="hsl(188,60%,55%)"/><rect x="65" y="70" width="12" height="12" fill="hsl(225,60%,55%)"/><rect x="78" y="70" width="12" height="12" fill="hsl(262,60%,55%)"/><rect x="91" y="70" width="12" height="12" fill="hsl(299,60%,55%)"/><rect x="0" y="83" width="12" height="12" fill="hsl(336,60%,55%)"/><rect x="13" y="83" width="12" height="12" fill="hsl(13,60%,55%)"/><rect x="26" y="83" width="12" height="12" fill="hsl(50,60%,55%)"/><rect x="39" y="83" width="12" height="12" fill="hsl(87,60%,55%)"/><rect x="52" y="83" width="12" height="12" fill="hsl(124,60%,55%)"/><rect x="65" y="83" width="12" height="12" fill="hsl(161,60%,55%)"/><rect x="78" y="83" width="12" height="12" fill="hsl(198,60%,55%)"/><rect x="91" y="83" width="12" height="12" fill="hsl(235,60%,55%)"/><rect x="0" y="96" width="12" height="12" fill="hsl(272,60%,55%)"/><rect x="13" y="96" width="12" height="12" fill="hsl(309,60%,55%)"/><rect x="26" y="96" width="12" height="12" fill="hsl(346,60%,55%)"/><rect x="39" y="96" width="12" height="12" fill="hsl(23,60%,55%)"/><rect x="52" y="96" width="12" height="12" fill="hsl(60,60%,55%)"/><rect x="65" y="96" width="12" height="12" fill="hsl(97,60%,55%)"/><rect x="78" y="96" width="12" height="12" fill="hsl(134,60%,55%)"/><rect x="91" y="96" width="12" height="12" fill="hsl(171,60%,55%)"/></g><g transform="translate(470,35)"><text x="55" y="0" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">16×16 画素</text><rect x="0" y="5" width="5" height="5" fill="hsl(0,60%,55%)"/><rect x="6" y="5" width="5" height="5" fill="hsl(37,60%,55%)"/><rect x="12" y="5" width="5" height="5" fill="hsl(74,60%,55%)"/><rect x="18" y="5" width="5" height="5" fill="hsl(111,60%,55%)"/><rect x="24" y="5" width="5" height="5" fill="hsl(148,60%,55%)"/><rect x="30" y="5" width="5" height="5" fill="hsl(185,60%,55%)"/><rect x="36" y="5" width="5" height="5" fill="hsl(222,60%,55%)"/><rect x="42" y="5" width="5" height="5" fill="hsl(259,60%,55%)"/><rect x="48" y="5" width="5" height="5" fill="hsl(296,60%,55%)"/><rect x="54" y="5" width="5" height="5" fill="hsl(333,60%,55%)"/><rect x="60" y="5" width="5" height="5" fill="hsl(10,60%,55%)"/><rect x="66" y="5" width="5" height="5" fill="hsl(47,60%,55%)"/><rect x="72" y="5" width="5" height="5" fill="hsl(84,60%,55%)"/><rect x="78" y="5" width="5" height="5" fill="hsl(121,60%,55%)"/><rect x="84" y="5" width="5" height="5" fill="hsl(158,60%,55%)"/><rect x="90" y="5" width="5" height="5" fill="hsl(195,60%,55%)"/><rect x="0" y="11" width="5" height="5" fill="hsl(232,60%,55%)"/><rect x="6" y="11" width="5" height="5" fill="hsl(269,60%,55%)"/><rect x="12" y="11" width="5" height="5" fill="hsl(306,60%,55%)"/><rect x="18" y="11" width="5" height="5" fill="hsl(343,60%,55%)"/><rect x="24" y="11" width="5" height="5" fill="hsl(20,60%,55%)"/><rect x="30" y="11" width="5" height="5" fill="hsl(57,60%,55%)"/><rect x="36" y="11" width="5" height="5" fill="hsl(94,60%,55%)"/><rect x="42" y="11" width="5" height="5" fill="hsl(131,60%,55%)"/><rect x="48" y="11" width="5" height="5" fill="hsl(168,60%,55%)"/><rect x="54" y="11" width="5" height="5" fill="hsl(205,60%,55%)"/><rect x="60" y="11" width="5" height="5" fill="hsl(242,60%,55%)"/><rect x="66" y="11" width="5" height="5" fill="hsl(279,60%,55%)"/><rect x="72" y="11" width="5" height="5" fill="hsl(316,60%,55%)"/><rect x="78" y="11" width="5" height="5" fill="hsl(353,60%,55%)"/><rect x="84" y="11" width="5" height="5" fill="hsl(30,60%,55%)"/><rect x="90" y="11" width="5" height="5" fill="hsl(67,60%,55%)"/><rect x="0" y="17" width="5" height="5" fill="hsl(104,60%,55%)"/><rect x="6" y="17" width="5" height="5" fill="hsl(141,60%,55%)"/><rect x="12" y="17" width="5" height="5" fill="hsl(178,60%,55%)"/><rect x="18" y="17" width="5" height="5" fill="hsl(215,60%,55%)"/><rect x="24" y="17" width="5" height="5" fill="hsl(252,60%,55%)"/><rect x="30" y="17" width="5" height="5" fill="hsl(289,60%,55%)"/><rect x="36" y="17" width="5" height="5" fill="hsl(326,60%,55%)"/><rect x="42" y="17" width="5" height="5" fill="hsl(3,60%,55%)"/><rect x="48" y="17" width="5" height="5" fill="hsl(40,60%,55%)"/><rect x="54" y="17" width="5" height="5" fill="hsl(77,60%,55%)"/><rect x="60" y="17" width="5" height="5" fill="hsl(114,60%,55%)"/><rect x="66" y="17" width="5" height="5" fill="hsl(151,60%,55%)"/><rect x="72" y="17" width="5" height="5" fill="hsl(188,60%,55%)"/><rect x="78" y="17" width="5" height="5" fill="hsl(225,60%,55%)"/><rect x="84" y="17" width="5" height="5" fill="hsl(262,60%,55%)"/><rect x="90" y="17" width="5" height="5" fill="hsl(299,60%,55%)"/><rect x="0" y="23" width="5" height="5" fill="hsl(336,60%,55%)"/><rect x="6" y="23" width="5" height="5" fill="hsl(13,60%,55%)"/><rect x="12" y="23" width="5" height="5" fill="hsl(50,60%,55%)"/><rect x="18" y="23" width="5" height="5" fill="hsl(87,60%,55%)"/><rect x="24" y="23" width="5" height="5" fill="hsl(124,60%,55%)"/><rect x="30" y="23" width="5" height="5" fill="hsl(161,60%,55%)"/><rect x="36" y="23" width="5" height="5" fill="hsl(198,60%,55%)"/><rect x="42" y="23" width="5" height="5" fill="hsl(235,60%,55%)"/><rect x="48" y="23" width="5" height="5" fill="hsl(272,60%,55%)"/><rect x="54" y="23" width="5" height="5" fill="hsl(309,60%,55%)"/><rect x="60" y="23" width="5" height="5" fill="hsl(346,60%,55%)"/><rect x="66" y="23" width="5" height="5" fill="hsl(23,60%,55%)"/><rect x="72" y="23" width="5" height="5" fill="hsl(60,60%,55%)"/><rect x="78" y="23" width="5" height="5" fill="hsl(97,60%,55%)"/><rect x="84" y="23" width="5" height="5" fill="hsl(134,60%,55%)"/><rect x="90" y="23" width="5" height="5" fill="hsl(171,60%,55%)"/><rect x="0" y="29" width="5" height="5" fill="hsl(208,60%,55%)"/><rect x="6" y="29" width="5" height="5" fill="hsl(245,60%,55%)"/><rect x="12" y="29" width="5" height="5" fill="hsl(282,60%,55%)"/><rect x="18" y="29" width="5" height="5" fill="hsl(319,60%,55%)"/><rect x="24" y="29" width="5" height="5" fill="hsl(356,60%,55%)"/><rect x="30" y="29" width="5" height="5" fill="hsl(33,60%,55%)"/><rect x="36" y="29" width="5" height="5" fill="hsl(70,60%,55%)"/><rect x="42" y="29" width="5" height="5" fill="hsl(107,60%,55%)"/><rect x="48" y="29" width="5" height="5" fill="hsl(144,60%,55%)"/><rect x="54" y="29" width="5" height="5" fill="hsl(181,60%,55%)"/><rect x="60" y="29" width="5" height="5" fill="hsl(218,60%,55%)"/><rect x="66" y="29" width="5" height="5" fill="hsl(255,60%,55%)"/><rect x="72" y="29" width="5" height="5" fill="hsl(292,60%,55%)"/><rect x="78" y="29" width="5" height="5" fill="hsl(329,60%,55%)"/><rect x="84" y="29" width="5" height="5" fill="hsl(6,60%,55%)"/><rect x="90" y="29" width="5" height="5" fill="hsl(43,60%,55%)"/><rect x="0" y="35" width="5" height="5" fill="hsl(80,60%,55%)"/><rect x="6" y="35" width="5" height="5" fill="hsl(117,60%,55%)"/><rect x="12" y="35" width="5" height="5" fill="hsl(154,60%,55%)"/><rect x="18" y="35" width="5" height="5" fill="hsl(191,60%,55%)"/><rect x="24" y="35" width="5" height="5" fill="hsl(228,60%,55%)"/><rect x="30" y="35" width="5" height="5" fill="hsl(265,60%,55%)"/><rect x="36" y="35" width="5" height="5" fill="hsl(302,60%,55%)"/><rect x="42" y="35" width="5" height="5" fill="hsl(339,60%,55%)"/><rect x="48" y="35" width="5" height="5" fill="hsl(16,60%,55%)"/><rect x="54" y="35" width="5" height="5" fill="hsl(53,60%,55%)"/><rect x="60" y="35" width="5" height="5" fill="hsl(90,60%,55%)"/><rect x="66" y="35" width="5" height="5" fill="hsl(127,60%,55%)"/><rect x="72" y="35" width="5" height="5" fill="hsl(164,60%,55%)"/><rect x="78" y="35" width="5" height="5" fill="hsl(201,60%,55%)"/><rect x="84" y="35" width="5" height="5" fill="hsl(238,60%,55%)"/><rect x="90" y="35" width="5" height="5" fill="hsl(275,60%,55%)"/><rect x="0" y="41" width="5" height="5" fill="hsl(312,60%,55%)"/><rect x="6" y="41" width="5" height="5" fill="hsl(349,60%,55%)"/><rect x="12" y="41" width="5" height="5" fill="hsl(26,60%,55%)"/><rect x="18" y="41" width="5" height="5" fill="hsl(63,60%,55%)"/><rect x="24" y="41" width="5" height="5" fill="hsl(100,60%,55%)"/><rect x="30" y="41" width="5" height="5" fill="hsl(137,60%,55%)"/><rect x="36" y="41" width="5" height="5" fill="hsl(174,60%,55%)"/><rect x="42" y="41" width="5" height="5" fill="hsl(211,60%,55%)"/><rect x="48" y="41" width="5" height="5" fill="hsl(248,60%,55%)"/><rect x="54" y="41" width="5" height="5" fill="hsl(285,60%,55%)"/><rect x="60" y="41" width="5" height="5" fill="hsl(322,60%,55%)"/><rect x="66" y="41" width="5" height="5" fill="hsl(359,60%,55%)"/><rect x="72" y="41" width="5" height="5" fill="hsl(36,60%,55%)"/><rect x="78" y="41" width="5" height="5" fill="hsl(73,60%,55%)"/><rect x="84" y="41" width="5" height="5" fill="hsl(110,60%,55%)"/><rect x="90" y="41" width="5" height="5" fill="hsl(147,60%,55%)"/><rect x="0" y="47" width="5" height="5" fill="hsl(184,60%,55%)"/><rect x="6" y="47" width="5" height="5" fill="hsl(221,60%,55%)"/><rect x="12" y="47" width="5" height="5" fill="hsl(258,60%,55%)"/><rect x="18" y="47" width="5" height="5" fill="hsl(295,60%,55%)"/><rect x="24" y="47" width="5" height="5" fill="hsl(332,60%,55%)"/><rect x="30" y="47" width="5" height="5" fill="hsl(9,60%,55%)"/><rect x="36" y="47" width="5" height="5" fill="hsl(46,60%,55%)"/><rect x="42" y="47" width="5" height="5" fill="hsl(83,60%,55%)"/><rect x="48" y="47" width="5" height="5" fill="hsl(120,60%,55%)"/><rect x="54" y="47" width="5" height="5" fill="hsl(157,60%,55%)"/><rect x="60" y="47" width="5" height="5" fill="hsl(194,60%,55%)"/><rect x="66" y="47" width="5" height="5" fill="hsl(231,60%,55%)"/><rect x="72" y="47" width="5" height="5" fill="hsl(268,60%,55%)"/><rect x="78" y="47" width="5" height="5" fill="hsl(305,60%,55%)"/><rect x="84" y="47" width="5" height="5" fill="hsl(342,60%,55%)"/><rect x="90" y="47" width="5" height="5" fill="hsl(19,60%,55%)"/><rect x="0" y="53" width="5" height="5" fill="hsl(56,60%,55%)"/><rect x="6" y="53" width="5" height="5" fill="hsl(93,60%,55%)"/><rect x="12" y="53" width="5" height="5" fill="hsl(130,60%,55%)"/><rect x="18" y="53" width="5" height="5" fill="hsl(167,60%,55%)"/><rect x="24" y="53" width="5" height="5" fill="hsl(204,60%,55%)"/><rect x="30" y="53" width="5" height="5" fill="hsl(241,60%,55%)"/><rect x="36" y="53" width="5" height="5" fill="hsl(278,60%,55%)"/><rect x="42" y="53" width="5" height="5" fill="hsl(315,60%,55%)"/><rect x="48" y="53" width="5" height="5" fill="hsl(352,60%,55%)"/><rect x="54" y="53" width="5" height="5" fill="hsl(29,60%,55%)"/><rect x="60" y="53" width="5" height="5" fill="hsl(66,60%,55%)"/><rect x="66" y="53" width="5" height="5" fill="hsl(103,60%,55%)"/><rect x="72" y="53" width="5" height="5" fill="hsl(140,60%,55%)"/><rect x="78" y="53" width="5" height="5" fill="hsl(177,60%,55%)"/><rect x="84" y="53" width="5" height="5" fill="hsl(214,60%,55%)"/><rect x="90" y="53" width="5" height="5" fill="hsl(251,60%,55%)"/><rect x="0" y="59" width="5" height="5" fill="hsl(288,60%,55%)"/><rect x="6" y="59" width="5" height="5" fill="hsl(325,60%,55%)"/><rect x="12" y="59" width="5" height="5" fill="hsl(2,60%,55%)"/><rect x="18" y="59" width="5" height="5" fill="hsl(39,60%,55%)"/><rect x="24" y="59" width="5" height="5" fill="hsl(76,60%,55%)"/><rect x="30" y="59" width="5" height="5" fill="hsl(113,60%,55%)"/><rect x="36" y="59" width="5" height="5" fill="hsl(150,60%,55%)"/><rect x="42" y="59" width="5" height="5" fill="hsl(187,60%,55%)"/><rect x="48" y="59" width="5" height="5" fill="hsl(224,60%,55%)"/><rect x="54" y="59" width="5" height="5" fill="hsl(261,60%,55%)"/><rect x="60" y="59" width="5" height="5" fill="hsl(298,60%,55%)"/><rect x="66" y="59" width="5" height="5" fill="hsl(335,60%,55%)"/><rect x="72" y="59" width="5" height="5" fill="hsl(12,60%,55%)"/><rect x="78" y="59" width="5" height="5" fill="hsl(49,60%,55%)"/><rect x="84" y="59" width="5" height="5" fill="hsl(86,60%,55%)"/><rect x="90" y="59" width="5" height="5" fill="hsl(123,60%,55%)"/><rect x="0" y="65" width="5" height="5" fill="hsl(160,60%,55%)"/><rect x="6" y="65" width="5" height="5" fill="hsl(197,60%,55%)"/><rect x="12" y="65" width="5" height="5" fill="hsl(234,60%,55%)"/><rect x="18" y="65" width="5" height="5" fill="hsl(271,60%,55%)"/><rect x="24" y="65" width="5" height="5" fill="hsl(308,60%,55%)"/><rect x="30" y="65" width="5" height="5" fill="hsl(345,60%,55%)"/><rect x="36" y="65" width="5" height="5" fill="hsl(22,60%,55%)"/><rect x="42" y="65" width="5" height="5" fill="hsl(59,60%,55%)"/><rect x="48" y="65" width="5" height="5" fill="hsl(96,60%,55%)"/><rect x="54" y="65" width="5" height="5" fill="hsl(133,60%,55%)"/><rect x="60" y="65" width="5" height="5" fill="hsl(170,60%,55%)"/><rect x="66" y="65" width="5" height="5" fill="hsl(207,60%,55%)"/><rect x="72" y="65" width="5" height="5" fill="hsl(244,60%,55%)"/><rect x="78" y="65" width="5" height="5" fill="hsl(281,60%,55%)"/><rect x="84" y="65" width="5" height="5" fill="hsl(318,60%,55%)"/><rect x="90" y="65" width="5" height="5" fill="hsl(355,60%,55%)"/><rect x="0" y="71" width="5" height="5" fill="hsl(32,60%,55%)"/><rect x="6" y="71" width="5" height="5" fill="hsl(69,60%,55%)"/><rect x="12" y="71" width="5" height="5" fill="hsl(106,60%,55%)"/><rect x="18" y="71" width="5" height="5" fill="hsl(143,60%,55%)"/><rect x="24" y="71" width="5" height="5" fill="hsl(180,60%,55%)"/><rect x="30" y="71" width="5" height="5" fill="hsl(217,60%,55%)"/><rect x="36" y="71" width="5" height="5" fill="hsl(254,60%,55%)"/><rect x="42" y="71" width="5" height="5" fill="hsl(291,60%,55%)"/><rect x="48" y="71" width="5" height="5" fill="hsl(328,60%,55%)"/><rect x="54" y="71" width="5" height="5" fill="hsl(5,60%,55%)"/><rect x="60" y="71" width="5" height="5" fill="hsl(42,60%,55%)"/><rect x="66" y="71" width="5" height="5" fill="hsl(79,60%,55%)"/><rect x="72" y="71" width="5" height="5" fill="hsl(116,60%,55%)"/><rect x="78" y="71" width="5" height="5" fill="hsl(153,60%,55%)"/><rect x="84" y="71" width="5" height="5" fill="hsl(190,60%,55%)"/><rect x="90" y="71" width="5" height="5" fill="hsl(227,60%,55%)"/><rect x="0" y="77" width="5" height="5" fill="hsl(264,60%,55%)"/><rect x="6" y="77" width="5" height="5" fill="hsl(301,60%,55%)"/><rect x="12" y="77" width="5" height="5" fill="hsl(338,60%,55%)"/><rect x="18" y="77" width="5" height="5" fill="hsl(15,60%,55%)"/><rect x="24" y="77" width="5" height="5" fill="hsl(52,60%,55%)"/><rect x="30" y="77" width="5" height="5" fill="hsl(89,60%,55%)"/><rect x="36" y="77" width="5" height="5" fill="hsl(126,60%,55%)"/><rect x="42" y="77" width="5" height="5" fill="hsl(163,60%,55%)"/><rect x="48" y="77" width="5" height="5" fill="hsl(200,60%,55%)"/><rect x="54" y="77" width="5" height="5" fill="hsl(237,60%,55%)"/><rect x="60" y="77" width="5" height="5" fill="hsl(274,60%,55%)"/><rect x="66" y="77" width="5" height="5" fill="hsl(311,60%,55%)"/><rect x="72" y="77" width="5" height="5" fill="hsl(348,60%,55%)"/><rect x="78" y="77" width="5" height="5" fill="hsl(25,60%,55%)"/><rect x="84" y="77" width="5" height="5" fill="hsl(62,60%,55%)"/><rect x="90" y="77" width="5" height="5" fill="hsl(99,60%,55%)"/><rect x="0" y="83" width="5" height="5" fill="hsl(136,60%,55%)"/><rect x="6" y="83" width="5" height="5" fill="hsl(173,60%,55%)"/><rect x="12" y="83" width="5" height="5" fill="hsl(210,60%,55%)"/><rect x="18" y="83" width="5" height="5" fill="hsl(247,60%,55%)"/><rect x="24" y="83" width="5" height="5" fill="hsl(284,60%,55%)"/><rect x="30" y="83" width="5" height="5" fill="hsl(321,60%,55%)"/><rect x="36" y="83" width="5" height="5" fill="hsl(358,60%,55%)"/><rect x="42" y="83" width="5" height="5" fill="hsl(35,60%,55%)"/><rect x="48" y="83" width="5" height="5" fill="hsl(72,60%,55%)"/><rect x="54" y="83" width="5" height="5" fill="hsl(109,60%,55%)"/><rect x="60" y="83" width="5" height="5" fill="hsl(146,60%,55%)"/><rect x="66" y="83" width="5" height="5" fill="hsl(183,60%,55%)"/><rect x="72" y="83" width="5" height="5" fill="hsl(220,60%,55%)"/><rect x="78" y="83" width="5" height="5" fill="hsl(257,60%,55%)"/><rect x="84" y="83" width="5" height="5" fill="hsl(294,60%,55%)"/><rect x="90" y="83" width="5" height="5" fill="hsl(331,60%,55%)"/><rect x="0" y="89" width="5" height="5" fill="hsl(8,60%,55%)"/><rect x="6" y="89" width="5" height="5" fill="hsl(45,60%,55%)"/><rect x="12" y="89" width="5" height="5" fill="hsl(82,60%,55%)"/><rect x="18" y="89" width="5" height="5" fill="hsl(119,60%,55%)"/><rect x="24" y="89" width="5" height="5" fill="hsl(156,60%,55%)"/><rect x="30" y="89" width="5" height="5" fill="hsl(193,60%,55%)"/><rect x="36" y="89" width="5" height="5" fill="hsl(230,60%,55%)"/><rect x="42" y="89" width="5" height="5" fill="hsl(267,60%,55%)"/><rect x="48" y="89" width="5" height="5" fill="hsl(304,60%,55%)"/><rect x="54" y="89" width="5" height="5" fill="hsl(341,60%,55%)"/><rect x="60" y="89" width="5" height="5" fill="hsl(18,60%,55%)"/><rect x="66" y="89" width="5" height="5" fill="hsl(55,60%,55%)"/><rect x="72" y="89" width="5" height="5" fill="hsl(92,60%,55%)"/><rect x="78" y="89" width="5" height="5" fill="hsl(129,60%,55%)"/><rect x="84" y="89" width="5" height="5" fill="hsl(166,60%,55%)"/><rect x="90" y="89" width="5" height="5" fill="hsl(203,60%,55%)"/><rect x="0" y="95" width="5" height="5" fill="hsl(240,60%,55%)"/><rect x="6" y="95" width="5" height="5" fill="hsl(277,60%,55%)"/><rect x="12" y="95" width="5" height="5" fill="hsl(314,60%,55%)"/><rect x="18" y="95" width="5" height="5" fill="hsl(351,60%,55%)"/><rect x="24" y="95" width="5" height="5" fill="hsl(28,60%,55%)"/><rect x="30" y="95" width="5" height="5" fill="hsl(65,60%,55%)"/><rect x="36" y="95" width="5" height="5" fill="hsl(102,60%,55%)"/><rect x="42" y="95" width="5" height="5" fill="hsl(139,60%,55%)"/><rect x="48" y="95" width="5" height="5" fill="hsl(176,60%,55%)"/><rect x="54" y="95" width="5" height="5" fill="hsl(213,60%,55%)"/><rect x="60" y="95" width="5" height="5" fill="hsl(250,60%,55%)"/><rect x="66" y="95" width="5" height="5" fill="hsl(287,60%,55%)"/><rect x="72" y="95" width="5" height="5" fill="hsl(324,60%,55%)"/><rect x="78" y="95" width="5" height="5" fill="hsl(1,60%,55%)"/><rect x="84" y="95" width="5" height="5" fill="hsl(38,60%,55%)"/><rect x="90" y="95" width="5" height="5" fill="hsl(75,60%,55%)"/></g>
+</svg>
+<div class="figure-caption">図:画素数(解像度)が大きいほど画像はなめらかに</div>
+</div>
+
+<p><span class="term" data-term="画素">画素(ピクセル)</span>はR・G・Bの3つの部分をまとめた、画像の最小単位です。<span class="term" data-term="解像度">解像度</span>は画素の細かさのことで、高いほどなめらかな画像になります。</p>
+
+<p><b>画面解像度</b>:ディスプレイ上の1インチ(約2.5cm)あたりの画素数で、単位は<span class="term" data-term="ppi">ppi(pixels per inch)</span>。</p>
+<ul style="margin-left:24px;">
+<li>画像ファイルやディスプレイ:<b>横の画素数×縦の画素数</b>で表す</li>
+<li>ディジタルカメラ:<b>総画素数</b>で表す</li>
+</ul>
+
+<div class="figure">
+<svg viewBox="0 0 600 100" xmlns="http://www.w3.org/2000/svg">
+  <text x="300" y="20" text-anchor="middle" font-weight="bold" fill="#0E7490" font-size="14">階調の違い(段階数の違い)</text>
+<g transform="translate(20,30)"><text x="55" y="40" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">2階調</text><rect x="0" y="0" width="56" height="30" fill="rgb(0,0,0)"/><rect x="55" y="0" width="56" height="30" fill="rgb(255,255,255)"/></g><g transform="translate(170,30)"><text x="55" y="40" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">4階調</text><rect x="0" y="0" width="28" height="30" fill="rgb(0,0,0)"/><rect x="27" y="0" width="28" height="30" fill="rgb(85,85,85)"/><rect x="54" y="0" width="28" height="30" fill="rgb(170,170,170)"/><rect x="81" y="0" width="28" height="30" fill="rgb(255,255,255)"/></g><g transform="translate(320,30)"><text x="55" y="40" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">8階調</text><rect x="0" y="0" width="14" height="30" fill="rgb(0,0,0)"/><rect x="13" y="0" width="14" height="30" fill="rgb(36,36,36)"/><rect x="26" y="0" width="14" height="30" fill="rgb(72,72,72)"/><rect x="39" y="0" width="14" height="30" fill="rgb(109,109,109)"/><rect x="52" y="0" width="14" height="30" fill="rgb(145,145,145)"/><rect x="65" y="0" width="14" height="30" fill="rgb(182,182,182)"/><rect x="78" y="0" width="14" height="30" fill="rgb(218,218,218)"/><rect x="91" y="0" width="14" height="30" fill="rgb(255,255,255)"/></g><g transform="translate(470,30)"><text x="55" y="40" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">16階調</text><rect x="0" y="0" width="7" height="30" fill="rgb(0,0,0)"/><rect x="6" y="0" width="7" height="30" fill="rgb(17,17,17)"/><rect x="12" y="0" width="7" height="30" fill="rgb(34,34,34)"/><rect x="18" y="0" width="7" height="30" fill="rgb(51,51,51)"/><rect x="24" y="0" width="7" height="30" fill="rgb(68,68,68)"/><rect x="30" y="0" width="7" height="30" fill="rgb(85,85,85)"/><rect x="36" y="0" width="7" height="30" fill="rgb(102,102,102)"/><rect x="42" y="0" width="7" height="30" fill="rgb(119,119,119)"/><rect x="48" y="0" width="7" height="30" fill="rgb(136,136,136)"/><rect x="54" y="0" width="7" height="30" fill="rgb(153,153,153)"/><rect x="60" y="0" width="7" height="30" fill="rgb(170,170,170)"/><rect x="66" y="0" width="7" height="30" fill="rgb(187,187,187)"/><rect x="72" y="0" width="7" height="30" fill="rgb(204,204,204)"/><rect x="78" y="0" width="7" height="30" fill="rgb(221,221,221)"/><rect x="84" y="0" width="7" height="30" fill="rgb(238,238,238)"/><rect x="90" y="0" width="7" height="30" fill="rgb(255,255,255)"/></g>
+</svg>
+<div class="figure-caption">図:階調が多いほど明暗の表現が細かくなる</div>
+</div>
+
+<p><span class="term" data-term="階調">階調</span>は光の明るさが変化する段階数のこと。R・G・Bそれぞれが256段階の場合「<b>256階調</b>」と呼びます。</p>
+<ul style="margin-left:24px;">
+<li>1色256階調 → 8ビット(2⁸=256)</li>
+<li>R・G・B合計 → 24ビット(=24ビットフルカラー)</li>
+</ul>
+
+<p><b>音と画像の標本化のちがい</b>:</p>
+<ul style="margin-left:24px;">
+<li>音 → <b>時間的</b>な標本化(時間で区切る)</li>
+<li>画像 → <b>空間的</b>な標本化(距離で区切る)</li>
+</ul>
+
+
+  <!-- ════════ 単元 8 (u12): 12. 圧縮の種類と仕組み ════════ -->
+  <div class="sec-h2" style="margin-top:24px;">▶ 単元8：圧縮の種類と仕組み</div>
+
+<p>画像や音声は情報量が大きく、そのままでは保存や送信に時間がかかります。データの中身を保ったままサイズを小さくする<b>「圧縮」</b>という技術を学びましょう。</p>
+
+<div class="figure">
+<svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+  <text x="300" y="20" text-anchor="middle" font-weight="bold" fill="#0E7490" font-size="14">ランレングス圧縮の例</text>
+  <text x="20" y="55" font-size="13">「すもももももももものうち」</text>
+  <g transform="translate(20,75)" font-size="14" font-family="monospace">
+    <rect x="0" y="0" width="22" height="22" fill="#FEF3C7" stroke="#F59E0B"/><text x="11" y="16" text-anchor="middle">す</text>
+    <rect x="22" y="0" width="22" height="22" fill="#FECACA" stroke="#EF4444"/><text x="33" y="16" text-anchor="middle">も</text>
+    <rect x="44" y="0" width="22" height="22" fill="#FECACA" stroke="#EF4444"/><text x="55" y="16" text-anchor="middle">も</text>
+    <rect x="66" y="0" width="22" height="22" fill="#FECACA" stroke="#EF4444"/><text x="77" y="16" text-anchor="middle">も</text>
+    <rect x="88" y="0" width="22" height="22" fill="#FECACA" stroke="#EF4444"/><text x="99" y="16" text-anchor="middle">も</text>
+    <rect x="110" y="0" width="22" height="22" fill="#FECACA" stroke="#EF4444"/><text x="121" y="16" text-anchor="middle">も</text>
+    <rect x="132" y="0" width="22" height="22" fill="#FECACA" stroke="#EF4444"/><text x="143" y="16" text-anchor="middle">も</text>
+    <rect x="154" y="0" width="22" height="22" fill="#FECACA" stroke="#EF4444"/><text x="165" y="16" text-anchor="middle">も</text>
+    <rect x="176" y="0" width="22" height="22" fill="#FECACA" stroke="#EF4444"/><text x="187" y="16" text-anchor="middle">も</text>
+    <rect x="198" y="0" width="22" height="22" fill="#FEF3C7" stroke="#F59E0B"/><text x="209" y="16" text-anchor="middle">の</text>
+    <rect x="220" y="0" width="22" height="22" fill="#FEF3C7" stroke="#F59E0B"/><text x="231" y="16" text-anchor="middle">う</text>
+    <rect x="242" y="0" width="22" height="22" fill="#FEF3C7" stroke="#F59E0B"/><text x="253" y="16" text-anchor="middle">ち</text>
+  </g>
+  <text x="20" y="125" font-size="14" fill="#0891B2" font-weight="bold">→ 「す」「も」が8個「のうち」</text>
+  <text x="20" y="150" font-size="14" fill="#10B981" font-weight="bold">→ 「すも8のうち」(12文字 → 6文字に圧縮!)</text>
+</svg>
+<div class="figure-caption">図:ランレングス圧縮 — 同じデータの連続を数で表す</div>
+</div>
+
+<p><span class="term" data-term="圧縮">圧縮</span>とは、データのもつ情報を保ったままサイズを小さくする処理。<span class="term" data-term="伸張">伸張</span>(解凍)で元に戻します。</p>
+
+<p><b>2種類の圧縮</b></p>
+<ul style="margin-left:24px;">
+<li><span class="term" data-term="可逆圧縮">可逆圧縮</span>:圧縮前と伸張後のデータが完全に同一。文書ファイルやプログラムに使う。</li>
+<li><span class="term" data-term="非可逆圧縮">非可逆圧縮</span>:多少のデータの欠損を許して圧縮率を高める。画像・動画・音声に使う。</li>
+</ul>
+
+<p><b>主なファイル形式</b></p>
+<ul style="margin-left:24px;">
+<li><b>ZIP</b>(可逆) - どんなファイルにも使える</li>
+<li><b>GIF</b>(可逆) - 256色以下のイラスト用</li>
+<li><b>JPEG</b>(非可逆) - 写真用</li>
+<li><b>MP3</b>(非可逆) - 音声用</li>
+<li><b>MPEG</b>(非可逆) - 動画用</li>
+<li><b>BMP</b>(非圧縮) - 全画素情報を保存</li>
+</ul>
+
+<p><b>主な圧縮方法</b></p>
+<ul style="margin-left:24px;">
+<li><span class="term" data-term="ランレングス圧縮">ランレングス圧縮</span>:同じデータの連続を数で表す</li>
+<li><span class="term" data-term="LZ圧縮">LZ圧縮</span>:以前に出た位置と長さを記録</li>
+<li><span class="term" data-term="ハフマン圧縮">ハフマン圧縮</span>:出現頻度の高いデータに短いコード</li>
+</ul>
+
+<p><b>圧縮率</b> = 圧縮後÷圧縮前×100[%]。値が小さいほど高圧縮。</p>
+
+
+  <!-- ════════ 単元 9 (u13): 13. 動画とフレームレート ════════ -->
+  <div class="sec-h2" style="margin-top:24px;">▶ 単元9：動画とフレームレート</div>
+
+<p>動画は<b>静止画(フレーム)を高速で連続表示</b>することで実現しています。これは人間の目の<b>残像現象</b>を利用したもの。仕組みを理解しましょう。</p>
+
+<div class="figure">
+<svg viewBox="0 0 600 180" xmlns="http://www.w3.org/2000/svg">
+  <text x="300" y="20" text-anchor="middle" font-weight="bold" fill="#0E7490" font-size="14">フレームを連続表示すると動画になる</text>
+<g transform="translate(30,35)"><rect width="80" height="80" fill="#fff" stroke="#0891B2" stroke-width="1.5" rx="4"/><circle cx="40" cy="60" r="5" fill="#F59E0B"/><line x1="40" y1="60" x2="24" y2="40" stroke="#888" stroke-width="2"/><circle cx="24" cy="35" r="6" fill="#FECACA"/><line x1="24" y1="40" x2="35" y2="50" stroke="#888" stroke-width="1.5"/><text x="40" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">フレーム1</text></g><g transform="translate(120,35)"><rect width="80" height="80" fill="#fff" stroke="#0891B2" stroke-width="1.5" rx="4"/><circle cx="40" cy="60" r="5" fill="#F59E0B"/><line x1="40" y1="60" x2="32" y2="40" stroke="#888" stroke-width="2"/><circle cx="32" cy="35" r="6" fill="#FECACA"/><line x1="32" y1="40" x2="40" y2="50" stroke="#888" stroke-width="1.5"/><text x="40" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">フレーム2</text></g><g transform="translate(210,35)"><rect width="80" height="80" fill="#fff" stroke="#0891B2" stroke-width="1.5" rx="4"/><circle cx="40" cy="60" r="5" fill="#F59E0B"/><line x1="40" y1="60" x2="40" y2="40" stroke="#888" stroke-width="2"/><circle cx="40" cy="35" r="6" fill="#FECACA"/><line x1="40" y1="40" x2="45" y2="50" stroke="#888" stroke-width="1.5"/><text x="40" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">フレーム3</text></g><g transform="translate(300,35)"><rect width="80" height="80" fill="#fff" stroke="#0891B2" stroke-width="1.5" rx="4"/><circle cx="40" cy="60" r="5" fill="#F59E0B"/><line x1="40" y1="60" x2="48" y2="40" stroke="#888" stroke-width="2"/><circle cx="48" cy="35" r="6" fill="#FECACA"/><line x1="48" y1="40" x2="50" y2="50" stroke="#888" stroke-width="1.5"/><text x="40" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">フレーム4</text></g><g transform="translate(390,35)"><rect width="80" height="80" fill="#fff" stroke="#0891B2" stroke-width="1.5" rx="4"/><circle cx="40" cy="60" r="5" fill="#F59E0B"/><line x1="40" y1="60" x2="56" y2="40" stroke="#888" stroke-width="2"/><circle cx="56" cy="35" r="6" fill="#FECACA"/><line x1="56" y1="40" x2="55" y2="50" stroke="#888" stroke-width="1.5"/><text x="40" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">フレーム5</text></g><g transform="translate(480,35)"><rect width="80" height="80" fill="#fff" stroke="#0891B2" stroke-width="1.5" rx="4"/><circle cx="40" cy="60" r="5" fill="#F59E0B"/><line x1="40" y1="60" x2="64" y2="40" stroke="#888" stroke-width="2"/><circle cx="64" cy="35" r="6" fill="#FECACA"/><line x1="64" y1="40" x2="60" y2="50" stroke="#888" stroke-width="1.5"/><text x="40" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#0E7490">フレーム6</text></g>
+  <text x="300" y="170" text-anchor="middle" font-size="13" fill="#0E7490">→ 1秒間に何枚表示する? = フレームレート(fps)</text>
+</svg>
+<div class="figure-caption">図:静止画を連続して見せると動いて見える</div>
+</div>
+
+<p><span class="term" data-term="フレーム">フレーム</span>は動画を構成する1枚1枚の静止画のこと。「枠」「コマ」の意味です。</p>
+
+<p><span class="term" data-term="フレームレート">フレームレート(fps)</span>は1秒間に表示されるフレーム数。fps = frames per second の略。値が大きいほどなめらかな動画になります。</p>
+
+<p><b>フレームレートの目安</b></p>
+<ul style="margin-left:24px;">
+<li>映画:24fps が多い</li>
+<li>テレビ:30fps が一般的</li>
+<li>ちらつきを感じない:60fps 程度</li>
+</ul>
+
+<p><b>計算例</b>:30fps で5秒間のアニメ → 30×5 = 150フレーム必要</p>
+
+<p><span class="term" data-term="3DCG">3DCG(三次元コンピュータグラフィックス)</span>:平面のディスプレイに立体的に表現する技術。次のような工夫で立体感を出します。</p>
+<ul style="margin-left:24px;">
+<li>遠くにいくほど平行線の間隔を狭くする(遠近法)</li>
+<li>前方の物体で後方の物体を隠す</li>
+<li>光源側を明るく、反対側を暗くする</li>
+</ul>
+
+<p><b>立体視の仕組み</b>:左右の目の位置の違いによる<b>視差</b>を使い、左目用と右目用の異なる映像を脳で合成して立体感を得ます。</p>
+<ul style="margin-left:24px;">
+<li>赤と青のフィルタや偏光フィルタのメガネ方式</li>
+<li>液晶シャッタ方式(高速で左右を切り替え)</li>
+<li>裸眼方式(メガネ不要)</li>
+</ul>
+
+
+  <!-- ════════ 単元 10 (u14): 14. データ量の計算(高認頻出) ════════ -->
+  <div class="sec-h2" style="margin-top:24px;">▶ 単元10：データ量の計算(高認頻出)</div>
+
+<p>これまで学んだ内容を使って、よく出る計算パターンを整理します。<b>「単位を統一する」「式を立ててから計算する」</b>ことを意識すれば必ず解けます。</p>
+
+<div class="figure">
+<svg viewBox="0 0 600 280" xmlns="http://www.w3.org/2000/svg">
+  <text x="300" y="20" text-anchor="middle" font-weight="bold" fill="#0E7490" font-size="14">データ量計算の3つの基本パターン</text>
+  <!-- 静止画 -->
+  <g transform="translate(20,40)">
+    <rect width="170" height="80" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5" rx="6"/>
+    <text x="85" y="20" text-anchor="middle" font-weight="bold" fill="#B45309" font-size="13">①静止画</text>
+    <text x="85" y="40" text-anchor="middle" font-size="11">画素数 × 1画素のバイト数</text>
+    <text x="85" y="58" text-anchor="middle" font-size="10" fill="#666">例:1024×768×3</text>
+    <text x="85" y="72" text-anchor="middle" font-size="10" fill="#666">≒ 2.25MB</text>
+  </g>
+  <!-- 音声 -->
+  <g transform="translate(215,40)">
+    <rect width="170" height="80" fill="#CFFAFE" stroke="#0891B2" stroke-width="1.5" rx="6"/>
+    <text x="85" y="20" text-anchor="middle" font-weight="bold" fill="#0E7490" font-size="13">②音声(1秒)</text>
+    <text x="85" y="40" text-anchor="middle" font-size="11">量子化×標本化×ch</text>
+    <text x="85" y="58" text-anchor="middle" font-size="10" fill="#666">例:CD音質 16×44100×2</text>
+    <text x="85" y="72" text-anchor="middle" font-size="10" fill="#666">≒ 172KB/秒</text>
+  </g>
+  <!-- 動画 -->
+  <g transform="translate(410,40)">
+    <rect width="170" height="80" fill="#D1FAE5" stroke="#10B981" stroke-width="1.5" rx="6"/>
+    <text x="85" y="20" text-anchor="middle" font-weight="bold" fill="#065F46" font-size="13">③動画</text>
+    <text x="85" y="40" text-anchor="middle" font-size="11">静止画×fps×秒数</text>
+    <text x="85" y="58" text-anchor="middle" font-size="10" fill="#666">例:静止画 × 30 × 秒数</text>
+    <text x="85" y="72" text-anchor="middle" font-size="10" fill="#666"></text>
+  </g>
+  <!-- 単位の注意 -->
+  <g transform="translate(20,140)">
+    <rect width="560" height="60" fill="#FEE2E2" stroke="#EF4444" stroke-width="1.5" rx="6"/>
+    <text x="280" y="22" text-anchor="middle" font-weight="bold" fill="#991B1B" font-size="13">⚠️ 単位の壁(超重要)</text>
+    <text x="280" y="40" text-anchor="middle" font-size="11">データ量(KB/MB/GB) → 1024倍ごとに変化</text>
+    <text x="280" y="55" text-anchor="middle" font-size="11">通信速度(kbps/Mbps/Gbps) → 1000倍ごとに変化</text>
+  </g>
+  <!-- 通信速度・パケット -->
+  <g transform="translate(20,215)">
+    <rect width="270" height="50" fill="#E0E7FF" stroke="#6366F1" stroke-width="1.5" rx="6"/>
+    <text x="135" y="20" text-anchor="middle" font-weight="bold" fill="#3730A3" font-size="13">④通信速度</text>
+    <text x="135" y="38" text-anchor="middle" font-size="11">速度=データ量÷時間</text>
+  </g>
+  <g transform="translate(310,215)">
+    <rect width="270" height="50" fill="#FCE7F3" stroke="#EC4899" stroke-width="1.5" rx="6"/>
+    <text x="135" y="20" text-anchor="middle" font-weight="bold" fill="#9F1239" font-size="13">⑤パケット通信料</text>
+    <text x="135" y="38" text-anchor="middle" font-size="11">料金=パケット数×1パケット料金</text>
+  </g>
+</svg>
+<div class="figure-caption">図:データ量計算の基本パターンと単位の注意点</div>
+</div>
+
+<p><b>①静止画のデータ量</b>:画素数 × 1画素あたりのバイト数</p>
+<ul style="margin-left:24px;">
+<li>解像度1024×768、24ビットフルカラーの場合</li>
+<li>1024×768×3 = 2,359,296バイト ≒ <b>2.25MB</b></li>
+</ul>
+
+<p><b>②音声のデータ量(1秒分)</b>:量子化ビット数 × 標本化周波数 × チャンネル数</p>
+<ul style="margin-left:24px;">
+<li>CD音質(16bit, 44100Hz, ステレオ=2ch)の場合</li>
+<li>16×44100×2 = 1,411,200ビット = 176,400バイト ≒ <b>172KB/秒</b></li>
+</ul>
+
+<p><b>③動画のデータ量</b>:1フレームあたり × フレーム数(=fps×秒数)</p>
+
+<p><b>④通信速度</b>:データ量÷時間。単位は<span class="term" data-term="bps">bps(bits per second)</span>。</p>
+<ul style="margin-left:24px;">
+<li>大文字Kは1024倍、小文字kは1000倍。注意!</li>
+</ul>
+
+<p><b>⑤パケット通信料</b>:</p>
+<ul style="margin-left:24px;">
+<li>1パケットの実データ = パケットサイズ - ヘッダサイズ</li>
+<li>パケット数 = 受信データ量 ÷ 1パケットの実データ</li>
+<li>通信料 = 1パケットの料金 × パケット数</li>
+</ul>
+
+<p><b>プリンタの解像度</b>:単位は<span class="term" data-term="dpi">dpi(dots per inch)</span>。1画素=数ドットで構成されます。</p>
+<ul style="margin-left:24px;">
+<li>例:400dpi、1画素=4×4ドット → 100ppi(画素密度)</li>
+</ul>
+
+
+
+  <!-- ════ ミニテスト④：ディジタル化 ════ -->
+  <div class="minitest" data-mt="mt4">
+    <button class="mt-toggle" onclick="toggleMt('mt4')">
+      <span>📝 ミニテスト④：ディジタル化を確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt4-body">
+      <div class="mt-inner">
+
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt4-passage">
+          連続的な値をそのまま扱うのが
+          <span class="mt-blank" data-ans="アナログ">アナログ</span>、
+          0と1の段階的な値で扱うのが
+          <span class="mt-blank" data-ans="ディジタル">ディジタル</span>
+          です。音をディジタル化する3ステップは、標本化・
+          <span class="mt-blank" data-ans="量子化">量子化</span>
+          ・符号化です。光の三原色は
+          <span class="mt-blank" data-ans="RGB">RGB</span>
+          といい、赤・緑・青の組み合わせで色を表します。
+        </div>
+        <div class="mt-wordbank" id="mt4-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt4-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt4')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt4')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt4')">📖 答えを見る</button>
+        </div>
+        <div id="mt4-result"></div>
+
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            音をディジタル化する3ステップの順番として正しいのはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt4-q1" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q1',0)">標本化 → 量子化 → 符号化</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q1',1)">符号化 → 量子化 → 標本化</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q1',2)">量子化 → 標本化 → 符号化</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q1',3)">標本化 → 符号化 → 量子化</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt4-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            音のディジタル化は<strong>標本化（サンプリング）→ 量子化 → 符号化</strong>の順番です。「ひょう→りょう→ふ」と頭文字で覚えましょう。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            光の三原色（RGB）の正しい組み合わせはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt4-q2" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q2',0)">赤・黄・青</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q2',1)">赤・緑・黄</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q2',2)">赤・緑・青</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q2',3)">シアン・マゼンタ・イエロー</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt4-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            光の三原色は<strong>Red（赤）・Green（緑）・Blue（青）</strong>の頭文字で「RGB」と呼びます。シアン・マゼンタ・イエローは「色の三原色（CMY）」で、プリンタなどに使われます。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第3問</span>
+            横200画素・縦100画素、各画素24ビットカラーの画像のデータ量は何ビット？
+          </div>
+          <div class="mt-quiz-options" data-q="mt4-q3" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q3',0)">240,000ビット</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q3',1)">480,000ビット</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q3',2)">24,000ビット</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q3',3)">2,400,000ビット</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt4-q3-ex">
+            <span class="ex-title">💡 解説</span>
+            <strong>横画素数 × 縦画素数 × 1画素あたりのビット数</strong> = 200 × 100 × 24 = <strong>480,000ビット</strong>。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第4問</span>
+            「文字化け」が起こる原因として正しいものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt4-q4" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q4',0)">パソコンの電源が弱いため</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q4',1)">フォントが古いため</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q4',2)">文字コードが送り側と受け側で違うため</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q4',3)">インターネットの速度が遅いため</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt4-q4-ex">
+            <span class="ex-title">💡 解説</span>
+            文字化けは、<strong>送り側と受け側で文字コードが違う</strong>ときに起こります。現代はUTF-8が主流になりつつあります。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5. 試験対策まとめ ══ -->
+  <div class="sec-h1"><span class="num">5</span>試験ではこう出る！</div>
+
+  <table class="godan">
+    <tr><th>出題パターン</th><th>問われ方の例</th><th>答えの出し方</th></tr>
+    <tr>
+      <td><span class="tag tag-coral">人物・年代</span></td>
+      <td>「プログラム内蔵方式の提唱者は？」</td>
+      <td>→ ノイマン</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-coral">用語</span></td>
+      <td>「半導体の集積密度の法則は？」</td>
+      <td>→ ムーアの法則</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-purple">5大装置</span></td>
+      <td>「制御・演算・記憶・入力・出力」</td>
+      <td>→ 5つを全部言える</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">区別</span></td>
+      <td>「ハードとソフトの違いは？」</td>
+      <td>→ 機械かプログラムか</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-teal">2進数計算</span></td>
+      <td>「1011を10進数にすると？」</td>
+      <td>→ 11（重みを掛けて足す）</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-amber">単位</span></td>
+      <td>「1バイトは何通りを表せる？」</td>
+      <td>→ 256通り（2の8乗）</td>
+    </tr>
+  </table>
+
+  <div class="memo-box" style="background:#fbeae5;border-color:var(--coral);">
+    <div class="memo-title" style="color:var(--coral);">🎯 この単元で覚えるべきキーワード</div>
+    <p style="margin:0;">
+      ENIAC／ノイマン／プログラム内蔵方式／ムーアの法則／<br>
+      ハードウェア／ソフトウェア／5大装置／CPU／OS／GUI／CUI／<br>
+      2進数／ビット／バイト／KB／MB／GB／TB
+    </p>
+  </div>
+
+  <!-- 単元まとめ -->
+  <div class="intro-box" style="background:linear-gradient(135deg,#edfaf4 0%,#d4edda 100%);border-left-color:var(--teal);">
+    <div class="intro-title" style="color:var(--teal);">✅ この単元のまとめ（30秒で振り返り）</div>
+    <p style="margin:0;">
+      ① <strong>発達史</strong>＝MARK I → ENIAC → ノイマン型 → ムーアの法則<br>
+      ② <strong>構成</strong>＝ハード（機械）／ソフト（プログラム）／5大装置／OS／GUI・CUI<br>
+      ③ <strong>2進数</strong>＝0と1で表す／ビット・バイト／1バイト＝256通り<br>
+      ④ <strong>容量</strong>＝KB→MB→GB→TBの順に1000倍ずつ<br>
+      これらが言えれば、高認大問4の半分は得点できます。
+    </p>
+  </div>
+
+</div><!-- /container -->
+
+
+<!-- ══ popup data ══ -->
+<script>
+const POPUP_DATA = {
+  zerojou: {
+    title:   "「2の0乗 ＝ 1」って、なぜ？",
+    english: "Why is 2⁰ = 1 ?",
+    meaning: "実は、すべての数の「0乗」は「1」になります（0以外）",
+    bodyHtml: `
+      <p style="margin:0 0 10px;"><strong>「0回かける」のに、なぜ 1 になるのでしょう？ 一見、不思議ですよね。3つの考え方で納得できます。</strong></p>
+
+      <div style="background:#fef9c3; padding:10px 14px; border-radius:6px; margin:10px 0; border-left:4px solid #facc15;">
+        <strong style="color:#a16207;">📌 考え方①：「2を1回かける」を分解してみる</strong><br>
+        <span style="font-family:monospace; line-height:2;">
+          2の3乗 ＝ 2 × 2 × 2 ＝ <strong>8</strong><br>
+          2の2乗 ＝ 2 × 2 ＝ <strong>4</strong><br>
+          2の1乗 ＝ 2 ＝ <strong>2</strong><br>
+          2の0乗 ＝ ？ ＝ <strong>1</strong> &nbsp;←&nbsp;こうなる
+        </span><br>
+        ↓ 上から下に見ると、答えが<strong>「半分ずつ」</strong>になっているのがわかります（8 → 4 → 2 → <strong>1</strong>）。<br>
+        このパターンを続けるには、2の0乗 ＝ 1 でないとつじつまが合いません。
+      </div>
+
+      <div style="background:#dbeafe; padding:10px 14px; border-radius:6px; margin:10px 0; border-left:4px solid #3b82f6;">
+        <strong style="color:#1e40af;">📌 考え方②：累乗のルール「○の◯乗 ÷ ○の◯乗」</strong><br>
+        指数の引き算ルール：<span style="font-family:monospace;">2の3乗 ÷ 2の3乗 ＝ 2の(3-3)乗 ＝ 2の0乗</span><br>
+        でも、<span style="font-family:monospace;">8 ÷ 8 ＝ <strong>1</strong></span>（同じ数を同じ数で割ると 1）<br>
+        だから、<strong>2の0乗 ＝ 1</strong>。
+      </div>
+
+      <div style="background:#d1fae5; padding:10px 14px; border-radius:6px; margin:10px 0; border-left:4px solid #10b981;">
+        <strong style="color:#065f46;">📌 考え方③：「掛け算の出発点（単位元）」</strong><br>
+        足し算の出発点は <strong>0</strong>（0+5=5）。<br>
+        掛け算の出発点は <strong>1</strong>（1×5=5）。<br>
+        「0回かける」というのは、まだ何もかけていない状態 ＝ 出発点 ＝ <strong>1</strong>。
+      </div>
+
+      <div style="background:#fef3c7; padding:12px 14px; border-radius:6px; margin:10px 0; border:2px solid #f59e0b;">
+        <strong style="color:#92400e;">💡 2進数で大切なこと</strong><br>
+        右から順に重みが <strong>1, 2, 4, 8, 16, 32...</strong> と並びますが、これは：<br>
+        <span style="font-family:monospace; line-height:2;">
+          2の<strong>0</strong>乗＝1、 2の<strong>1</strong>乗＝2、 2の<strong>2</strong>乗＝4、 2の<strong>3</strong>乗＝8、 2の<strong>4</strong>乗＝16...
+        </span><br>
+        つまり、<strong>一番右の桁（1の位）の重みが「2の0乗 ＝ 1」</strong>です。<br>
+        これは10進数で「一の位の重みが 10の0乗 ＝ 1」なのと同じ仕組みです。
+      </div>
+    `,
+    example: "じつは2だけでなく、10⁰=1、5⁰=1、100⁰=1。0以外のあらゆる数の0乗は1になります（数学のルール）。"
+  },
+  markone: {
+    title:   "MARK I（マーク・ワン）",
+    english: "Harvard Mark I",
+    meaning: "1944年に開発された電気機械式の計算機",
+    body:    "アメリカのハーバード大学とIBMが共同で開発したリレー式計算機です。歯車とリレー（電磁スイッチ）で動作し、長さ約16m・高さ約2.4mの巨大な機械でした。エイケンらが中心となって開発しました。",
+    example: "弾道計算や軍事用の複雑な数値計算に使われていました。"
+  },
+  eniac: {
+    title:   "ENIAC（エニアック）",
+    english: "Electronic Numerical Integrator and Computer",
+    meaning: "電子的な数値積分・計算機",
+    body:    "1946年にエッカートとモークリーらが開発した、世界初の汎用電子計算機の一つです。約18,000本の真空管を使用し、それまでの機械式計算機とは比べ物にならない速度で計算できました。",
+    example: "弾道計算の速度が、人手の計算より数千倍速くなりました。"
+  },
+  neumann: {
+    title:   "ジョン・フォン・ノイマン",
+    english: "John von Neumann",
+    meaning: "ハンガリー出身の数学者・科学者（1903-1957）",
+    body:    "プログラム内蔵方式（ノイマン型）を提唱した数学者です。現代のコンピュータはほぼすべて彼の提唱した設計に基づいています。「コンピュータの父」の一人として知られています。",
+    example: "1945年にプログラム内蔵方式を提唱し、現代コンピュータの基礎を築きました。"
+  },
+  programstore: {
+    title:   "プログラム内蔵方式",
+    english: "stored-program architecture",
+    meaning: "プログラムをメモリに格納して実行する方式",
+    body:    "プログラムとデータを同じメモリに格納し、CPUが順番に読み出して実行する方式です。ノイマンが1945年に提唱し、現代のほぼすべてのコンピュータがこの方式で動いています。プログラムを変えるだけで違う処理ができる汎用性が特長です。",
+    example: "Word・ブラウザ・ゲームなど、メモリにロードして実行される全てのソフトがこの方式です。"
+  },
+  moore: {
+    title:   "ムーアの法則",
+    english: "Moore's Law",
+    meaning: "半導体の集積密度が1〜2年で倍になる経験則",
+    body:    "1965年にインテル社の創業者の一人ゴードン・ムーアが提唱した経験則です。半導体チップ上のトランジスタの数が、1〜2年ごとに倍増していくというものです。この法則のおかげで、コンピュータは年々高性能・小型・安価になり続けています。",
+    example: "スマホがアポロ計画のコンピュータより高性能なのも、この法則の結果です。"
+  },
+  seigyo: {
+    title:   "制御装置（Control Unit）",
+    english: "Control Unit（CU）",
+    meaning: "コンピュータ全体の動きを指揮する装置",
+    body:    "プログラムを解読し、他の装置に「次は何をするか」を指示します。CPU（中央処理装置）の中にあり、コンピュータの「指揮者」の役割を果たします。",
+    example: "メモリから命令を取り出して、演算装置や入出力装置に指示を出します。"
+  },
+  enzan: {
+    title:   "演算装置（ALU）",
+    english: "Arithmetic Logic Unit",
+    meaning: "計算と論理判断を行う装置",
+    body:    "足し算・引き算・比較などの計算を行う装置です。CPUの中にあり、制御装置と協力してコンピュータの「頭脳」の役割を果たします。",
+    example: "1+1の計算、大小比較、文字列の処理など、あらゆる計算を担当します。"
+  },
+  kioku: {
+    title:   "記憶装置",
+    english: "memory / storage",
+    meaning: "データやプログラムを保存する装置",
+    body:    "コンピュータが扱うデータとプログラムを保存する装置です。すぐに読み書きする「主記憶（メモリ）」と、長期保存する「補助記憶（HDD・SSD）」に分かれます。",
+    example: "メモリ（RAM）、HDD、SSD、USBメモリ、SDカードなど。"
+  },
+  nyuryoku: {
+    title:   "入力装置",
+    english: "input device",
+    meaning: "外部からデータを取り込む装置",
+    body:    "コンピュータに対して、人間が情報を伝えるための装置です。キーボードで文字を打ったり、マウスで操作したり、マイクで音声を入力したりします。",
+    example: "キーボード、マウス、タッチパネル、マイク、Webカメラ、スキャナ。"
+  },
+  shutsuryoku: {
+    title:   "出力装置",
+    english: "output device",
+    meaning: "処理結果を外に出す装置",
+    body:    "コンピュータが処理した結果を、人間が理解できる形で表示・出力する装置です。画面表示・印刷・音声出力など、さまざまな方法があります。",
+    example: "ディスプレイ、プリンター、スピーカー、プロジェクター。"
+  },
+  cpu: {
+    title:   "CPU（中央処理装置）",
+    english: "Central Processing Unit",
+    meaning: "Central（中央の）＋ Processing（処理する）＋ Unit（装置）",
+    body:    "コンピュータの中心となる「脳みそ」です。制御装置と演算装置を1つにまとめたもので、プログラムの命令を読み取り、計算したり、他の装置に指示を出したりします。性能はクロック周波数とコア数で決まります。",
+    example: "Intel Core i7、AMD Ryzen、Apple M2など。"
+  },
+  clock: {
+    title:   "クロック周波数",
+    english: "clock frequency",
+    meaning: "clock（時計）＋ frequency（周波数）、単位はGHz（ギガヘルツ）",
+    body:    "CPUが1秒間に何回処理できるかを示す数値です。数値が大きいほど高速です。3GHzなら1秒に約30億回処理できます。",
+    example: "3.5GHz、4.0GHzなど。最近のスマホは2〜3GHzが一般的。"
+  },
+  core: {
+    title:   "コア数",
+    english: "core",
+    meaning: "core（核・中心）＝CPU内の「脳みそ」の数",
+    body:    "CPU内部にある処理の中心部分の数です。コア数が多いほど、同時に複数の処理を並行して行えます。4コアなら4つの脳みそが同時に働くイメージです。",
+    example: "デュアルコア（2）、クアッドコア（4）、ヘキサコア（6）、オクタコア（8）など。"
+  },
+  ram: {
+    title:   "RAM（主記憶装置）",
+    english: "Random Access Memory",
+    meaning: "Random（任意の）＋ Access（アクセス）＋ Memory（記憶）",
+    body:    "どこにでもすぐアクセスできる記憶装置で、主記憶装置（メモリ）のことです。電源を切るとデータが消える「揮発性」が特徴です。CPUがすぐに使うデータを置いておく「机の上」のような役割です。",
+    example: "DDR4・DDR5などの規格。スマホは6GB、PCは8〜32GBが一般的。"
+  },
+  hdd: {
+    title:   "HDD（ハードディスクドライブ）",
+    english: "Hard Disk Drive",
+    meaning: "Hard（硬い）＋ Disk（円盤）＋ Drive（駆動装置）",
+    body:    "磁性体を塗った金属の円盤を回転させて読み書きする補助記憶装置です。容量が大きく価格も安いですが、SSDより遅く衝撃にも弱いのが弱点です。",
+    example: "1TB・4TBなどの容量。デスクトップPCや録画機器によく使われる。"
+  },
+  ssd: {
+    title:   "SSD（ソリッドステートドライブ）",
+    english: "Solid State Drive",
+    meaning: "Solid（固体の）＋ State（状態）＋ Drive（駆動装置）",
+    body:    "可動部品なし（固体）の半導体メモリを使う補助記憶装置です。HDDより高速で衝撃に強く、消費電力も少ないのが特徴です。最近のノートPCやスマホはほとんどSSDです。",
+    example: "256GB・512GB・1TBが一般的。起動も読み書きもHDDより数倍速い。"
+  },
+  usb: {
+    title:   "USB",
+    english: "Universal Serial Bus",
+    meaning: "Universal（汎用の）＋ Serial（連続した）＋ Bus（伝送路）",
+    body:    "さまざまな機器をパソコンに接続するための共通規格です。USBメモリは補助記憶装置の一種で、持ち運びに便利です。",
+    example: "USBメモリ、USBハブ、USB充電器など。"
+  },
+  charcode: {
+    title:   "文字コード",
+    english: "character code / character encoding",
+    meaning: "character（文字）＋ code（番号・符号）",
+    body:    "文字に番号を割り当てるルールです。コンピュータはこの番号を2進数で扱います。ASCII、Shift_JIS、Unicode（UTF-8）などの種類があり、送り側と受け側で違うと「文字化け」が起こります。",
+    example: "メールやWebサイトはUTF-8が主流。Windowsのファイルは伝統的にShift_JISが多い。"
+  },
+  ascii: {
+    title:   "ASCII（アスキー）",
+    english: "American Standard Code for Information Interchange",
+    meaning: "American Standard（アメリカ標準）＋ Code（符号）",
+    body:    "英数字・記号などを128文字、7ビットで表現する基本的な文字コードです。1963年に制定された最も古い文字コードの一つで、すべての文字コードの基礎になっています。",
+    example: "アルファベットの'A'は10進数で65、2進数で1000001。"
+  },
+  jis: {
+    title:   "JISコード",
+    english: "JIS code",
+    meaning: "JIS（日本工業規格）",
+    body:    "日本語の漢字・ひらがな・カタカナを扱える文字コードです。電子メールなどで広く使われてきました。",
+    example: "電子メールでの日本語の標準的なコード。"
+  },
+  shiftjis: {
+    title:   "Shift_JIS",
+    english: "Shift_JIS",
+    meaning: "ASCIIをずらして日本語を入れた方式",
+    body:    "Windowsで標準的に使われてきた日本語文字コードです。ファイル名や古いWebサイトなどで広く使われています。",
+    example: "Windowsで作ったテキストファイル、古いWebサイトなど。"
+  },
+  unicode: {
+    title:   "Unicode（UTF-8）",
+    english: "Unicode / UTF-8",
+    meaning: "Universal Code（世界共通の符号）",
+    body:    "世界中の文字を1つの体系で扱う国際標準の文字コードです。UTF-8はその一形式で、現代のWebサイトのほとんどで使われています。",
+    example: "現代のWebサイト、スマホアプリ、ほとんどのプログラミング言語の標準。"
+  },
+  hyohonka: {
+    title:   "標本化（サンプリング）",
+    english: "sampling",
+    meaning: "sample（試料・標本）＋ -ing",
+    body:    "音の波を一定の時間間隔で測ることです。1秒間に何回測るかを「標本化周波数（Hz）」といいます。CDは44,100Hz（1秒間に44,100回）で標本化されています。",
+    example: "音楽CDの標本化周波数は44.1kHz。"
+  },
+  ryoshika: {
+    title:   "量子化",
+    english: "quantization",
+    meaning: "quantum（量）＋ -ization（化）",
+    body:    "標本化で得た音の値を、決められた段階に区切ることです。何段階かを「量子化ビット数」といいます。CDは16ビット（65,536段階）で量子化されています。",
+    example: "CDは量子化ビット数16ビット、ハイレゾ音源は24ビット。"
+  },
+  fugoka: {
+    title:   "符号化",
+    english: "encoding",
+    meaning: "符号（コード）＋ 化",
+    body:    "量子化した数値を、0と1の2進数に変換することです。これでコンピュータが扱えるデータになります。",
+    example: "音をWAVやMP3ファイルとして保存する最終段階。"
+  },
+  kaizodo: {
+    title:   "解像度",
+    english: "resolution",
+    meaning: "resolution（分解能・解像度）",
+    body:    "画像の細かさを表す指標で、画素（ピクセル）の数で表します。大きいほど細かく表現できます。Full HDは1920×1080、4Kは3840×2160です。",
+    example: "スマホ写真は3000×4000程度、4Kディスプレイは3840×2160。"
+  },
+  kaicho: {
+    title:   "階調",
+    english: "gradation",
+    meaning: "gradation（段階・度合い）",
+    body:    "1つの画素で表せる色の段階数のことです。階調が多いほど、色のグラデーションがなめらかになります。8ビットなら256階調、24ビットカラーは約1677万色です。",
+    example: "白黒写真は256階調、フルカラー写真は約1677万色。"
+  },
+  os: {
+    title:   "OS（オペレーティングシステム）",
+    english: "Operating System",
+    meaning: "応用ソフトと周辺機器を仲介する基本ソフトウェア",
+    body:    "コンピュータの基本的な動作を制御するソフトウェアです。ハードウェアの管理、アプリケーションの実行管理、ファイルの管理など、コンピュータ全体を統括します。これがないと、応用ソフト（Wordやブラウザ）は動きません。",
+    example: "Windows、macOS、Linux、iOS、Androidなど。"
+  },
+  binary: {
+    title:   "2進数",
+    english: "binary number",
+    meaning: "0と1だけで数を表す方法",
+    body:    "0と1の2種類の数字だけで数を表す方法です。コンピュータの内部では電気が「流れる／流れない」の2状態しかないため、すべての情報を2進数で扱います。10進数の「2」は2進数で「10」、「3」は「11」、「4」は「100」となります。",
+    example: "コンピュータの内部処理、デジタルデータの保存、画像・音声の符号化など。"
+  },
+  bit: {
+    title:   "ビット",
+    english: "bit（binary digit の略）",
+    meaning: "binary（2進数の）＋ digit（桁）",
+    body:    "2進数の1桁分の情報量です。コンピュータが扱う最小単位で、0か1かのどちらかを表します。nビットあれば、2のn乗通りの情報を表現できます。",
+    example: "1ビット＝2通り、2ビット＝4通り、3ビット＝8通り、8ビット＝256通り。"
+  },
+  byte: {
+    title:   "バイト",
+    english: "byte",
+    meaning: "8ビットをまとめた単位",
+    body:    "8ビットをまとめた単位です。1バイトで256通りの情報を表現できるため、アルファベット・記号・数字を1文字で表すのにちょうど良い大きさです。ファイルサイズや容量の単位として広く使われます。",
+    example: "1文字（半角）＝1バイト、1KB＝約1,000バイト、1MB＝約100万バイト。"
+  },
+  'アナログ': {
+    title:   "アナログ",
+    english: "analog",
+    meaning: "アナログ",
+    body:    "ギリシャ語の「analogos(類似の)」が語源。連続量を別の連続量で類似表現することから。"
+  },
+  'ディジタル': {
+    title:   "ディジタル",
+    english: "digital",
+    meaning: "ディジタル",
+    body:    "ラテン語の「digitus(指)」が語源。指で数を数えるように、とびとびの数値で表現することから。"
+  },
+  'ペイント系': {
+    title:   "ペイント系",
+    english: "painting software",
+    meaning: "ペインティング ソフトウェア",
+    body:    "paint(描く・塗る)が語源。絵筆で塗るように画素を直接編集することから。"
+  },
+  'ピクセル': {
+    title:   "ピクセル",
+    english: "pixel",
+    meaning: "ピクセル",
+    body:    "picture element(画像の要素)を縮めた語。画像を構成する一粒一粒の点。"
+  },
+  'ラスタ形式': {
+    title:   "ラスタ形式",
+    english: "raster",
+    meaning: "ラスタ",
+    body:    "ラテン語の rastrum(熊手)が語源。格子状に並んだ点で画像を表すことから。"
+  },
+  'ドロー系': {
+    title:   "ドロー系",
+    english: "drawing software",
+    meaning: "ドローイング ソフトウェア",
+    body:    "draw(線を引く)が語源。座標や角度の指示で線を描くことから。"
+  },
+  'ベクタ形式': {
+    title:   "ベクタ形式",
+    english: "vector",
+    meaning: "ベクタ",
+    body:    "ラテン語の vector(運ぶもの)が語源。方向と大きさを持つ量で図形を表すことから。"
+  },
+  '文字コード': {
+    title:   "文字コード",
+    english: "character code",
+    meaning: "キャラクターコード",
+    body:    "character(文字)+code(符号)。文字を数字に対応させた符号体系。"
+  },
+  'JISコード': {
+    title:   "JISコード",
+    english: "JIS code",
+    meaning: "ジス コード",
+    body:    "Japanese Industrial Standards(日本工業規格)で定められた文字コード。"
+  },
+  'Unicode': {
+    title:   "Unicode",
+    english: "Unicode",
+    meaning: "ユニコード",
+    body:    "Universal Code(普遍的な符号)。世界中の文字を1つの体系に統一する目的で作られた。"
+  },
+  '標本化': {
+    title:   "標本化",
+    english: "sampling",
+    meaning: "サンプリング",
+    body:    "sample(見本)が語源。連続データから一定間隔で「見本」となる点を取り出すことから。"
+  },
+  '量子化': {
+    title:   "量子化",
+    english: "quantization",
+    meaning: "クォンタイゼーション",
+    body:    "quantum(量子・とびとびの量)が語源。連続値を最も近い段階値にそろえることから。"
+  },
+  '符号化': {
+    title:   "符号化",
+    english: "coding / encoding",
+    meaning: "コーディング",
+    body:    "code(符号)から。数値を2進数の符号に変換することから。"
+  },
+  'PCM': {
+    title:   "PCM",
+    english: "Pulse Code Modulation",
+    meaning: "パルスコードモジュレーション",
+    body:    "Pulse(パルス)+Code(符号)+Modulation(変調)の頭文字。音をパルス信号で2進数符号化する方式。"
+  },
+  '光の三原色': {
+    title:   "光の三原色",
+    english: "RGB / additive primaries",
+    meaning: "アールジービー",
+    body:    "ディスプレイなどの光で色を作る基本3色。Red・Green・Blueの頭文字。"
+  },
+  '加法混色': {
+    title:   "加法混色",
+    english: "additive color mixing",
+    meaning: "アディティブ ミキシング",
+    body:    "光を「加える」(additive)と明るくなる(白に近づく)ことから「加法」。"
+  },
+  '色の三原色': {
+    title:   "色の三原色",
+    english: "CMY / subtractive primaries",
+    meaning: "シーエムワイ",
+    body:    "印刷で色を作る基本3色。Cyan・Magenta・Yellowの頭文字。"
+  },
+  '減法混色': {
+    title:   "減法混色",
+    english: "subtractive color mixing",
+    meaning: "サブトラクティブ ミキシング",
+    body:    "光を吸収して(色を「引く」)暗くなる(黒に近づく)ことから「減法」。"
+  },
+  '画素': {
+    title:   "画素",
+    english: "pixel",
+    meaning: "ピクセル",
+    body:    "picture element(画像の要素)を縮めた語。R・G・Bをひとまとめにした画像の最小単位。"
+  },
+  '解像度': {
+    title:   "解像度",
+    english: "resolution",
+    meaning: "レゾリューション",
+    body:    "re-(再び)+solve(解く)。画像を細かく分解する細かさを表す語。"
+  },
+  'ppi': {
+    title:   "ppi",
+    english: "pixels per inch",
+    meaning: "ピクセルズ パー インチ",
+    body:    "1インチあたりの画素数を表す単位。pixels(画素)+per(あたり)+inch(インチ)。"
+  },
+  '階調': {
+    title:   "階調",
+    english: "gradation",
+    meaning: "グラデーション",
+    body:    "gradation(段階)から。明るさの段階数を表す語。"
+  },
+  '圧縮': {
+    title:   "圧縮",
+    english: "compression",
+    meaning: "コンプレッション",
+    body:    "com-(共に)+press(押す)。データを「押し込めて」小さくすることから。"
+  },
+  '伸張': {
+    title:   "伸張",
+    english: "decompression",
+    meaning: "デコンプレッション",
+    body:    "圧縮の逆。「解凍」「復元」「展開」とも。"
+  },
+  '可逆圧縮': {
+    title:   "可逆圧縮",
+    english: "lossless compression",
+    meaning: "ロスレス コンプレッション",
+    body:    "loss-less(損失がない)。圧縮前と伸張後が完全に一致。"
+  },
+  '非可逆圧縮': {
+    title:   "非可逆圧縮",
+    english: "lossy compression",
+    meaning: "ロッシー コンプレッション",
+    body:    "lossy(損失のある)。一部のデータが失われる代わりに圧縮率が高い。"
+  },
+  'ランレングス圧縮': {
+    title:   "ランレングス圧縮",
+    english: "Run Length Encoding",
+    meaning: "ランレングス エンコーディング",
+    body:    "Run(連続)+Length(長さ)。同じデータの連続(=run)の長さを記録することから。"
+  },
+  'LZ圧縮': {
+    title:   "LZ圧縮",
+    english: "Lempel-Ziv compression",
+    meaning: "レンペル ジヴ",
+    body:    "発明者の名前(Abraham Lempel と Jacob Ziv)から。"
+  },
+  'ハフマン圧縮': {
+    title:   "ハフマン圧縮",
+    english: "Huffman coding",
+    meaning: "ハフマン コーディング",
+    body:    "発明者 David A. Huffman の名前から。"
+  },
+  'フレーム': {
+    title:   "フレーム",
+    english: "frame",
+    meaning: "フレーム",
+    body:    "frame(枠)が語源。映画フィルムの1コマ1コマが「枠」になっていることから。"
+  },
+  'フレームレート': {
+    title:   "フレームレート",
+    english: "frame rate (fps)",
+    meaning: "フレームレート",
+    body:    "frames per second(1秒あたりのフレーム数)の略がfps。"
+  },
+  '3DCG': {
+    title:   "3DCG",
+    english: "3D Computer Graphics",
+    meaning: "スリーディーシージー",
+    body:    "3 Dimensional(3次元の)Computer Graphics(コンピュータ画像)の略。"
+  },
+  'bps': {
+    title:   "bps",
+    english: "bits per second",
+    meaning: "ビット パー セカンド",
+    body:    "1秒あたりに転送できるビット数。bits(ビット)+per(あたり)+second(秒)。"
+  },
+  'dpi': {
+    title:   "dpi",
+    english: "dots per inch",
+    meaning: "ドット パー インチ",
+    body:    "1インチあたりのドット数。プリンタの解像度の単位。"
+  },
+};
+
+function openPopup(key) {
+  const d = POPUP_DATA[key]; if (!d) return;
+  document.getElementById('popupTitle').textContent   = d.title;
+  document.getElementById('popupEnglish').textContent = d.english || '';
+  const mg = document.getElementById('popupMeaning');
+  if (d.meaning) { mg.textContent = d.meaning; mg.style.display=''; }
+  else { mg.style.display='none'; }
+  const bodyEl = document.getElementById('popupBody');
+  if (d.bodyHtml) { bodyEl.innerHTML = d.bodyHtml; }
+  else { bodyEl.textContent = d.body; }
+  const ex = document.getElementById('popupExample');
+  if (d.example) { ex.textContent = '📌 ' + d.example; ex.style.display=''; }
+  else { ex.style.display='none'; }
+  document.getElementById('popupModal').classList.add('show');
+}
+function closePopup(e) {
+  if (!e || e.target === document.getElementById('popupModal'))
+    document.getElementById('popupModal').classList.remove('show');
+}
+
+// ── 穴埋め：9か所 ──
+const WORDS = ["ENIAC", "プログラム内蔵方式", "ノイマン", "ハードウェア", "ソフトウェア", "GUI", "2進数", "ビット", "バイト"];
+
+let selectedWord = null, isRunning = false, startTime = null, timerInt = null, bestTime = null;
+
+function fmtTime(ms) {
+  const m = Math.floor(ms/60000).toString().padStart(2,'0');
+  const s = Math.floor((ms%60000)/1000).toString().padStart(2,'0');
+  return `${m}:${s}.${Math.floor((ms%1000)/100)}`;
+}
+
+function startChallenge() {
+  document.querySelectorAll('.dz').forEach(z => {
+    z.textContent = '';
+    z.classList.remove('correct','wrong','filled');
+  });
+  selectedWord = null;
+  renderWordBank([...WORDS].sort(()=>Math.random()-.5));
+  clearInterval(timerInt);
+  startTime = Date.now(); isRunning = true;
+  timerInt = setInterval(()=>{ document.getElementById('timerDisplay').textContent = fmtTime(Date.now()-startTime); }, 100);
+}
+
+function renderWordBank(words) {
+  const wb = document.getElementById('wordBank'); wb.innerHTML='';
+  words.forEach(w => { wb.appendChild(makeItem(w)); });
+}
+
+function makeItem(w) {
+  const el = document.createElement('span');
+  el.className='drag-item'; el.textContent=w;
+  el.onclick = () => {
+    document.querySelectorAll('.drag-item').forEach(d=>d.classList.remove('selected'));
+    if (selectedWord===w) { selectedWord=null; return; }
+    el.classList.add('selected'); selectedWord=w;
+  };
+  return el;
+}
+
+document.querySelectorAll('.dz').forEach(z => {
+  z.addEventListener('click', () => {
+    if (!isRunning) return;
+    if (selectedWord) {
+      // 既に何か入っている場合は語群に戻す
+      if (z.textContent.trim()) {
+        const oldWord = z.textContent.trim();
+        document.getElementById('wordBank').appendChild(makeItem(oldWord));
+      }
+      z.textContent = selectedWord;
+      z.classList.remove('correct','wrong');
+      z.classList.add('filled');
+      const found = [...document.querySelectorAll('#wordBank .drag-item')].find(i=>i.textContent===selectedWord);
+      if (found) found.remove();
+      selectedWord=null;
+      document.querySelectorAll('.drag-item').forEach(d=>d.classList.remove('selected'));
+    } else if (z.textContent.trim()) {
+      // 何も選択していない状態で空欄をクリック → 語群に戻す
+      const word = z.textContent.trim();
+      z.textContent = '';
+      z.classList.remove('correct','wrong','filled');
+      document.getElementById('wordBank').appendChild(makeItem(word));
+    }
+  });
+});
+
+function checkAnswers() {
+  if (!isRunning) return;
+  let allOk=true;
+  document.querySelectorAll('.dz').forEach(z => {
+    const input = z.textContent.trim().replace(/　/g,'');
+    if (!input) { allOk=false; return; }
+    if (input===z.dataset.ans) { z.classList.add('correct'); z.classList.remove('wrong'); }
+    else { z.classList.add('wrong'); z.classList.remove('correct'); allOk=false; }
+  });
+  if (allOk) {
+    clearInterval(timerInt); isRunning=false;
+    const elapsed = Date.now()-startTime;
+    if (bestTime===null||elapsed<bestTime) { bestTime=elapsed; document.getElementById('recordDisplay').textContent='🏆 ベスト：'+fmtTime(bestTime); }
+    startConfetti();
+  } else {
+    const wbc=document.getElementById('wordBankContainer');
+    wbc.classList.remove('shake'); void wbc.offsetWidth; wbc.classList.add('shake');
+    setTimeout(()=>wbc.classList.remove('shake'),500);
+  }
+}
+
+function showModel() {
+  clearInterval(timerInt); isRunning=false; selectedWord=null;
+  document.querySelectorAll('.dz').forEach(z=>{
+    z.textContent = z.dataset.ans;
+    z.classList.remove('correct','wrong');
+    z.classList.add('filled');
+  });
+  document.getElementById('wordBank').innerHTML='<span style="color:#888;font-size:.9em;">お手本表示中。「チャレンジ開始」で練習できます。</span>';
+  document.getElementById('timerDisplay').textContent='00:00.0';
+}
+
+// confetti
+const cvs=document.getElementById('confetti-canvas'), ctx=cvs.getContext('2d');
+let pts=[], cnfOn=false;
+function startConfetti() {
+  cvs.width=window.innerWidth; cvs.height=window.innerHeight; pts=[];
+  for(let i=0;i<200;i++) pts.push({x:Math.random()*cvs.width,y:Math.random()*cvs.height-cvs.height,s:Math.random()*9+4,c:`hsl(${Math.random()*360},75%,65%)`,sp:Math.random()*3+2});
+  cnfOn=true; animCnf();
+  setTimeout(()=>{cnfOn=false;ctx.clearRect(0,0,cvs.width,cvs.height);pts=[];},4000);
+}
+function animCnf() {
+  if(!cnfOn)return;
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  pts.forEach(p=>{p.y+=p.sp;ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,p.s,p.s);if(p.y>cvs.height)p.y=-20;});
+  requestAnimationFrame(animCnf);
+}
+
+showModel();
+
+// ══════════════════════════════════════════
+// ホバー型ポップアップの初期化
+// data-term="xxx" 属性を持つ要素にカーソルを当てると、
+// POPUP_DATAの内容を吹き出しで表示します。
+// ══════════════════════════════════════════
+function initTermPopups() {
+  document.querySelectorAll('[data-term]').forEach(el => {
+    const key = el.dataset.term;
+    const d = POPUP_DATA[key];
+    if (!d) return;
+    el.classList.add('term');
+    // 既存のポップアップを削除（多重呼び出し対策）
+    const old = el.querySelector('.term-popup');
+    if (old) old.remove();
+    const popup = document.createElement('span');
+    popup.className = 'term-popup';
+    let html = `<span class="tp-title">${d.title}</span>`;
+    if (d.english) html += `<span class="tp-en">${d.english}</span>`;
+    if (d.meaning) html += `<span class="tp-meaning">${d.meaning}</span>`;
+    html += `<span class="tp-body">${d.body}</span>`;
+    popup.innerHTML = html;
+    el.appendChild(popup);
+  });
+}
+initTermPopups();
+
+// ══════════════════════════════════════════
+// ミニテスト機能（章末展開式）
+// ══════════════════════════════════════════
+const mtState = {}; // { mt1: { selectedWord, running }, mt2: {...}, ... }
+
+// 開閉トグル
+function toggleMt(mtId) {
+  const body = document.getElementById(mtId + '-body');
+  const toggle = document.querySelector(`[data-mt="${mtId}"] .mt-toggle`);
+  if (!body || !toggle) return;
+  const isOpen = body.classList.contains('open');
+  if (isOpen) {
+    body.classList.remove('open');
+    toggle.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    toggle.classList.add('open');
+  }
+}
+
+// 穴埋めチャレンジ開始：空欄をクリアし、語群を生成
+function mtStart(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  const words = [];
+  blanks.forEach(b => {
+    words.push(b.dataset.ans);
+    b.textContent = '';
+    b.classList.remove('filled','correct','wrong');
+    b.classList.add('empty');
+  });
+  // 語群を表示
+  const wordsEl = document.getElementById(mtId + '-words');
+  const bankLabel = document.querySelector(`#${mtId}-bank-wrap .mt-wordbank-label`);
+  if (bankLabel) bankLabel.textContent = '📦 語群（タップして選択 → 空欄をクリックで入力）';
+  wordsEl.innerHTML = '';
+  const shuffled = [...words].sort(() => Math.random() - 0.5);
+  shuffled.forEach(w => wordsEl.appendChild(mtMakeChip(mtId, w)));
+  mtState[mtId] = { selectedWord: null, running: true };
+  // 結果表示クリア
+  document.getElementById(mtId + '-result').innerHTML = '';
+  // 空欄にクリックハンドラを設定
+  blanks.forEach(b => {
+    b.onclick = () => mtBlankClick(mtId, b);
+  });
+}
+
+// 語群チップ生成
+function mtMakeChip(mtId, word) {
+  const chip = document.createElement('span');
+  chip.className = 'mt-chip';
+  chip.textContent = word;
+  chip.onclick = () => {
+    const s = mtState[mtId];
+    if (!s || !s.running) return;
+    // 同じものを再選択 → 解除
+    if (s.selectedWord === word) {
+      chip.classList.remove('selected');
+      s.selectedWord = null;
+      return;
+    }
+    // 他の選択を解除
+    document.querySelectorAll(`#${mtId}-words .mt-chip`).forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    s.selectedWord = word;
+  };
+  return chip;
+}
+
+// 空欄クリック
+function mtBlankClick(mtId, blank) {
+  const s = mtState[mtId];
+  if (!s || !s.running) return;
+  if (s.selectedWord) {
+    // 既に何か入っていたら語群に戻す
+    if (blank.textContent.trim()) {
+      const old = blank.textContent.trim();
+      document.getElementById(mtId + '-words').appendChild(mtMakeChip(mtId, old));
+    }
+    // 語句を入れる
+    blank.textContent = s.selectedWord;
+    blank.classList.remove('empty','correct','wrong');
+    blank.classList.add('filled');
+    // 語群から削除
+    const chips = document.querySelectorAll(`#${mtId}-words .mt-chip`);
+    chips.forEach(c => {
+      if (c.textContent === s.selectedWord && !c.classList.contains('used')) {
+        c.remove();
+        return;
+      }
+    });
+    s.selectedWord = null;
+    document.querySelectorAll(`#${mtId}-words .mt-chip`).forEach(c => c.classList.remove('selected'));
+  } else if (blank.textContent.trim()) {
+    // 何も選択していないとき → 中身を語群に戻す
+    const word = blank.textContent.trim();
+    blank.textContent = '';
+    blank.classList.remove('filled','correct','wrong');
+    blank.classList.add('empty');
+    document.getElementById(mtId + '-words').appendChild(mtMakeChip(mtId, word));
+  }
+}
+
+// 答え合わせ
+function mtCheck(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  let allOk = true;
+  let unanswered = 0;
+  blanks.forEach(b => {
+    const input = b.textContent.trim();
+    if (!input) { allOk = false; unanswered++; return; }
+    if (input === b.dataset.ans) {
+      b.classList.add('correct');
+      b.classList.remove('wrong','filled');
+    } else {
+      b.classList.add('wrong');
+      b.classList.remove('correct','filled');
+      allOk = false;
+    }
+  });
+  const result = document.getElementById(mtId + '-result');
+  if (allOk) {
+    result.innerHTML = '<div class="mt-result success">🎉 全問正解！すばらしいです。</div>';
+    startConfetti();  // 🎊 花吹雪
+  } else if (unanswered === blanks.length) {
+    result.innerHTML = '<div class="mt-result warning">📝 「チャレンジ開始」を押してから始めてください。</div>';
+  } else {
+    result.innerHTML = '<div class="mt-result warning">⚠️ 赤くなった箇所をもう一度考えてみましょう。</div>';
+  }
+}
+
+// 答えを見る（お手本）
+function mtShowAns(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  blanks.forEach(b => {
+    b.textContent = b.dataset.ans;
+    b.classList.remove('empty','correct','wrong','filled');
+  });
+  // 語群をクリア
+  const wordsEl = document.getElementById(mtId + '-words');
+  if (wordsEl) wordsEl.innerHTML = '<span style="color:#888;font-size:.85em;">お手本表示中。チャレンジ開始で練習できます。</span>';
+  document.getElementById(mtId + '-result').innerHTML = '';
+  if (mtState[mtId]) mtState[mtId].running = false;
+}
+
+// 4択：回答
+function mtAnswer(btnEl, qId, idx) {
+  const optionsEl = document.querySelector(`[data-q="${qId}"]`);
+  if (!optionsEl) return;
+  const correct = parseInt(optionsEl.dataset.ans, 10);
+  // 既に回答済みならスキップ
+  if (optionsEl.dataset.answered === 'yes') return;
+  optionsEl.dataset.answered = 'yes';
+  // 正誤判定（後で参照できるよう保存）
+  const isRight = (idx === correct);
+  optionsEl.dataset.result = isRight ? 'correct' : 'wrong';
+  // 全ボタンを無効化
+  const opts = optionsEl.querySelectorAll('.mt-quiz-opt');
+  opts.forEach((o, i) => {
+    o.disabled = true;
+    if (i === correct) o.classList.add('correct');
+    if (i === idx && idx !== correct) o.classList.add('wrong');
+  });
+  // 解説表示
+  const ex = document.getElementById(qId + '-ex');
+  if (ex) ex.classList.add('show');
+
+  // 同じミニテスト内の4択がすべて正解か判定
+  // qId は "mt1-q1" のような形式
+  const mtId = qId.split('-')[0];  // "mt1"
+  checkAllQuizCorrect(mtId);
+}
+
+// 同じミニテスト内の4択がすべて回答済みかつ全問正解なら花吹雪
+function checkAllQuizCorrect(mtId) {
+  const mtBody = document.getElementById(mtId + '-body');
+  if (!mtBody) return;
+  const allOptions = mtBody.querySelectorAll('.mt-quiz-options');
+  if (allOptions.length === 0) return;
+  let allAnswered = true;
+  let allCorrect = true;
+  allOptions.forEach(o => {
+    if (o.dataset.answered !== 'yes') allAnswered = false;
+    if (o.dataset.result !== 'correct') allCorrect = false;
+  });
+  if (allAnswered && allCorrect) {
+    startConfetti();
+  }
+}
+</script>
+</body>
+</html>

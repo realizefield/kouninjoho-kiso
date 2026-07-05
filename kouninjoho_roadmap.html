@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高認 情報Ⅰ 学習ロードマップ</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+  background: linear-gradient(135deg, #fef2f2 0%, #ffe4e6 100%);
+  min-height: 100vh; padding: 20px; color: #1e293b;
+}
+.container { max-width: 1150px; margin: 0 auto; }
+h1 { text-align: center; color: #991b1b; margin-bottom: 8px; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+.subtitle { text-align: center; color: #475569; font-size: 14px; margin-bottom: 20px; }
+.top-nav { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+.nav-btn { padding: 12px 20px; background: white; border: 3px solid #dc2626; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px; color: #991b1b; text-decoration: none; transition: all 0.2s; }
+.nav-btn:hover { background: #fee2e2; }
+.nav-btn.home { background: #dc2626; color: white; }
+.nav-btn.home:hover { background: #991b1b; }
+
+.exam-info { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 24px; border-top: 6px solid #dc2626; }
+.exam-info-title { color: #991b1b; font-size: 20px; margin-bottom: 12px; border-bottom: 3px solid #dc2626; padding-bottom: 8px; }
+.exam-info ul { margin: 8px 0; padding-left: 24px; font-size: 14px; line-height: 1.9; }
+.exam-info li { margin-bottom: 4px; }
+.exam-info .note { background: #fef9c3; border-left: 5px solid #facc15; padding: 10px 14px; border-radius: 8px; margin-top: 12px; font-size: 13px; color: #713f12; line-height: 1.7; }
+.exam-info .note strong { color: #a16207; }
+
+.haiten-table { width: 100%; border-collapse: collapse; margin: 14px 0; background: #fff; font-size: 13px; }
+.haiten-table th { background: #dc2626; color: #fff; padding: 10px 12px; font-size: 13px; border: 1px solid #b91c1c; }
+.haiten-table td { padding: 9px 12px; border: 1px solid #e2e8f0; vertical-align: top; }
+.haiten-table tr:nth-child(even) td { background: #fef2f2; }
+.haiten-table .total td { background: #fef3c7 !important; font-weight: bold; color: #b45309; font-size: 14px; }
+
+.chapter-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 24px; border-top: 6px solid #dc2626; }
+.chapter-card.c3 { border-top-color: #0F6E56; }
+.chapter-card.c4 { border-top-color: #7c3aed; }
+.chapter-card.c5 { border-top-color: #d97706; }
+
+.chapter-title { font-size: 22px; margin-bottom: 6px; padding-bottom: 8px; border-bottom: 3px solid #dc2626; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; color: #991b1b; }
+.chapter-title .ch-no { background: #dc2626; color: white; padding: 4px 12px; border-radius: 8px; font-size: 14px; letter-spacing: 1px; }
+.chapter-card.c3 .chapter-title { border-bottom-color: #0F6E56; color: #064e3b; }
+.chapter-card.c3 .chapter-title .ch-no { background: #0F6E56; }
+.chapter-card.c4 .chapter-title { border-bottom-color: #7c3aed; color: #4c1d95; }
+.chapter-card.c4 .chapter-title .ch-no { background: #7c3aed; }
+.chapter-card.c5 .chapter-title { border-bottom-color: #d97706; color: #78350f; }
+.chapter-card.c5 .chapter-title .ch-no { background: #d97706; }
+
+.chapter-sub { font-size: 13px; color: #64748b; margin-bottom: 12px; }
+.chapter-meta { display: inline-block; background: #fef3c7; color: #b45309; padding: 3px 10px; border-radius: 14px; font-size: 12px; font-weight: bold; margin-left: 6px; }
+
+.item-table { width: 100%; border-collapse: collapse; margin: 10px 0; background: #fff; font-size: 13px; }
+.item-table th { background: #f1f5f9; color: #334155; padding: 8px 10px; text-align: left; border: 1px solid #cbd5e1; font-size: 13px; }
+.item-table td { padding: 8px 10px; border: 1px solid #e2e8f0; vertical-align: top; }
+.item-table tr:nth-child(even) td { background: #fafbfd; }
+.item-table .cat-cell { width: 130px; background: #fee2e2 !important; color: #991b1b; font-weight: bold; text-align: center; }
+.chapter-card.c3 .item-table .cat-cell { background: #d1fae5 !important; color: #064e3b; }
+.chapter-card.c4 .item-table .cat-cell { background: #ede9fe !important; color: #4c1d95; }
+.chapter-card.c5 .item-table .cat-cell { background: #fef3c7 !important; color: #78350f; }
+
+.level { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 4px; }
+.level.must { background: #fecaca; color: #991b1b; }
+.level.imp  { background: #fed7aa; color: #9a3412; }
+.level.norm { background: #dbeafe; color: #1e40af; }
+
+.legend-box { background: white; border: 2px solid #dc2626; border-radius: 12px; padding: 12px 18px; margin-bottom: 20px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; font-size: 13px; color: #1e293b; }
+.legend-box strong { color: #991b1b; }
+
+.calc-box { background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px; padding: 14px 18px; margin: 12px 0; }
+.calc-box .calc-title { color: #b45309; font-weight: bold; font-size: 15px; margin-bottom: 8px; }
+.calc-box code { background: white; padding: 2px 8px; border-radius: 4px; font-family: monospace; color: #dc2626; font-weight: bold; border: 1px solid #fde68a; }
+.calc-box p { font-size: 13px; line-height: 1.8; margin: 6px 0; }
+.calc-box .calc-note { background: #fffbeb; padding: 8px 12px; border-radius: 6px; border-left: 4px solid #d97706; color: #78350f; margin-top: 10px; font-size: 13px; }
+.calc-box.purple { background: #ede9fe; border-color: #7c3aed; }
+.calc-box.purple .calc-title { color: #4c1d95; }
+.calc-box.green  { background: #d1fae5; border-color: #10b981; }
+.calc-box.green  .calc-title { color: #064e3b; }
+
+.prog-example { background: #1e293b; color: #f8fafc; padding: 14px 18px; border-radius: 8px; font-family: monospace; font-size: 13px; line-height: 1.8; margin: 10px 0; overflow-x: auto; }
+.prog-example .kw  { color: #fbbf24; font-weight: bold; }
+.prog-example .com { color: #94a3b8; }
+.prog-example .num { color: #c4b5fd; }
+.prog-example .str { color: #86efac; }
+
+.flow-example { background: #f8fafc; border: 2px dashed #7c3aed; border-radius: 8px; padding: 14px 18px; margin: 10px 0; font-family: monospace; font-size: 13px; white-space: pre; line-height: 1.7; color: #1e293b; }
+
+.summary-card { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 3px solid #f59e0b; border-radius: 16px; padding: 20px 24px; margin-top: 24px; }
+.summary-card h2 { color: #92400e; margin-bottom: 10px; font-size: 20px; border-bottom: 3px solid #f59e0b; padding-bottom: 6px; }
+.summary-card p { font-size: 14px; line-height: 1.8; margin: 6px 0; }
+
+.back-to-top { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: #dc2626; color: white; border: none; border-radius: 50%; font-size: 22px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; }
+.back-to-top:hover { background: #991b1b; }
+
+footer { text-align: center; color: #64748b; font-size: 12px; padding: 24px 20px 40px; }
+
+@media (max-width: 600px) {
+  h1 { font-size: 22px; }
+  .chapter-title { font-size: 18px; }
+  .item-table { font-size: 11px; }
+  .item-table .cat-cell { width: 90px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>🗺️ 高認 情報Ⅰ 学習ロードマップ</h1>
+  <div class="subtitle">全体像が一目でわかる、合格に必要な範囲の完全一覧</div>
+
+  <div class="top-nav">
+    <a class="nav-btn home" href="kouninjoho_index.html">🏠 単元表に戻る</a>
+  </div>
+
+  <div class="exam-info">
+    <div class="exam-info-title">📘 高認「情報」試験の概要</div>
+    <ul>
+      <li><strong>開始年度</strong>：令和8年度（2026年度）第1回試験から</li>
+      <li><strong>対応教科</strong>：高等学校「情報Ⅰ」（必履修科目）</li>
+      <li><strong>合格ライン</strong>：100点満点中40点前後（4割程度）</li>
+      <li><strong>形式</strong>：全21問、すべて四択式</li>
+      <li><strong>試験時間</strong>：50分</li>
+      <li><strong>プログラム表記</strong>：大学入学共通テスト試作問題に準じる（DNCL風表記）</li>
+    </ul>
+
+    <table class="haiten-table">
+      <thead>
+        <tr><th style="width:90px;">大問</th><th>テーマ</th><th style="width:60px;">問数</th><th style="width:90px;">配点</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>大問1</strong></td><td>インターネット・情報モラルの基礎知識</td><td>5問</td><td>4点×5＝20点</td></tr>
+        <tr><td><strong>大問2</strong></td><td>著作権・肖像権など（会話文形式）</td><td>4問</td><td>5点×4＝20点</td></tr>
+        <tr><td><strong>大問3</strong></td><td>Webページ・HTMLの基礎知識</td><td>4問</td><td>5点×4＝20点</td></tr>
+        <tr><td><strong>大問4</strong></td><td>プログラミング</td><td>4問</td><td>5点×4＝20点</td></tr>
+        <tr><td><strong>大問5</strong></td><td>グラフ・統計データの読み取りと分析</td><td>4問</td><td>5点×4＝20点</td></tr>
+        <tr class="total"><td colspan="2">合計</td><td>21問</td><td>100点</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      💡 <strong>合格戦略</strong>：高認の合格ラインは<strong>100点満点中40点</strong>です。大問1・2（情報モラル＝40点）だけでも合格圏に達します。さらに大問5（データ分析＝20点）も得点源にすれば、余裕を持って合格できます。プログラミング（大問4）が苦手でも問題ありません。
+    </div>
+  </div>
+
+  <div class="legend-box">
+    <strong>📋 凡例：</strong>
+    <span><span class="level must">必須</span>絶対に覚える</span>
+    <span><span class="level imp">重要</span>頻出</span>
+    <span><span class="level norm">基礎</span>知っておく</span>
+  </div>
+
+  <div class="chapter-card">
+    <div class="chapter-title">
+      <span class="ch-no">CHAPTER 1</span>
+      情報社会と権利
+      <span class="chapter-meta">最重要 ★★★</span>
+    </div>
+    <div class="chapter-sub">大問1・2の中心領域（配点約40点）</div>
+
+    <table class="item-table">
+      <thead>
+        <tr><th style="width:130px;">分類</th><th>項目・用語</th><th style="width:80px;">重要度</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="cat-cell" rowspan="3">情報の特性</td><td><span class="level must">必須</span>残存性・複製性・伝播性（情報の3特性）</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>データ／情報／知識の違い</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>デジタルタトゥー、情報の信ぴょう性</td><td>★★</td></tr>
+        <tr><td class="cat-cell" rowspan="5">個人情報・<br>プライバシー</td><td><span class="level must">必須</span>個人情報の定義（氏名・住所・顔写真など）</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>個人情報保護法</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>プライバシーの権利・肖像権・パブリシティ権</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>オプトイン／オプトアウト</td><td>★★</td></tr>
+        <tr><td><span class="level norm">基礎</span>個人識別符号(マイナンバー等)</td><td>★</td></tr>
+        <tr><td class="cat-cell" rowspan="6">知的財産権</td><td><span class="level must">必須</span>著作権（無方式主義・死後70年）</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>産業財産権の4つ（特許・実用新案・意匠・商標）</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>特許権20年・意匠権25年・商標権10年更新可</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>引用の条件(出典・必然性・主従関係)</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>クリエイティブ・コモンズ・ライセンス（CC）</td><td>★★</td></tr>
+        <tr><td><span class="level norm">基礎</span>著作者人格権(公表権・氏名表示権・同一性保持権)</td><td>★</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="chapter-card">
+    <div class="chapter-title">
+      <span class="ch-no">CHAPTER 2</span>
+      情報社会の課題
+      <span class="chapter-meta">最重要 ★★★</span>
+    </div>
+    <div class="chapter-sub">大問1の中心（配点約20点）</div>
+
+    <table class="item-table">
+      <thead>
+        <tr><th style="width:130px;">分類</th><th>項目・用語</th><th style="width:80px;">重要度</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="cat-cell" rowspan="5">セキュリティ</td><td><span class="level must">必須</span>サイバー犯罪・クラッキング・クラッカー</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>不正アクセス禁止法</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>マルウェア(ウイルス・ワーム・トロイの木馬・スパイウェア・ランサムウェア)</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>フィッシング詐欺・ソーシャルエンジニアリング</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>情報セキュリティの3要素(機密性・完全性・可用性)</td><td>★★</td></tr>
+        <tr><td class="cat-cell" rowspan="3">対策技術</td><td><span class="level imp">重要</span>パスワード・二段階認証・生体認証</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>暗号化(共通鍵・公開鍵)・SSL/TLS</td><td>★★</td></tr>
+        <tr><td><span class="level norm">基礎</span>ファイアウォール・電子署名</td><td>★</td></tr>
+        <tr><td class="cat-cell" rowspan="3">健康・<br>社会問題</td><td><span class="level must">必須</span>テクノストレス(テクノ不安症・テクノ依存症)</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>デジタルデバイド（情報格差）</td><td>★★★</td></tr>
+        <tr><td><span class="level norm">基礎</span>VDT症候群、ネット依存</td><td>★</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="chapter-card c3">
+    <div class="chapter-title">
+      <span class="ch-no">CHAPTER 3</span>
+      メディアと通信
+      <span class="chapter-meta">重要 ★★</span>
+    </div>
+    <div class="chapter-sub">大問1・3の領域（配点約30点）</div>
+
+    <table class="item-table">
+      <thead>
+        <tr><th style="width:130px;">分類</th><th>項目・用語</th><th style="width:80px;">重要度</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="cat-cell" rowspan="4">メディア</td><td><span class="level must">必須</span>メディアリテラシー・クロスチェック</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>マスメディア／ネットメディア／ソーシャルメディア</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>表現／伝達／記録メディアの分類</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>同期型／非同期型コミュニケーション</td><td>★★</td></tr>
+        <tr><td class="cat-cell" rowspan="5">電子商取引</td><td><span class="level must">必須</span>BtoB(企業間)／BtoC(企業→消費者)／CtoC(個人間)</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>SOHO(自宅・小規模オフィス)</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>プル型／プッシュ型の配信モデル</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>電子マネー、QRコード決済</td><td>★★</td></tr>
+        <tr><td><span class="level norm">基礎</span>POSシステム、RFID(ICタグ)</td><td>★</td></tr>
+        <tr><td class="cat-cell" rowspan="5">Webサービス</td><td><span class="level must">必須</span>SNS、ブログ、Wiki</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>RSS(最新情報配信)、メーリングリスト</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>VoIP(インターネット通話)、Web会議</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>ポータルサイト、検索エンジン</td><td>★★</td></tr>
+        <tr><td><span class="level norm">基礎</span>クラウドサービス(IaaS/PaaS/SaaS)</td><td>★</td></tr>
+        <tr><td class="cat-cell" rowspan="6">通信の仕組み<br>(大問3対応)</td><td><span class="level must">必須</span>インターネット、IPアドレス</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>HTML(タグの基本構造)</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>URLの構成(プロトコル・ドメイン・パス)</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>プロトコル(HTTP/HTTPS/SMTP/POP/FTP)</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>WWW、ブラウザ、サーバ／クライアント</td><td>★★</td></tr>
+        <tr><td><span class="level norm">基礎</span>パケット通信、LAN／WAN</td><td>★</td></tr>
+      </tbody>
+    </table>
+
+    <div class="calc-box green">
+      <div class="calc-title">📝 大問3対応：HTML の最低限の知識</div>
+      <p>高認のHTML問題は、以下の基本タグが読めれば解けます。</p>
+      <table class="item-table" style="margin-top:6px;">
+        <tr><th style="width:130px;">タグ</th><th>意味</th><th style="width:180px;">使用例</th></tr>
+        <tr><td><code>&lt;h1&gt;〜&lt;h6&gt;</code></td><td>見出し(h1が最大)</td><td><code>&lt;h1&gt;タイトル&lt;/h1&gt;</code></td></tr>
+        <tr><td><code>&lt;p&gt;</code></td><td>段落(paragraph)</td><td><code>&lt;p&gt;本文&lt;/p&gt;</code></td></tr>
+        <tr><td><code>&lt;a href="..."&gt;</code></td><td>リンク(anchor)</td><td><code>&lt;a href="page.html"&gt;</code></td></tr>
+        <tr><td><code>&lt;img src="..."&gt;</code></td><td>画像(image)</td><td><code>&lt;img src="cat.jpg"&gt;</code></td></tr>
+        <tr><td><code>&lt;ul&gt;&lt;li&gt;</code></td><td>箇条書きリスト</td><td><code>&lt;ul&gt;&lt;li&gt;項目&lt;/li&gt;&lt;/ul&gt;</code></td></tr>
+        <tr><td><code>&lt;br&gt;</code></td><td>改行</td><td>テキスト中で改行</td></tr>
+        <tr><td><code>&lt;strong&gt;</code></td><td>強調(太字)</td><td><code>&lt;strong&gt;重要&lt;/strong&gt;</code></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="chapter-card c4">
+    <div class="chapter-title">
+      <span class="ch-no">CHAPTER 4</span>
+      コンピュータとプログラム
+      <span class="chapter-meta">重要 ★★</span>
+    </div>
+    <div class="chapter-sub">大問4の中心領域（配点約20点）</div>
+
+    <table class="item-table">
+      <thead>
+        <tr><th style="width:130px;">分類</th><th>項目・用語</th><th style="width:80px;">重要度</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="cat-cell" rowspan="4">基礎用語</td><td><span class="level must">必須</span>ハードウェアとソフトウェアの違い</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>5大装置(制御・演算・記憶・入力・出力)</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>CPU・主記憶(メモリ)・補助記憶(HDD/SSD)</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>OS、アプリケーションソフト、GUI／CUI</td><td>★★</td></tr>
+        <tr><td class="cat-cell" rowspan="4">2進数と<br>情報量</td><td><span class="level must">必須</span>2進数⇔10進数の変換</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>ビット・バイト(1バイト＝8ビット＝256通り)</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>容量の単位(KB→MB→GB→TB)</td><td>★★</td></tr>
+        <tr><td><span class="level norm">基礎</span>16進数(A〜F)</td><td>★</td></tr>
+        <tr><td class="cat-cell" rowspan="3">論理回路</td><td><span class="level imp">重要</span>AND回路(両方1で1)</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>OR回路(どちらか1で1)</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>NOT回路(反転)</td><td>★★</td></tr>
+        <tr><td class="cat-cell" rowspan="5">プログラム<br>(大問4対応)</td><td><span class="level must">必須</span>変数の代入(x ← 5)</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>条件分岐(もし〜ならば〜)</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>繰り返し(〜の間繰り返す)</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>配列・添字(リストの考え方)</td><td>★★</td></tr>
+        <tr><td><span class="level norm">基礎</span>関数呼び出し(表示する等)</td><td>★</td></tr>
+      </tbody>
+    </table>
+
+    <div class="calc-box">
+      <div class="calc-title">🧮 大問4対応：必須の計算パターン</div>
+
+      <p><strong>① 2進数 → 10進数</strong></p>
+      <p>各桁の重みを足すだけです。<code>1011</code>(2) なら <code>1×8 + 0×4 + 1×2 + 1×1 = 11</code></p>
+
+      <p style="margin-top:10px;"><strong>② 10進数 → 2進数</strong></p>
+      <p>2で割り続けて余りを下から並べます。<br>
+      例：13 ÷ 2 = 6余り1、6 ÷ 2 = 3余り0、3 ÷ 2 = 1余り1、1 ÷ 2 = 0余り1 → <code>1101</code>(2)</p>
+
+      <p style="margin-top:10px;"><strong>③ ビット数と表現できる数の関係</strong></p>
+      <p>nビット → <code>2のn乗</code>通り<br>
+      ・1ビット → 2通り(0,1)<br>
+      ・2ビット → 4通り(00,01,10,11)<br>
+      ・8ビット(1バイト) → <strong>256通り</strong></p>
+
+      <p style="margin-top:10px;"><strong>④ 容量の単位</strong></p>
+      <p><code>1KB ≒ 1,000バイト</code>　<code>1MB ≒ 1,000KB</code>　<code>1GB ≒ 1,000MB</code>　<code>1TB ≒ 1,000GB</code></p>
+
+      <p style="margin-top:10px;"><strong>⑤ 論理回路の真理値表（暗記）</strong></p>
+      <table class="item-table" style="margin-top:6px;">
+        <tr><th>A</th><th>B</th><th>A AND B</th><th>A OR B</th><th>NOT A</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+        <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>1</td><td><strong>1</strong></td><td>1</td><td>0</td></tr>
+      </table>
+      <div class="calc-note">
+        覚え方：<strong>AND</strong>＝両方1のみ1、<strong>OR</strong>＝どちらか1で1、<strong>NOT</strong>＝逆さ
+      </div>
+    </div>
+
+    <div class="calc-box purple">
+      <div class="calc-title">📊 フローチャートの基本記号</div>
+      <table class="item-table" style="margin-top:6px;">
+        <tr><th style="width:140px;">記号</th><th>名前</th><th>用途</th></tr>
+        <tr><td style="text-align:center;font-size:18px;">▢</td><td>長方形</td><td>処理(計算・代入)</td></tr>
+        <tr><td style="text-align:center;font-size:18px;">◇</td><td>ひし形</td><td>条件分岐(YES/NO)</td></tr>
+        <tr><td style="text-align:center;font-size:18px;">▱</td><td>平行四辺形</td><td>入力・出力</td></tr>
+        <tr><td style="text-align:center;font-size:18px;">◯</td><td>楕円(角丸)</td><td>開始・終了</td></tr>
+        <tr><td style="text-align:center;font-size:18px;">→</td><td>矢印</td><td>処理の流れ</td></tr>
+      </table>
+
+      <p style="margin:10px 0 4px;"><strong>例：「点数が40点以上なら合格」のフロー</strong></p>
+      <div class="flow-example">  ◯ 開始
+  │
+  ▱ 点数を入力
+  │
+  ◇ 点数≧60 ?
+   ├── YES ─→ ▢ "合格"を表示
+   └── NO  ─→ ▢ "不合格"を表示
+  │
+  ◯ 終了</div>
+    </div>
+
+    <div class="calc-box green">
+      <div class="calc-title">💻 大問4対応：DNCL風プログラム表記の読み方</div>
+      <p>高認のプログラム問題は、共通テストと同じ「DNCL(日本語に近い表記)」が使われます。日本語で書かれるので、英語のプログラム言語よりも読みやすいのが特徴です。</p>
+
+      <p style="margin:10px 0 4px;"><strong>① 変数への代入</strong></p>
+      <div class="prog-example">tensuu <span class="kw">←</span> <span class="num">85</span>   <span class="com"># tensuu に 85 を代入</span></div>
+
+      <p style="margin:10px 0 4px;"><strong>② 条件分岐</strong></p>
+      <div class="prog-example"><span class="kw">もし</span> tensuu <span class="kw">≧</span> <span class="num">60</span> <span class="kw">ならば</span>
+  hyouji(<span class="str">"合格"</span>)
+<span class="kw">そうでなければ</span>
+  hyouji(<span class="str">"不合格"</span>)
+<span class="kw">を実行する</span></div>
+
+      <p style="margin:10px 0 4px;"><strong>③ 繰り返し</strong></p>
+      <div class="prog-example">i <span class="kw">を</span> <span class="num">1</span> <span class="kw">から</span> <span class="num">5</span> <span class="kw">まで</span> <span class="num">1</span> <span class="kw">ずつ増やしながら</span>
+  hyouji(i)
+<span class="kw">を繰り返す</span>
+<span class="com"># → 1, 2, 3, 4, 5 と表示</span></div>
+
+      <p style="margin:10px 0 4px;"><strong>④ 配列(リスト)</strong></p>
+      <div class="prog-example">tensuuList <span class="kw">←</span> [<span class="num">80</span>, <span class="num">65</span>, <span class="num">90</span>, <span class="num">55</span>]
+hyouji(tensuuList[<span class="num">0</span>])   <span class="com"># → 80(最初の要素)</span>
+hyouji(tensuuList[<span class="num">2</span>])   <span class="com"># → 90(3番目の要素、添字は0から)</span></div>
+
+      <div class="calc-note">
+        💡 <strong>大事なポイント</strong>：プログラムを「書く」のではなく「読む」問題が中心です。日本語の意味を追えば解けます。配列の<strong>添字(インデックス)は0から始まる</strong>ことだけ要注意です。
+      </div>
+    </div>
+  </div>
+
+  <div class="chapter-card c5">
+    <div class="chapter-title">
+      <span class="ch-no">CHAPTER 5</span>
+      データ活用・問題解決
+      <span class="chapter-meta">最重要 ★★★</span>
+    </div>
+    <div class="chapter-sub">大問5の中心領域（配点約20点）</div>
+
+    <table class="item-table">
+      <thead>
+        <tr><th style="width:130px;">分類</th><th>項目・用語</th><th style="width:80px;">重要度</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="cat-cell" rowspan="5">グラフ・<br>データ読取</td><td><span class="level must">必須</span>棒グラフ(量の比較)／折れ線グラフ(時間変化)</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>円グラフ(構成比)／帯グラフ(割合比較)</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>散布図(2変数の関係)</td><td>★★★</td></tr>
+        <tr><td><span class="level must">必須</span>ヒストグラム(度数分布)</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>箱ひげ図、レーダーチャート</td><td>★★</td></tr>
+        <tr><td class="cat-cell" rowspan="5">統計の<br>基礎用語</td><td><span class="level must">必須</span>平均値・中央値・最頻値(代表値)</td><td>★★★</td></tr>
+        <tr><td><span class="level imp">重要</span>分散・標準偏差(散らばり)</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>相関(正の相関・負の相関・無相関)</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>外れ値(極端な値)の扱い</td><td>★★</td></tr>
+        <tr><td><span class="level norm">基礎</span>因果関係と相関関係の違い</td><td>★</td></tr>
+        <tr><td class="cat-cell" rowspan="4">問題解決</td><td><span class="level imp">重要</span>PDCAサイクル(Plan→Do→Check→Act)</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>ブレーンストーミング・KJ法</td><td>★★</td></tr>
+        <tr><td><span class="level imp">重要</span>論理的思考(ロジックツリー・MECE)</td><td>★★</td></tr>
+        <tr><td><span class="level norm">基礎</span>シミュレーション、モデル化</td><td>★</td></tr>
+      </tbody>
+    </table>
+
+    <div class="calc-box">
+      <div class="calc-title">📈 大問5対応：グラフの使い分け（暗記必須）</div>
+      <table class="item-table" style="margin-top:6px;">
+        <tr><th style="width:130px;">グラフ</th><th>使う場面</th><th>具体例</th></tr>
+        <tr><td><strong>棒グラフ</strong></td><td>量を比較したいとき</td><td>各クラスの人数比較</td></tr>
+        <tr><td><strong>折れ線グラフ</strong></td><td>時間の変化を見たいとき</td><td>毎月の売上推移</td></tr>
+        <tr><td><strong>円グラフ</strong></td><td>構成比(全体の中の割合)</td><td>趣味の内訳</td></tr>
+        <tr><td><strong>帯グラフ</strong></td><td>複数の構成比を比較</td><td>2010年と2020年の人口構成比較</td></tr>
+        <tr><td><strong>散布図</strong></td><td>2つのデータの関係性</td><td>身長と体重の関係</td></tr>
+        <tr><td><strong>ヒストグラム</strong></td><td>データの分布</td><td>テストの点数の分布</td></tr>
+        <tr><td><strong>箱ひげ図</strong></td><td>データの散らばりを比較</td><td>複数クラスの成績比較</td></tr>
+      </table>
+    </div>
+
+    <div class="calc-box">
+      <div class="calc-title">🔢 大問5対応：代表値の計算</div>
+      <p>例：データ <code>[3, 5, 5, 7, 10]</code></p>
+      <ul style="margin:6px 0;padding-left:24px;font-size:13px;">
+        <li><strong>平均値</strong>＝合計÷個数 ＝ <code>(3+5+5+7+10)÷5 = 6</code></li>
+        <li><strong>中央値</strong>＝真ん中の値 ＝ <code>5</code>(小さい順に並べて真ん中)</li>
+        <li><strong>最頻値</strong>＝最も多い値 ＝ <code>5</code>(2回出現)</li>
+      </ul>
+      <div class="calc-note">
+        💡 <strong>覚え方</strong>：<strong>平均</strong>＝足し算割り算、<strong>中央</strong>＝並べて真ん中、<strong>最頻</strong>＝一番多いもの。
+      </div>
+    </div>
+
+    <div class="calc-box purple">
+      <div class="calc-title">📊 大問5対応：相関の読み取り</div>
+      <table class="item-table" style="margin-top:6px;">
+        <tr><th style="width:130px;">相関の種類</th><th>散布図の形</th><th>意味</th></tr>
+        <tr><td><strong>正の相関</strong></td><td>右上がり ／</td><td>片方が増えると、もう片方も増える</td></tr>
+        <tr><td><strong>負の相関</strong></td><td>右下がり ＼</td><td>片方が増えると、もう片方は減る</td></tr>
+        <tr><td><strong>無相関</strong></td><td>バラバラ・水平</td><td>関係がない</td></tr>
+      </table>
+      <div class="calc-note">
+        ⚠️ <strong>注意</strong>：相関があっても<strong>因果関係(原因と結果)があるとは限りません</strong>。例えば「アイス売上」と「水難事故」は正の相関がありますが、原因はどちらも「気温」です。
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-card">
+    <h2>🎯 最短合格戦略</h2>
+    <p>
+      高認の情報Ⅰは、<strong>4割(40点)程度で合格</strong>と推測されます。確実に取れる得意分野で得点を稼ぐ戦略が有効です。
+    </p>
+    <table class="item-table" style="margin-top:10px;background:#fff;">
+      <tr><th>優先順位</th><th>分野</th><th>配点</th><th>取りやすさ</th></tr>
+      <tr><td><strong style="color:#991b1b;">最優先</strong></td><td>大問1(情報モラル・セキュリティ)</td><td>20点</td><td>⭐⭐⭐ 用語暗記で取れる</td></tr>
+      <tr><td><strong style="color:#991b1b;">最優先</strong></td><td>大問2(著作権・肖像権)</td><td>20点</td><td>⭐⭐⭐ 用語暗記で取れる</td></tr>
+      <tr><td><strong style="color:#b45309;">優先</strong></td><td>大問5(グラフ・データ読取)</td><td>20点</td><td>⭐⭐ 読み取り力で取れる</td></tr>
+      <tr><td><strong style="color:#1e40af;">次に</strong></td><td>大問3(HTML・Web)</td><td>20点</td><td>⭐⭐ 基本タグだけ覚える</td></tr>
+      <tr><td><strong style="color:#64748b;">余裕があれば</strong></td><td>大問4(プログラミング)</td><td>20点</td><td>⭐ 苦手なら飛ばしてもOK</td></tr>
+    </table>
+    <p style="margin:12px 0;background:#fff;padding:10px 14px;border-radius:6px;border-left:5px solid #f59e0b;">
+      💡 <strong>戦略</strong>：高認の合格ラインは<strong>100点満点中40点(4割)</strong>です。大問1・2（情報モラル＝40点）だけでも合格圏に届きます。さらに大問5（データ分析＝20点）を加えれば、確実に合格できます。プログラムが苦手でも全然問題ありません。
+    </p>
+  </div>
+
+  <div style="text-align:center;margin-top:24px;">
+    <a class="nav-btn home" href="kouninjoho_index.html">🏠 単元表に戻る</a>
+  </div>
+
+</div>
+
+<button class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="ページトップへ">↑</button>
+
+<footer>
+  江原予備校 GAMBA教材システム ／ 高認 情報Ⅰ 学習ロードマップ
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>高認 情報Ⅰ ③：メディアと通信</title>
+  <style>
+    :root {
+      --primary: #185FA5;
+      --teal:    #0F6E56;
+      --purple:  #534AB7;
+      --amber:   #BA7517;
+      --coral:   #993C1D;
+      --gray:    #5F5E5A;
+      --bg:      #f5f7fa;
+      --drop-bg: #fff9c4;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: "Yu Gothic","游ゴシック",sans-serif; background: var(--bg); margin: 0; padding: 0; font-size: 14px; line-height: 1.9; color: #222; }
+
+    /* ── sticky header ── */
+    .sticky-header { position: sticky; top: 0; background: var(--bg); z-index: 1000; border-bottom: 2px solid #ddd; padding: 8px 0; }
+    .page-nav { max-width: 1050px; margin: 0 auto 6px; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+    .nav-btn { text-decoration: none; background: #7f8c8d; color: #fff; padding: 5px 13px; border-radius: 4px; font-size: .78em; font-weight: bold; transition: .2s; }
+    .nav-btn:hover { background: #34495e; }
+    .nav-btn.active { background: var(--coral); border: 2px solid #f1c40f; }
+    .nav-btn.nav-home { background: #c0392b; }
+    .nav-btn.nav-home:hover { background: #922b21; }
+
+    /* ── challenge panel ── */
+    .challenge-panel {
+      background: #fbeae5; border: 1.5px solid #f5b7a8; color: var(--coral);
+      padding: 8px 20px; border-radius: 8px;
+      display: flex; justify-content: space-around; align-items: center;
+      max-width: 1050px; margin: 0 auto 8px; flex-wrap: wrap; gap: 8px;
+    }
+    .timer { font-size: 1.5em; font-family: monospace; font-weight: bold; color: var(--coral); }
+    .ch-btn { border: none; cursor: pointer; padding: 7px 18px; border-radius: 20px; font-weight: bold; font-size: .9em; transition: .2s; }
+    .ch-btn.start  { background: var(--teal);    color: #fff; }
+    .ch-btn.start:hover  { background: #0a4f3c; }
+    .ch-btn.answer { background: #f39c12;        color: #fff; }
+    .ch-btn.answer:hover { background: #d68910; }
+    .ch-btn.check  { background: var(--coral);   color: #fff; }
+    .ch-btn.check:hover  { background: #7a2f17; }
+    #recordDisplay { font-weight: bold; font-size: .9em; color: #8B6914; }
+
+    /* ── word bank（joho3風：緑系の上品なピル形） ── */
+    .word-bank-wrap { max-width: 1050px; margin: 0 auto; }
+    .word-bank-container {
+      background: #f0fdf4;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid #86efac;
+    }
+    .wb-label {
+      font-size: .82em;
+      color: #166534;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+    .word-bank { display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px; }
+    .drag-item {
+      background: white;
+      color: #166534;
+      border: 2px solid #22c55e;
+      padding: 5px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.92em;
+      border-radius: 18px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .drag-item:hover {
+      background: #22c55e;
+      color: white;
+      transform: scale(1.05);
+    }
+    .drag-item.selected {
+      background: #fed7aa;
+      color: #9a3412;
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px #fdba74;
+      transform: scale(1.08);
+    }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+    .word-bank-container.shake { animation: shake .4s ease; }
+
+    /* ── drop zone（joho3風：上品な淡い黄色＋点線枠） ── */
+    .dz {
+      display: inline-block;
+      min-width: 110px;
+      min-height: 1.7em;
+      padding: 4px 14px;
+      margin: 0 4px;
+      border: 2px dashed #94a3b8;
+      border-radius: 6px;
+      background: #fef9c3;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      color: #1e293b;
+      transition: all 0.2s;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 0.95em;
+      line-height: 1.7em;
+      box-sizing: border-box;
+    }
+    .dz:hover { background: #fef08a; border-color: #64748b; }
+    .dz.filled {
+      background: #dbeafe;
+      border-style: solid;
+      border-color: #3b82f6;
+      color: #1e3a8a;
+    }
+    .dz.correct {
+      background: #bbf7d0 !important;
+      border-style: solid !important;
+      border-color: #16a34a !important;
+      color: #166534 !important;
+      font-weight: bold;
+    }
+    .dz.wrong {
+      background: #fecaca !important;
+      border-style: solid !important;
+      border-color: #dc2626 !important;
+      color: #991b1b !important;
+      animation: shake 0.4s;
+    }
+
+    /* ── main ── */
+    .container { max-width: 1050px; margin: 16px auto; background: #fff; padding: 28px 32px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+
+    /* ── section heading ── */
+    .sec-h1 { font-size: 1.25em; font-weight: bold; color: var(--coral); border-bottom: 3px solid var(--coral); padding-bottom: 6px; margin: 28px 0 14px; }
+    .sec-h1 .num { font-size: .95em; margin-right: 8px; }
+    .sec-h2 { font-size: 1em; font-weight: bold; color: var(--coral); border-left: 5px solid var(--coral); padding-left: 10px; margin: 20px 0 10px; }
+
+    /* ── つかみ ── */
+    .intro-box {
+      background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+      border-left: 5px solid var(--amber); border-radius: 6px;
+      padding: 14px 18px; margin: 16px 0; font-size: .92em;
+    }
+    .intro-box .intro-title {
+      color: var(--amber); font-weight: bold; font-size: 1em; margin-bottom: 6px;
+    }
+
+    /* ── 図表ボックス ── */
+    .figure-box {
+      background: #f9fafb;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    .figure-box img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .figure-box .fig-caption {
+      font-size: .85em;
+      color: #555;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    /* ── table共通 ── */
+    table.godan { border-collapse: collapse; width: 100%; margin: 12px 0; }
+    table.godan th { background: var(--coral); color: #fff; padding: 8px 12px; text-align: center; font-size: .9em; }
+    table.godan td { padding: 8px 12px; border: 1px solid #ddd; font-size: .9em; vertical-align: top; }
+    table.godan tr:nth-child(even) td { background: #fdf3f0; }
+    .tag { display: inline-block; font-weight: bold; padding: 2px 8px; border-radius: 3px; font-size: .88em; }
+    .tag-amber  { background: #faeeda; color: var(--amber);  border: 1px solid var(--amber); }
+    .tag-teal   { background: #edfaf4; color: var(--teal);   border: 1px solid var(--teal); }
+    .tag-blue   { background: #eff5fc; color: var(--primary);border: 1px solid var(--primary); }
+    .tag-purple { background: #f2f1fd; color: var(--purple); border: 1px solid var(--purple); }
+    .tag-coral  { background: #fdf3f0; color: var(--coral);  border: 1px solid var(--coral); }
+
+    /* ── 3カード ── */
+    .props-row { display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
+    .prop-card { flex: 1; min-width: 220px; border: 2px solid; border-radius: 8px; padding: 12px 14px; background: #fff; }
+    .prop-card.p1 { border-color: var(--coral); background: #fdf3f0; }
+    .prop-card.p2 { border-color: var(--purple); background: #f2f1fd; }
+    .prop-card.p3 { border-color: var(--teal); background: #edfaf4; }
+    .prop-card .p-title { font-weight: bold; font-size: 1em; margin-bottom: 4px; }
+    .prop-card.p1 .p-title { color: var(--coral); }
+    .prop-card.p2 .p-title { color: var(--purple); }
+    .prop-card.p3 .p-title { color: var(--teal); }
+    .prop-card .p-sub { font-size: .82em; color: #666; margin-bottom: 6px; }
+    .prop-card .p-body { font-size: .88em; }
+
+    /* ── 覚え方 ── */
+    .memo-box {
+      background: #f9f3ff; border: 2px dashed var(--purple); border-radius: 8px;
+      padding: 12px 16px; margin: 14px 0; font-size: .9em;
+    }
+    .memo-box .memo-title {
+      color: var(--purple); font-weight: bold; margin-bottom: 4px;
+    }
+
+    /* ── よくある間違い ── */
+    .trap-box {
+      background: #fff3f0; border-left: 5px solid var(--coral); border-radius: 6px;
+      padding: 12px 16px; margin: 14px 0; font-size: .9em;
+    }
+    .trap-box .trap-title {
+      color: var(--coral); font-weight: bold; margin-bottom: 6px;
+    }
+
+    /* ── popup ── */
+    .pb {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: var(--coral); color: #fff;
+      border: none; cursor: pointer; padding: 2px 10px 2px 8px;
+      border-radius: 12px; font-size: .82em; font-weight: bold;
+      margin: 2px; transition: .15s; vertical-align: middle;
+    }
+    .pb:hover { background: #7a2f17; }
+
+    /* ── modal ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9000; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: #fff; border-radius: 12px; padding: 26px 30px; max-width: 500px; width: 92%; box-shadow: 0 8px 32px rgba(0,0,0,.2); position: relative; animation: fadeIn .2s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+    .modal-title   { font-size: 1.1em; font-weight: bold; color: var(--coral); margin-bottom: 6px; border-bottom: 2px solid var(--coral); padding-bottom: 6px; }
+    .modal-english { font-family: monospace; font-size: .95em; color: var(--teal); margin-bottom: 10px; font-weight: bold; }
+    .modal-meaning { background: #f0f4fa; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; font-size: .88em; color: #333; }
+    .modal-body    { font-size: .92em; line-height: 1.9; color: #333; }
+    .modal-example { background: #f5f5f5; border-left: 4px solid var(--teal); padding: 8px 12px; border-radius: 0 6px 6px 0; margin-top: 10px; font-size: .88em; }
+    .modal-close   { position: absolute; top: 12px; right: 14px; background: none; border: none; font-size: 1.4em; cursor: pointer; color: #888; }
+    .modal-close:hover { color: #333; }
+
+    #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+
+    /* ══════════════════════════════════════
+       ホバー型ポップアップ（重要語にカーソルを当てると表示）
+       ══════════════════════════════════════ */
+    .term {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+      color: var(--coral);
+      font-weight: bold;
+      border-bottom: 2px dotted var(--coral);
+      padding: 0 1px;
+      transition: background 0.15s;
+    }
+    .term:hover {
+      background: #fef3c7;
+      border-bottom-style: solid;
+    }
+    .term-popup {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: normal;
+      white-space: normal;
+      min-width: 240px;
+      max-width: 340px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      z-index: 200;
+      line-height: 1.7;
+      text-align: left;
+      display: none;
+      pointer-events: none;
+    }
+    .term:hover .term-popup { display: block; }
+    .term-popup::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-top-color: #1e293b;
+    }
+    .term-popup .tp-title {
+      color: #fbbf24;
+      font-weight: bold;
+      font-size: 1em;
+      margin-bottom: 4px;
+      display: block;
+      border-bottom: 1px solid #475569;
+      padding-bottom: 4px;
+    }
+    .term-popup .tp-en {
+      color: #86efac;
+      font-family: monospace;
+      font-size: 0.88em;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .term-popup .tp-meaning {
+      color: #fcd34d;
+      font-size: 0.85em;
+      display: block;
+      margin-bottom: 5px;
+      font-style: italic;
+    }
+    .term-popup .tp-body {
+      color: #f1f5f9;
+      font-size: 0.88em;
+    }
+    /* スマホでは左右の余白を考慮 */
+    @media (max-width: 640px) {
+      .term-popup {
+        min-width: 200px;
+        max-width: 280px;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 14px; }
+      .props-row { flex-direction: column; }
+    }
+
+    /* ══════════════════════════════════════
+       ミニテストモジュール（章末展開式）
+       ══════════════════════════════════════ */
+    .minitest {
+      margin: 24px 0 12px;
+    }
+    .mt-toggle {
+      width: 100%;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 3px solid #f59e0b;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 1.05em;
+      font-weight: bold;
+      color: #92400e;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .mt-toggle:hover {
+      background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+      transform: translateY(-1px);
+    }
+    .mt-toggle .arrow {
+      transition: transform 0.3s;
+      font-size: 1.2em;
+    }
+    .mt-toggle.open .arrow { transform: rotate(180deg); }
+
+    .mt-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      border-right: 4px solid #f59e0b;
+      border-bottom: 4px solid #f59e0b;
+      border-radius: 0 0 12px 12px;
+    }
+    .mt-body.open { max-height: 5000px; }
+    .mt-inner { padding: 18px 22px; }
+
+    .mt-section-title {
+      color: #92400e;
+      font-weight: bold;
+      font-size: 1em;
+      margin: 14px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px dashed #fbbf24;
+    }
+    .mt-section-title:first-child { margin-top: 0; }
+
+    /* 穴埋め部分（joho3スタイル） */
+    .mt-fill-passage {
+      background: #fff;
+      border-left: 5px solid #f59e0b;
+      padding: 14px 18px;
+      border-radius: 8px;
+      line-height: 2.4;
+      font-size: 0.95em;
+      margin-bottom: 12px;
+    }
+    .mt-blank {
+      display: inline-block;
+      min-width: 110px;
+      min-height: 1.7em;
+      padding: 4px 14px;
+      margin: 0 4px;
+      border: 2px dashed #94a3b8;
+      border-radius: 6px;
+      background: #fef9c3;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      color: #166534;
+      transition: all 0.2s;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 0.95em;
+      line-height: 1.7em;
+      box-sizing: border-box;
+    }
+    .mt-blank:hover { background: #fef08a; }
+    .mt-blank.empty { color: #1e293b; }
+    .mt-blank.filled {
+      background: #dbeafe;
+      border-style: solid;
+      border-color: #3b82f6;
+      color: #1e3a8a;
+    }
+    .mt-blank.correct {
+      background: #bbf7d0;
+      border-style: solid;
+      border-color: #16a34a;
+      color: #166534;
+    }
+    .mt-blank.wrong {
+      background: #fecaca;
+      border-style: solid;
+      border-color: #dc2626;
+      color: #991b1b;
+      animation: shake 0.4s;
+    }
+
+    .mt-wordbank {
+      background: #f0fdf4;
+      border: 2px solid #86efac;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .mt-wordbank-label {
+      font-size: 0.82em;
+      color: #166534;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .mt-words { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mt-chip {
+      background: white;
+      color: #166534;
+      border: 2px solid #22c55e;
+      padding: 5px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.92em;
+      border-radius: 18px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .mt-chip:hover { background: #22c55e; color: white; transform: scale(1.05); }
+    .mt-chip.selected {
+      background: #fed7aa;
+      color: #9a3412;
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px #fdba74;
+      transform: scale(1.08);
+    }
+    .mt-chip.used { opacity: 0.3; pointer-events: none; }
+
+    .mt-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+    .mt-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.88em;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .mt-btn-start { background: #dc2626; color: white; }
+    .mt-btn-start:hover { background: #991b1b; }
+    .mt-btn-check { background: #22c55e; color: white; }
+    .mt-btn-check:hover { background: #16a34a; }
+    .mt-btn-show { background: #f59e0b; color: white; }
+    .mt-btn-show:hover { background: #d97706; }
+
+    /* 4択練習部分 */
+    .mt-quiz-card {
+      background: #fff;
+      border-left: 5px solid #dc2626;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .mt-quiz-num {
+      display: inline-block;
+      background: #dc2626;
+      color: white;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 0.82em;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .mt-quiz-q {
+      font-weight: bold;
+      font-size: 0.98em;
+      margin-bottom: 12px;
+      color: #1e293b;
+    }
+    .mt-quiz-options { display: grid; gap: 8px; }
+    .mt-quiz-opt {
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.92em;
+      text-align: left;
+      font-family: inherit;
+      width: 100%;
+    }
+    .mt-quiz-opt:hover { background: #f1f5f9; border-color: #dc2626; }
+    .mt-quiz-opt.correct {
+      background: #bbf7d0;
+      border-color: #16a34a;
+      color: #166534;
+      font-weight: bold;
+    }
+    .mt-quiz-opt.wrong {
+      background: #fecaca;
+      border-color: #dc2626;
+      color: #991b1b;
+    }
+    .mt-quiz-opt:disabled { cursor: default; }
+    .mt-quiz-explain {
+      display: none;
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: #fef9c3;
+      border-left: 5px solid #facc15;
+      border-radius: 8px;
+      font-size: 0.9em;
+      line-height: 1.7;
+      color: #713f12;
+    }
+    .mt-quiz-explain.show { display: block; }
+    .mt-quiz-explain .ex-title {
+      font-weight: bold;
+      color: #a16207;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .mt-result {
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-align: center;
+      margin: 8px 0;
+      font-size: 0.92em;
+    }
+    .mt-result.success { background: #bbf7d0; color: #166534; }
+    .mt-result.warning { background: #fed7aa; color: #9a3412; }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- modal -->
+<div class="modal-overlay" id="popupModal" onclick="closePopup(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closePopup()">✕</button>
+    <div class="modal-title"   id="popupTitle"></div>
+    <div class="modal-english" id="popupEnglish"></div>
+    <div class="modal-meaning" id="popupMeaning" style="display:none"></div>
+    <div class="modal-body"    id="popupBody"></div>
+    <div class="modal-example" id="popupExample" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══ sticky header ══ -->
+<div class="sticky-header">
+  <div class="page-nav">
+    <a class="nav-btn nav-home" href="kouninjoho_index.html">🏠 単元表</a>
+    <a class="nav-btn" href="kouninjoho1.html">① 情報社会と権利</a>
+    <a class="nav-btn" href="kouninjoho2.html">② 情報社会の課題</a>
+    <a class="nav-btn active" href="kouninjoho3.html">③ メディアと通信</a>
+    <a class="nav-btn" href="kouninjoho4.html">④ コンピュータの基礎</a>
+    <a class="nav-btn" href="kouninjoho5.html">⑤ 問題解決とデータ</a>
+  </div>
+
+  <div class="challenge-panel">
+    <div>
+      <span style="font-size:.85em;font-weight:bold;">⏱ チャレンジタイム</span><br>
+      <span class="timer" id="timerDisplay">00:00.0</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="ch-btn start"  onclick="startChallenge()">▶ チャレンジ開始</button>
+      <button class="ch-btn check"  onclick="checkAnswers()">✓ 答え合わせ</button>
+      <button class="ch-btn answer" onclick="showModel()">📖 お手本を見る</button>
+    </div>
+    <div id="recordDisplay">🏆 ベスト：—</div>
+  </div>
+
+  <div class="word-bank-wrap">
+    <div class="word-bank-container" id="wordBankContainer">
+      <div class="wb-label">📦 語句バンク（クリックで選択 → 空欄をクリックで入力）</div>
+      <div class="word-bank" id="wordBank"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ content ══ -->
+<div class="container">
+
+  <!-- ページタイトル -->
+  <div style="text-align:center;margin-bottom:20px;">
+    <div style="font-size:1.5em;font-weight:bold;color:var(--coral);margin-bottom:4px;">③ メディアと通信</div>
+    <div style="color:var(--teal);font-size:.95em;">電子商取引・Webサービス・コミュニケーションの仕組み</div>
+    <p style="font-size:.92em;color:#444;line-height:1.9;text-align:left;margin-top:12px;">
+      Amazonでの買い物、メルカリでの個人売買、LINEのグループ通話、YouTubeでの動画視聴――どれも今や当たり前ですが、これらには共通する「仕組み」と「専門用語」があります。<br>
+      この単元では、<strong>電子商取引のモデル</strong>と<strong>Webサービスの種類</strong>を整理します。高認大問1と大問3の中心領域です。
+    </p>
+  </div>
+
+  <!-- ══ 1. 電子商取引 ══ -->
+  <div class="sec-h1"><span class="num">1</span>電子商取引の3つのモデル</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 こんな違いに気づいていますか？</div>
+    <p style="margin:0;">
+      AmazonとAppleのオンラインストアでiPhoneを買う：これは企業と個人の取引です。<br>
+      メルカリで誰かから古着を買う：これは個人と個人の取引です。<br>
+      ファミリーマートが商品を仕入れる：これは企業と企業の取引です。<br>
+      どれも「電子商取引」ですが、誰と誰の取引かで<strong>BtoB / BtoC / CtoC</strong>と区別します。
+    </p>
+  </div>
+
+  <!-- 取引モデル図 -->
+  <div class="figure-box">
+    <img src="images/fig_torihiki.png" alt="電子商取引の3つの取引モデル（BtoB/BtoC/CtoC）">
+    <div class="fig-caption">▲ 電子商取引の3つの取引モデル</div>
+  </div>
+
+  <div class="sec-h2">▶ 3つの取引モデル</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('ec')">💡 【電子商取引】</button>
+    （EC：Eコマース）とは、インターネットを使った商品やサービスの売買のことです。誰と誰の取引かによって、3種類に分類されます。
+  </p>
+
+  <table class="godan">
+    <tr><th>名称</th><th>意味</th><th>身近な例</th></tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('btob')">💡 【BtoB】</button></td>
+      <td><strong>企業</strong>と<strong>企業</strong>の取引<br>（Business to Business）</td>
+      <td>コンビニが商品を問屋から仕入れる、メーカーが部品を発注する</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('btoc')">💡 【BtoC】</button></td>
+      <td><strong>企業</strong>から<strong>消費者</strong>への販売<br>（Business to Consumer）</td>
+      <td>Amazon・楽天での買い物、Apple Storeでの注文</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('ctoc')">💡 【CtoC】</button></td>
+      <td><strong>個人</strong>と<strong>個人</strong>の取引<br>（Consumer to Consumer）</td>
+      <td>メルカリ・ヤフオク！・ジモティでの個人売買</td>
+    </tr>
+  </table>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方：「B」は Business（企業）、「C」は Consumer（消費者）</div>
+    <p style="margin:0;">
+      <span data-term="btob">BtoB</span>＝Business（企業）→ Business（企業）<br>
+      <span data-term="btoc">BtoC</span>＝Business（企業）→ Consumer（消費者）<br>
+      <span data-term="ctoc">CtoC</span>＝Consumer（消費者）→ Consumer（消費者）<br>
+      左が「売る側」、右が「買う側」と覚えると分かりやすいです。
+    </p>
+  </div>
+
+  <div class="trap-box">
+    <div class="trap-title">⚠️ ここで9割が間違える！</div>
+    <p style="margin:0;">
+      <strong>Q. メルカリで企業の公式アカウントから商品を買った場合は？</strong><br>
+      → <strong>答え：BtoC</strong>（個人ではなく企業からの購入なので）<br>
+      取引する相手が個人か企業かで判断します。「メルカリ＝CtoC」と決めつけないように注意。
+    </p>
+  </div>
+
+  <!-- 穴埋め1 -->
+  <p style="font-size:.95em;">
+    ※ 企業同士の取引を
+    <span class="dz" data-ans="BtoB" data-id="c1"></span>、
+    企業から消費者への販売を
+    <span class="dz" data-ans="BtoC" data-id="c2"></span>、
+    個人と個人の取引を
+    <span class="dz" data-ans="CtoC" data-id="c3"></span>
+    という。
+  </p>
+
+  <!-- ════ ミニテスト①：電子商取引 ════ -->
+  <div class="minitest" data-mt="mt1">
+    <button class="mt-toggle" onclick="toggleMt('mt1')">
+      <span>📝 ミニテスト①：電子商取引を確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt1-body">
+      <div class="mt-inner">
+
+        <!-- 穴埋め -->
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt1-passage">
+          インターネットを使った商品やサービスの売買を
+          <span class="mt-blank" data-ans="電子商取引">電子商取引</span>
+          といいます。企業同士の取引を
+          <span class="mt-blank" data-ans="BtoB">BtoB</span>、
+          企業から消費者への販売を
+          <span class="mt-blank" data-ans="BtoC">BtoC</span>、
+          個人同士の取引を
+          <span class="mt-blank" data-ans="CtoC">CtoC</span>
+          と呼びます。
+        </div>
+        <div class="mt-wordbank" id="mt1-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt1-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt1')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt1')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt1')">📖 答えを見る</button>
+        </div>
+        <div id="mt1-result"></div>
+
+        <!-- 4択練習 -->
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            メルカリで個人から古着を買う取引は、どのモデルですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q1" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',0)">BtoB</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',1)">BtoC</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',2)">CtoC</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',3)">SOHO</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            メルカリで個人が出品した商品を別の個人が買うのはCtoC（個人と個人の取引）です。Consumer to Consumerの略です。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            Amazonで本を注文するのは、どのモデルですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q2" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',0)">BtoB</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',1)">BtoC</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',2)">CtoC</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',3)">CtoB</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            Amazonは企業、本を買う私たちは消費者なので、企業から消費者への販売＝BtoC（Business to Consumer）です。楽天やApple Storeでの購入も同じです。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 2. 配信モデルとSOHO ══ -->
+  <div class="sec-h1"><span class="num">2</span>配信モデルとSOHO</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 こんな違い、考えたことはありますか？</div>
+    <p style="margin:0;">
+      検索エンジンで自分から情報を取りに行くのと、テレビCMやLINE通知が一方的に届くのとでは、情報の流れる向きが逆です。<br>
+      また、コロナ禍をきっかけに自宅で仕事をする人が増えました。こうした働き方を<span data-term="soho">SOHO</span>と呼びます。
+    </p>
+  </div>
+
+  <!-- 配信モデルとSOHO図 -->
+  <div class="figure-box">
+    <img src="images/fig_ec.png" alt="配信モデルとSOHO">
+    <div class="fig-caption">▲ プル型・プッシュ型の配信モデルとSOHOの働き方</div>
+  </div>
+
+  <div class="sec-h2">▶ プル型 と プッシュ型</div>
+
+  <p>情報の届け方には、利用者が<strong>取りに行く方式</strong>と、配信側が<strong>送りつける方式</strong>の2タイプがあります。</p>
+
+  <table class="cmp-table">
+    <tr>
+      <th class="a-head">【プル型】</th>
+      <th class="b-head">【プッシュ型】</th>
+    </tr>
+    <tr>
+      <td class="a-body">
+        <strong>利用者の要求で配信</strong><br>
+        利用者が自分から「引っ張る」<br>
+        （pull＝引く）
+      </td>
+      <td class="b-body">
+        <strong>配信側から一方的に配信</strong><br>
+        配信側が「押し込む」<br>
+        （push＝押す）
+      </td>
+    </tr>
+    <tr>
+      <td class="a-body">
+        <strong>例：</strong>Web検索、YouTube動画の視聴
+      </td>
+      <td class="b-body">
+        <strong>例：</strong>テレビ放送、メルマガ、スマホの通知
+      </td>
+    </tr>
+  </table>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方：pull（引く）／ push（押す）</div>
+    <p style="margin:0;">
+      <span data-term="pull">プル型</span>＝利用者が情報を「引き寄せる」（検索など）<br>
+      <span data-term="push">プッシュ型</span>＝配信側が情報を「押し付ける」（通知など）<br>
+      電車のドアが「PULL（引く）」と「PUSH（押す）」と書いてあるのと同じです。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ SOHO（小規模・在宅オフィス）</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('soho')">💡 【SOHO】</button>
+    （Small Office / Home Office）は、自宅や小規模なオフィスで仕事をする働き方です。インターネットの普及で実現可能になりました。
+  </p>
+
+  <table class="godan">
+    <tr><th>特徴</th><th>内容</th></tr>
+    <tr>
+      <td><span class="tag tag-coral">場所</span></td>
+      <td>自宅・カフェ・小規模オフィスなど</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-coral">人数</span></td>
+      <td>個人または少人数</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-coral">必要なもの</span></td>
+      <td>パソコン、インターネット回線、Web会議ツール</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-coral">職種の例</span></td>
+      <td>Webデザイナー、ライター、プログラマー、翻訳家</td>
+    </tr>
+  </table>
+
+  <!-- 穴埋め2 -->
+  <p style="font-size:.95em;">
+    ※ 利用者の要求で配信される方式を
+    <span class="dz" data-ans="プル型" data-id="c4"></span>、
+    配信側から一方的に届く方式を
+    <span class="dz" data-ans="プッシュ型" data-id="c5"></span>
+    という。また、自宅などの小規模な場所で働く形態を
+    <span class="dz" data-ans="SOHO" data-id="c6"></span>
+    という。
+  </p>
+
+  <!-- ════ ミニテスト②：配信モデルとSOHO ════ -->
+  <div class="minitest" data-mt="mt2">
+    <button class="mt-toggle" onclick="toggleMt('mt2')">
+      <span>📝 ミニテスト②：配信モデルとSOHOを確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt2-body">
+      <div class="mt-inner">
+
+        <!-- 穴埋め -->
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt2-passage">
+          利用者の要求や検索によって情報を届ける方式を
+          <span class="mt-blank" data-ans="プル型">プル型</span>
+          といいます。テレビ放送のように配信側から一方的に届ける方式は
+          <span class="mt-blank" data-ans="プッシュ型">プッシュ型</span>
+          と呼ばれます。インターネットを使い自宅などの小規模な場所で働く形態は
+          <span class="mt-blank" data-ans="SOHO">SOHO</span>
+          といいます。
+        </div>
+        <div class="mt-wordbank" id="mt2-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt2-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt2')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt2')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt2')">📖 答えを見る</button>
+        </div>
+        <div id="mt2-result"></div>
+
+        <!-- 4択練習 -->
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            「スマートフォンに天気アプリの通知が突然届く」のは、どちらの配信方式ですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q1" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',0)">プル型</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',1)">プッシュ型</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',2)">SOHO型</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',3)">CtoC型</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            アプリが配信側から自動で情報を「押し込んでくる」のはプッシュ型です。利用者が何もしなくても通知が届く点が特徴です。「push＝押す」と覚えましょう。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            SOHOに当てはまる働き方として最も適切なものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q2" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',0)">大企業の本社ビルで100人が働くオフィス</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',1)">工場で機械を使った大量生産</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',2)">自宅でパソコンを使ってWebデザインの仕事をする</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',3)">店舗で接客しながら販売する</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            SOHO（Small Office/Home Office）は、自宅や小規模なオフィスで個人もしくは少人数が働く形態です。Webデザイナー・ライター・プログラマーなど、インターネットさえあれば仕事ができる職種に多く見られます。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 3. Webサービス ══ -->
+  <div class="sec-h1"><span class="num">3</span>主要なWebサービス</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 あなたが普段使っているサービスを思い浮かべてみましょう</div>
+    <p style="margin:0;">
+      LINE、Twitter（X）、Instagram、YouTube、ニュースアプリ、メルマガ――どれも今では当たり前に使っていますね。<br>
+      これらは技術的にはいくつかの種類に分類でき、それぞれに正式な名前があります。試験では「これは何という種類のサービスか」を問われます。
+    </p>
+  </div>
+
+  <!-- Webサービス図 -->
+  <div class="figure-box">
+    <img src="images/fig_web.png" alt="主要なWebサービス・インターネットサービス">
+    <div class="fig-caption">▲ 情報提供サービス・メール関連・コミュニティ・通信技術</div>
+  </div>
+
+  <div class="sec-h2">▶ 主なWebサービスの種類</div>
+
+  <table class="godan">
+    <tr><th>名称</th><th>内容</th><th>身近な例</th></tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('sns')">💡 【SNS】</button></td>
+      <td>人と人とのつながりを構築するサービス</td>
+      <td>LINE、Twitter(X)、Instagram、Facebook</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('wiki')">💡 【Wiki】</button></td>
+      <td>複数の人が共同で編集できる仕組み</td>
+      <td>Wikipedia、社内のナレッジ共有サイト</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('rss')">💡 【RSS】</button></td>
+      <td>Webサイトの最新情報を自動配信する仕組み</td>
+      <td>ブログの更新通知、ニュースサイトの新着配信</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('mailmag')">💡 【メールマガジン】</button></td>
+      <td>主催者から購読者へ定期的に届くメール</td>
+      <td>企業のお知らせメール、有料配信のニュース</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('voip')">💡 【VoIP】</button></td>
+      <td>インターネットを利用した音声通話</td>
+      <td>LINE通話、Skype、Zoomの音声通話</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('portal')">💡 【ポータルサイト】</button></td>
+      <td>多種多様な情報を集めた入り口となるサイト</td>
+      <td>Yahoo! JAPAN、Google、MSN</td>
+    </tr>
+  </table>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方：英語の元の意味を押さえる</div>
+    <p style="margin:0;">
+      <span data-term="sns">SNS</span>＝Social Networking Service（社交的なつながり）<br>
+      <span data-term="rss">RSS</span>＝最新情報の自動配信<br>
+      <span data-term="voip">VoIP</span>＝Voice over IP（IPで音声を送る）<br>
+      <span data-term="wiki">Wiki</span>＝ハワイ語で「速い」が語源
+    </p>
+  </div>
+
+  <div class="trap-box">
+    <div class="trap-title">⚠️ ここで9割が間違える！</div>
+    <p style="margin:0;">
+      <strong>Q. LINE通話は普通の電話とどう違う？</strong><br>
+      → <strong>答え：VoIP（インターネット回線を使った通話）</strong>。普通の電話は電話回線を使いますが、LINE通話はインターネット回線を使うため、データ通信量だけで通話料がかかりません。
+    </p>
+  </div>
+
+  <!-- 穴埋め3 -->
+  <p style="font-size:.95em;">
+    ※ 人と人とのつながりを構築するサービスを
+    <span class="dz" data-ans="SNS" data-id="c7"></span>、
+    複数人で共同編集できる仕組みを
+    <span class="dz" data-ans="Wiki" data-id="c8"></span>、
+    インターネットを利用した音声通話を
+    <span class="dz" data-ans="VoIP" data-id="c9"></span>
+    という。
+  </p>
+
+  <!-- ════ ミニテスト③：Webサービス ════ -->
+  <div class="minitest" data-mt="mt3">
+    <button class="mt-toggle" onclick="toggleMt('mt3')">
+      <span>📝 ミニテスト③：Webサービスを確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt3-body">
+      <div class="mt-inner">
+
+        <!-- 穴埋め -->
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt3-passage">
+          LINEやInstagramのように人と人とのつながりを構築するサービスを
+          <span class="mt-blank" data-ans="SNS">SNS</span>
+          といいます。Wikipediaのように複数人で共同編集できる仕組みは
+          <span class="mt-blank" data-ans="Wiki">Wiki</span>、
+          ブログの更新を自動で受け取れる仕組みは
+          <span class="mt-blank" data-ans="RSS">RSS</span>
+          と呼ばれます。
+        </div>
+        <div class="mt-wordbank" id="mt3-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt3-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt3')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt3')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt3')">📖 答えを見る</button>
+        </div>
+        <div id="mt3-result"></div>
+
+        <!-- 4択練習 -->
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            「LINEの音声通話」が普通の電話と違う点として正しいものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q1" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',0)">アナログ回線を使うため音質が良い</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',1)">インターネット回線を使うVoIPという技術である</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',2)">電波が届かない山の中でも使える</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',3)">通話料金が普通の電話より高い</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            LINEなどのインターネット通話は「VoIP（Voice over IP）」という技術で、電話回線ではなくインターネット回線を使います。データ通信量だけで通話料はかかりません。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            「Yahoo! JAPAN」のように、多くの情報を集めた入り口となるサイトを何といいますか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q2" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',0)">ポータルサイト</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',1)">SNS</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',2)">メールマガジン</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',3)">Wiki</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            「ポータル(portal)」は英語で「玄関・入り口」の意味です。Yahoo! JAPAN・Google・MSNなど、多種多様な情報やサービスへの入り口となるサイトを「ポータルサイト」と呼びます。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 4. 試験対策まとめ ══ -->
+  <div class="sec-h1"><span class="num">4</span>試験ではこう出る！</div>
+
+  <table class="godan">
+    <tr><th>出題パターン</th><th>問われ方の例</th><th>答えの出し方</th></tr>
+    <tr>
+      <td><span class="tag tag-coral">取引モデル</span></td>
+      <td>「メルカリで個人から買うのは何？」</td>
+      <td>→ CtoC</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-coral">取引モデル</span></td>
+      <td>「Amazonで本を買うのは何？」</td>
+      <td>→ BtoC</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-purple">配信モデル</span></td>
+      <td>「スマホ通知はどっちの型？」</td>
+      <td>→ プッシュ型</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">働き方</span></td>
+      <td>「自宅で個人で働く形態は？」</td>
+      <td>→ SOHO</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-teal">Webサービス</span></td>
+      <td>「LINE通話の技術は？」</td>
+      <td>→ VoIP</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-teal">Webサービス</span></td>
+      <td>「Wikipediaは何？」</td>
+      <td>→ Wiki（共同編集の仕組み）</td>
+    </tr>
+  </table>
+
+  <div class="memo-box" style="background:#fbeae5;border-color:var(--coral);">
+    <div class="memo-title" style="color:var(--coral);">🎯 この単元で覚えるべきキーワード</div>
+    <p style="margin:0;">
+      電子商取引／BtoB／BtoC／CtoC／プル型／プッシュ型／SOHO／<br>
+      SNS／Wiki／RSS／VoIP／ポータルサイト／メールマガジン
+    </p>
+  </div>
+
+  <!-- 単元まとめ -->
+  <div class="intro-box" style="background:linear-gradient(135deg,#edfaf4 0%,#d4edda 100%);border-left-color:var(--teal);">
+    <div class="intro-title" style="color:var(--teal);">✅ この単元のまとめ（30秒で振り返り）</div>
+    <p style="margin:0;">
+      ① <strong>電子商取引</strong>＝BtoB（企業同士）／BtoC（企業→消費者）／CtoC（個人同士）<br>
+      ② <strong>配信モデル</strong>＝プル型（自分から取りに行く）／プッシュ型（届けられる）<br>
+      ③ <strong>働き方</strong>＝SOHO（自宅・小規模オフィス）<br>
+      ④ <strong>Webサービス</strong>＝SNS／Wiki／RSS／VoIP／ポータルサイト<br>
+      これらの用語と身近な例が結びつけば、高認の関連問題は確実に得点できます。
+    </p>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ══ popup data ══ -->
+<script>
+const POPUP_DATA = {
+  ec: {
+    title:   "電子商取引（EC）",
+    english: "Electronic Commerce / E-commerce",
+    meaning: "electronic（電子の）＋ commerce（商取引）",
+    body:    "インターネットを使って商品やサービスを売買する取引のことです。「Eコマース」とも呼ばれます。実店舗で買い物をする「リアル取引」に対して、ネット上で行う取引を指します。誰と誰の取引かによってBtoB・BtoC・CtoCに分類されます。",
+    example: "Amazonでの買い物、メルカリでの個人売買、企業同士の発注システムなど。"
+  },
+  btob: {
+    title:   "BtoB",
+    english: "Business to Business",
+    meaning: "企業（Business）から企業（Business）への取引",
+    body:    "企業と企業の間で行われる電子商取引です。問屋・卸売・部品供給など、最終消費者が見えないところで大規模に行われています。取引金額が大きく、契約も長期にわたる傾向があります。",
+    example: "コンビニチェーンが商品を問屋から仕入れる、自動車メーカーが部品メーカーから部品を発注する、IT企業がクラウドサービスを契約する。"
+  },
+  btoc: {
+    title:   "BtoC",
+    english: "Business to Consumer",
+    meaning: "企業（Business）から消費者（Consumer）への販売",
+    body:    "企業から一般消費者への販売を指します。最も身近な電子商取引で、私たちが普段ネットで買い物をするときの形態です。クレジットカード決済・代引き・電子マネーなど、多様な支払い手段が用意されています。",
+    example: "Amazon・楽天市場での購入、Apple Storeでの注文、Netflixの月額契約、出前館での食事注文。"
+  },
+  ctoc: {
+    title:   "CtoC",
+    english: "Consumer to Consumer",
+    meaning: "消費者（Consumer）と消費者（Consumer）の取引",
+    body:    "個人と個人の間で行われる取引です。フリマアプリやオークションサイトの普及により急速に広がりました。プラットフォーム企業が場を提供し、個人同士が取引します。",
+    example: "メルカリ・ヤフオク！・ジモティでの個人売買、ココナラでのスキル販売、Airbnbでの宿泊提供。"
+  },
+  soho: {
+    title:   "SOHO",
+    english: "Small Office / Home Office",
+    meaning: "Small（小規模）＋ Office（オフィス）＋ Home Office（自宅オフィス）",
+    body:    "自宅や小規模なオフィスで、個人または少人数で仕事をする働き方です。インターネットの普及で実現可能になり、近年はリモートワークの広がりとともに増えています。",
+    example: "Webデザイナー、フリーランスのライター、在宅プログラマー、翻訳家、オンライン講師など。"
+  },
+  pull: {
+    title:   "プル型配信",
+    english: "pull-based delivery",
+    meaning: "pull（引く）＝利用者が情報を引き寄せる",
+    body:    "利用者が自分から情報を取りに行く配信方式です。Web検索やYouTube動画の視聴のように、利用者の要求があって初めて情報が届きます。能動的な情報収集に向いています。",
+    example: "Google検索、YouTube動画視聴、Webサイト閲覧。"
+  },
+  push: {
+    title:   "プッシュ型配信",
+    english: "push-based delivery",
+    meaning: "push（押す）＝配信側が情報を押し付ける",
+    body:    "配信側から利用者へ一方的に情報を届ける方式です。テレビ放送・メルマガ・スマホ通知のように、利用者が何もしなくても情報が届きます。お知らせや緊急情報の配信に向いています。",
+    example: "テレビ放送、メールマガジン、スマホアプリの通知、LINEのメッセージ。"
+  },
+  sns: {
+    title:   "SNS",
+    english: "Social Networking Service",
+    meaning: "social（社交的）＋ networking（つながり）＋ service（サービス）",
+    body:    "人と人とのつながりを構築・維持するためのWebサービスです。プロフィールを公開し、メッセージや写真を共有することで、友人・知人とのコミュニケーションを取れます。マーケティング・情報発信にも広く使われています。",
+    example: "LINE、Twitter(X)、Instagram、Facebook、TikTokなど。"
+  },
+  wiki: {
+    title:   "Wiki",
+    english: "Wiki",
+    meaning: "ハワイ語の「wiki wiki（速い）」が語源",
+    body:    "複数のユーザーが共同で文章を編集できる仕組みです。Webブラウザ上で誰でも編集・修正できる点が特徴で、知識の集積に向いています。Wikipediaがもっとも有名な例です。",
+    example: "Wikipedia（百科事典）、社内ナレッジ共有Wiki、ゲーム攻略Wikiなど。"
+  },
+  rss: {
+    title:   "RSS",
+    english: "Really Simple Syndication / RDF Site Summary",
+    meaning: "Webサイトの更新情報を配信するフォーマット",
+    body:    "ニュースサイトやブログの更新情報を、自動で配信・受信するための仕組みです。RSSリーダーに登録しておけば、新着記事をまとめて読めるため効率的に情報収集できます。",
+    example: "ニュースサイトの新着配信、お気に入りのブログの更新通知、ポッドキャストの自動配信。"
+  },
+  mailmag: {
+    title:   "メールマガジン",
+    english: "e-mail magazine / newsletter",
+    meaning: "メール形式の定期配信",
+    body:    "発行者（主催者）から購読者へ、定期的にメールで届く電子的な情報誌です。企業のお知らせ、業界ニュース、専門家による解説など、内容はさまざまです。RSSと異なり「相手から送られてくる」プッシュ型の配信です。",
+    example: "企業の販促メール、まぐまぐ！の有料メルマガ、業界専門の情報配信。"
+  },
+  voip: {
+    title:   "VoIP",
+    english: "Voice over Internet Protocol",
+    meaning: "Voice（音声）＋ over（〜の上で）＋ IP（インターネット技術）",
+    body:    "インターネット回線を使って音声通話を行う技術です。電話回線を使わないため、通信料金が安く済むのが特徴です。LINE通話・Zoom音声通話・Skypeなど、現代の音声通話の多くはVoIP技術を使っています。",
+    example: "LINE通話、Skypeでの国際通話、Zoomの音声会議、050から始まるIP電話。"
+  },
+  portal: {
+    title:   "ポータルサイト",
+    english: "portal site",
+    meaning: "portal（玄関・入り口）",
+    body:    "多種多様な情報やサービスを集めた、Webの「玄関口」となる総合サイトです。検索エンジン・ニュース・天気・メール・ショッピングなど、複数のサービスをまとめて提供します。",
+    example: "Yahoo! JAPAN、Google、MSN、gooなどの総合ポータル。"
+  },
+};
+
+function openPopup(key) {
+  const d = POPUP_DATA[key]; if (!d) return;
+  document.getElementById('popupTitle').textContent   = d.title;
+  document.getElementById('popupEnglish').textContent = d.english || '';
+  const mg = document.getElementById('popupMeaning');
+  if (d.meaning) { mg.textContent = d.meaning; mg.style.display=''; }
+  else { mg.style.display='none'; }
+  document.getElementById('popupBody').textContent    = d.body;
+  const ex = document.getElementById('popupExample');
+  if (d.example) { ex.textContent = '📌 ' + d.example; ex.style.display=''; }
+  else { ex.style.display='none'; }
+  document.getElementById('popupModal').classList.add('show');
+}
+function closePopup(e) {
+  if (!e || e.target === document.getElementById('popupModal'))
+    document.getElementById('popupModal').classList.remove('show');
+}
+
+// ── 穴埋め：9か所 ──
+const WORDS = ["BtoB", "BtoC", "CtoC", "プル型", "プッシュ型", "SOHO", "SNS", "Wiki", "VoIP"];
+
+let selectedWord = null, isRunning = false, startTime = null, timerInt = null, bestTime = null;
+
+function fmtTime(ms) {
+  const m = Math.floor(ms/60000).toString().padStart(2,'0');
+  const s = Math.floor((ms%60000)/1000).toString().padStart(2,'0');
+  return `${m}:${s}.${Math.floor((ms%1000)/100)}`;
+}
+
+function startChallenge() {
+  document.querySelectorAll('.dz').forEach(z => {
+    z.textContent = '';
+    z.classList.remove('correct','wrong','filled');
+  });
+  selectedWord = null;
+  renderWordBank([...WORDS].sort(()=>Math.random()-.5));
+  clearInterval(timerInt);
+  startTime = Date.now(); isRunning = true;
+  timerInt = setInterval(()=>{ document.getElementById('timerDisplay').textContent = fmtTime(Date.now()-startTime); }, 100);
+}
+
+function renderWordBank(words) {
+  const wb = document.getElementById('wordBank'); wb.innerHTML='';
+  words.forEach(w => { wb.appendChild(makeItem(w)); });
+}
+
+function makeItem(w) {
+  const el = document.createElement('span');
+  el.className='drag-item'; el.textContent=w;
+  el.onclick = () => {
+    document.querySelectorAll('.drag-item').forEach(d=>d.classList.remove('selected'));
+    if (selectedWord===w) { selectedWord=null; return; }
+    el.classList.add('selected'); selectedWord=w;
+  };
+  return el;
+}
+
+document.querySelectorAll('.dz').forEach(z => {
+  z.addEventListener('click', () => {
+    if (!isRunning) return;
+    if (selectedWord) {
+      // 既に何か入っている場合は語群に戻す
+      if (z.textContent.trim()) {
+        const oldWord = z.textContent.trim();
+        document.getElementById('wordBank').appendChild(makeItem(oldWord));
+      }
+      z.textContent = selectedWord;
+      z.classList.remove('correct','wrong');
+      z.classList.add('filled');
+      const found = [...document.querySelectorAll('#wordBank .drag-item')].find(i=>i.textContent===selectedWord);
+      if (found) found.remove();
+      selectedWord=null;
+      document.querySelectorAll('.drag-item').forEach(d=>d.classList.remove('selected'));
+    } else if (z.textContent.trim()) {
+      // 何も選択していない状態で空欄をクリック → 語群に戻す
+      const word = z.textContent.trim();
+      z.textContent = '';
+      z.classList.remove('correct','wrong','filled');
+      document.getElementById('wordBank').appendChild(makeItem(word));
+    }
+  });
+});
+
+function checkAnswers() {
+  if (!isRunning) return;
+  let allOk=true;
+  document.querySelectorAll('.dz').forEach(z => {
+    const input = z.textContent.trim().replace(/　/g,'');
+    if (!input) { allOk=false; return; }
+    if (input===z.dataset.ans) { z.classList.add('correct'); z.classList.remove('wrong'); }
+    else { z.classList.add('wrong'); z.classList.remove('correct'); allOk=false; }
+  });
+  if (allOk) {
+    clearInterval(timerInt); isRunning=false;
+    const elapsed = Date.now()-startTime;
+    if (bestTime===null||elapsed<bestTime) { bestTime=elapsed; document.getElementById('recordDisplay').textContent='🏆 ベスト：'+fmtTime(bestTime); }
+    startConfetti();
+  } else {
+    const wbc=document.getElementById('wordBankContainer');
+    wbc.classList.remove('shake'); void wbc.offsetWidth; wbc.classList.add('shake');
+    setTimeout(()=>wbc.classList.remove('shake'),500);
+  }
+}
+
+function showModel() {
+  clearInterval(timerInt); isRunning=false; selectedWord=null;
+  document.querySelectorAll('.dz').forEach(z=>{
+    z.textContent = z.dataset.ans;
+    z.classList.remove('correct','wrong');
+    z.classList.add('filled');
+  });
+  document.getElementById('wordBank').innerHTML='<span style="color:#888;font-size:.9em;">お手本表示中。「チャレンジ開始」で練習できます。</span>';
+  document.getElementById('timerDisplay').textContent='00:00.0';
+}
+
+// confetti
+const cvs=document.getElementById('confetti-canvas'), ctx=cvs.getContext('2d');
+let pts=[], cnfOn=false;
+function startConfetti() {
+  cvs.width=window.innerWidth; cvs.height=window.innerHeight; pts=[];
+  for(let i=0;i<200;i++) pts.push({x:Math.random()*cvs.width,y:Math.random()*cvs.height-cvs.height,s:Math.random()*9+4,c:`hsl(${Math.random()*360},75%,65%)`,sp:Math.random()*3+2});
+  cnfOn=true; animCnf();
+  setTimeout(()=>{cnfOn=false;ctx.clearRect(0,0,cvs.width,cvs.height);pts=[];},4000);
+}
+function animCnf() {
+  if(!cnfOn)return;
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  pts.forEach(p=>{p.y+=p.sp;ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,p.s,p.s);if(p.y>cvs.height)p.y=-20;});
+  requestAnimationFrame(animCnf);
+}
+
+showModel();
+
+// ══════════════════════════════════════════
+// ホバー型ポップアップの初期化
+// data-term="xxx" 属性を持つ要素にカーソルを当てると、
+// POPUP_DATAの内容を吹き出しで表示します。
+// ══════════════════════════════════════════
+function initTermPopups() {
+  document.querySelectorAll('[data-term]').forEach(el => {
+    const key = el.dataset.term;
+    const d = POPUP_DATA[key];
+    if (!d) return;
+    el.classList.add('term');
+    // 既存のポップアップを削除（多重呼び出し対策）
+    const old = el.querySelector('.term-popup');
+    if (old) old.remove();
+    const popup = document.createElement('span');
+    popup.className = 'term-popup';
+    let html = `<span class="tp-title">${d.title}</span>`;
+    if (d.english) html += `<span class="tp-en">${d.english}</span>`;
+    if (d.meaning) html += `<span class="tp-meaning">${d.meaning}</span>`;
+    html += `<span class="tp-body">${d.body}</span>`;
+    popup.innerHTML = html;
+    el.appendChild(popup);
+  });
+}
+initTermPopups();
+
+// ══════════════════════════════════════════
+// ミニテスト機能（章末展開式）
+// ══════════════════════════════════════════
+const mtState = {}; // { mt1: { selectedWord, running }, mt2: {...}, ... }
+
+// 開閉トグル
+function toggleMt(mtId) {
+  const body = document.getElementById(mtId + '-body');
+  const toggle = document.querySelector(`[data-mt="${mtId}"] .mt-toggle`);
+  if (!body || !toggle) return;
+  const isOpen = body.classList.contains('open');
+  if (isOpen) {
+    body.classList.remove('open');
+    toggle.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    toggle.classList.add('open');
+  }
+}
+
+// 穴埋めチャレンジ開始：空欄をクリアし、語群を生成
+function mtStart(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  const words = [];
+  blanks.forEach(b => {
+    words.push(b.dataset.ans);
+    b.textContent = '';
+    b.classList.remove('filled','correct','wrong');
+    b.classList.add('empty');
+  });
+  // 語群を表示
+  const wordsEl = document.getElementById(mtId + '-words');
+  const bankLabel = document.querySelector(`#${mtId}-bank-wrap .mt-wordbank-label`);
+  if (bankLabel) bankLabel.textContent = '📦 語群（タップして選択 → 空欄をクリックで入力）';
+  wordsEl.innerHTML = '';
+  const shuffled = [...words].sort(() => Math.random() - 0.5);
+  shuffled.forEach(w => wordsEl.appendChild(mtMakeChip(mtId, w)));
+  mtState[mtId] = { selectedWord: null, running: true };
+  // 結果表示クリア
+  document.getElementById(mtId + '-result').innerHTML = '';
+  // 空欄にクリックハンドラを設定
+  blanks.forEach(b => {
+    b.onclick = () => mtBlankClick(mtId, b);
+  });
+}
+
+// 語群チップ生成
+function mtMakeChip(mtId, word) {
+  const chip = document.createElement('span');
+  chip.className = 'mt-chip';
+  chip.textContent = word;
+  chip.onclick = () => {
+    const s = mtState[mtId];
+    if (!s || !s.running) return;
+    // 同じものを再選択 → 解除
+    if (s.selectedWord === word) {
+      chip.classList.remove('selected');
+      s.selectedWord = null;
+      return;
+    }
+    // 他の選択を解除
+    document.querySelectorAll(`#${mtId}-words .mt-chip`).forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    s.selectedWord = word;
+  };
+  return chip;
+}
+
+// 空欄クリック
+function mtBlankClick(mtId, blank) {
+  const s = mtState[mtId];
+  if (!s || !s.running) return;
+  if (s.selectedWord) {
+    // 既に何か入っていたら語群に戻す
+    if (blank.textContent.trim()) {
+      const old = blank.textContent.trim();
+      document.getElementById(mtId + '-words').appendChild(mtMakeChip(mtId, old));
+    }
+    // 語句を入れる
+    blank.textContent = s.selectedWord;
+    blank.classList.remove('empty','correct','wrong');
+    blank.classList.add('filled');
+    // 語群から削除
+    const chips = document.querySelectorAll(`#${mtId}-words .mt-chip`);
+    chips.forEach(c => {
+      if (c.textContent === s.selectedWord && !c.classList.contains('used')) {
+        c.remove();
+        return;
+      }
+    });
+    s.selectedWord = null;
+    document.querySelectorAll(`#${mtId}-words .mt-chip`).forEach(c => c.classList.remove('selected'));
+  } else if (blank.textContent.trim()) {
+    // 何も選択していないとき → 中身を語群に戻す
+    const word = blank.textContent.trim();
+    blank.textContent = '';
+    blank.classList.remove('filled','correct','wrong');
+    blank.classList.add('empty');
+    document.getElementById(mtId + '-words').appendChild(mtMakeChip(mtId, word));
+  }
+}
+
+// 答え合わせ
+function mtCheck(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  let allOk = true;
+  let unanswered = 0;
+  blanks.forEach(b => {
+    const input = b.textContent.trim();
+    if (!input) { allOk = false; unanswered++; return; }
+    if (input === b.dataset.ans) {
+      b.classList.add('correct');
+      b.classList.remove('wrong','filled');
+    } else {
+      b.classList.add('wrong');
+      b.classList.remove('correct','filled');
+      allOk = false;
+    }
+  });
+  const result = document.getElementById(mtId + '-result');
+  if (allOk) {
+    result.innerHTML = '<div class="mt-result success">🎉 全問正解！すばらしいです。</div>';
+    startConfetti();  // 🎊 花吹雪
+  } else if (unanswered === blanks.length) {
+    result.innerHTML = '<div class="mt-result warning">📝 「チャレンジ開始」を押してから始めてください。</div>';
+  } else {
+    result.innerHTML = '<div class="mt-result warning">⚠️ 赤くなった箇所をもう一度考えてみましょう。</div>';
+  }
+}
+
+// 答えを見る（お手本）
+function mtShowAns(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  blanks.forEach(b => {
+    b.textContent = b.dataset.ans;
+    b.classList.remove('empty','correct','wrong','filled');
+  });
+  // 語群をクリア
+  const wordsEl = document.getElementById(mtId + '-words');
+  if (wordsEl) wordsEl.innerHTML = '<span style="color:#888;font-size:.85em;">お手本表示中。チャレンジ開始で練習できます。</span>';
+  document.getElementById(mtId + '-result').innerHTML = '';
+  if (mtState[mtId]) mtState[mtId].running = false;
+}
+
+// 4択：回答
+function mtAnswer(btnEl, qId, idx) {
+  const optionsEl = document.querySelector(`[data-q="${qId}"]`);
+  if (!optionsEl) return;
+  const correct = parseInt(optionsEl.dataset.ans, 10);
+  // 既に回答済みならスキップ
+  if (optionsEl.dataset.answered === 'yes') return;
+  optionsEl.dataset.answered = 'yes';
+  // 正誤判定（後で参照できるよう保存）
+  const isRight = (idx === correct);
+  optionsEl.dataset.result = isRight ? 'correct' : 'wrong';
+  // 全ボタンを無効化
+  const opts = optionsEl.querySelectorAll('.mt-quiz-opt');
+  opts.forEach((o, i) => {
+    o.disabled = true;
+    if (i === correct) o.classList.add('correct');
+    if (i === idx && idx !== correct) o.classList.add('wrong');
+  });
+  // 解説表示
+  const ex = document.getElementById(qId + '-ex');
+  if (ex) ex.classList.add('show');
+
+  // 同じミニテスト内の4択がすべて正解か判定
+  // qId は "mt1-q1" のような形式
+  const mtId = qId.split('-')[0];  // "mt1"
+  checkAllQuizCorrect(mtId);
+}
+
+// 同じミニテスト内の4択がすべて回答済みかつ全問正解なら花吹雪
+function checkAllQuizCorrect(mtId) {
+  const mtBody = document.getElementById(mtId + '-body');
+  if (!mtBody) return;
+  const allOptions = mtBody.querySelectorAll('.mt-quiz-options');
+  if (allOptions.length === 0) return;
+  let allAnswered = true;
+  let allCorrect = true;
+  allOptions.forEach(o => {
+    if (o.dataset.answered !== 'yes') allAnswered = false;
+    if (o.dataset.result !== 'correct') allCorrect = false;
+  });
+  if (allAnswered && allCorrect) {
+    startConfetti();
+  }
+}
+</script>
+</body>
+</html>

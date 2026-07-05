@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>GAMBA 高認 情報Ⅰ 単元表</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','BIZ UDGothic','Yu Gothic UI',Meiryo,sans-serif;background:#eef6fa;color:#0d1f2a;min-height:100vh;font-size:15px}
+
+/* ヘッダー */
+.top-header{background:linear-gradient(135deg,#0891b2 0%,#0e7490 100%);color:#fff;padding:16px 16px 0;text-align:center}
+.top-header h1{font-size:1.15rem;font-weight:800;letter-spacing:.04em}
+.top-header p{font-size:.78rem;margin-top:3px;opacity:.85}
+.summary-bar{background:rgba(0,0,0,.22);margin-top:12px;padding:9px 14px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:.78rem;color:#fff}
+.sum-item{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.sum-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sum-dot-a{background:#4ade80}.sum-dot-b{background:#fbbf24}.sum-dot-c{background:#f87171}.sum-dot-n{background:#94a3b8}
+.sum-count{font-weight:800;font-size:1rem;min-width:18px;text-align:center}
+
+.wrap{max-width:920px;margin:0 auto;padding:14px 12px 56px}
+
+/* 合格ガイド */
+.flow{background:#fff;border-radius:14px;border:1px solid #b2e0f0;padding:13px 16px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.flow-title{font-size:.88rem;font-weight:800;color:#0891b2;margin-bottom:9px;padding-bottom:6px;border-bottom:2px solid #cbf0fb;}
+.flow-steps{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.flow-step{background:#f0fafd;border:1px solid #b2e0f0;border-radius:8px;padding:6px 11px;font-size:.78rem;color:#0e7490;font-weight:700;white-space:nowrap}
+.flow-arrow{color:#0891b2;font-size:1rem;font-weight:700}
+.flow-note{font-size:.78rem;color:#555;margin-top:10px;padding:8px 12px;border-left:4px solid #fbbf24;background:#fffbeb;border-radius:4px;line-height:1.7}
+
+/* ユニット */
+.unit{background:#fff;border-radius:14px;border:1px solid #b2e0f0;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden}
+.unit-hd{padding:11px 16px;display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,#0891b2,#22d3ee);color:#fff}
+.unit-num{background:rgba(255,255,255,.2);border-radius:7px;padding:3px 10px;font-size:.78rem;font-weight:800;white-space:nowrap}
+.unit-title{font-size:1rem;font-weight:800;flex:1}
+.unit-badge{font-size:.72rem;background:rgba(255,255,255,.25);border-radius:999px;padding:2px 9px;font-weight:700;white-space:nowrap}
+.unit-body{padding:12px 14px}
+.group-label{font-size:.75rem;font-weight:800;color:#64748b;margin:12px 0 8px;letter-spacing:.05em;padding-bottom:4px;border-bottom:1.5px dashed #b2e0f0;display:flex;align-items:center;gap:7px}
+.group-label:first-child{margin-top:0}
+.sec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:4px}
+
+/* カード */
+.sec-card{border-radius:10px;border:1.5px solid #b2e0f0;overflow:hidden;transition:.18s;background:#fff;display:flex;flex-direction:column;}
+.sec-card:hover{box-shadow:0 3px 14px rgba(8,145,178,.13);transform:translateY(-1px)}
+.sc-hd{background:#f0fafd;border-bottom:2px solid #0891b2;padding:9px 12px;display:flex;align-items:center;gap:8px}
+.sc-num{background:#0891b2;color:#fff;border-radius:7px;padding:3px 9px;font-size:.75rem;font-weight:800;flex-shrink:0}
+.sc-title{font-size:.88rem;font-weight:800;flex:1;color:#0e7490;line-height:1.3}
+.sc-stars{font-size:.75rem;color:#fbbf24;letter-spacing:-1px;flex-shrink:0}
+.sc-body{padding:8px 12px;background:#fff;flex:1}
+.sc-topics{list-style:none;margin:0;padding:0}
+.sc-topics li{font-size:.78rem;color:#475569;padding:2px 0;border-bottom:1px solid #f0fafd;line-height:1.5}
+.sc-topics li:last-child{border-bottom:none}
+.sc-topics li::before{content:"・";color:#0891b2}
+
+/* ボタン行 */
+.sc-btn-row{display:flex;gap:5px;padding:8px 12px 0;flex-wrap:wrap}
+.sc-btn{flex:1;min-width:60px;text-align:center;padding:7px 4px;border-radius:8px;font-size:.75rem;font-weight:800;text-decoration:none;transition:.13s;border:none;cursor:pointer;display:block;color:#fff;font-family:inherit;background:#0891b2}
+.sc-btn:hover{background:#0e7490;color:#fff}
+.sc-btn-soon{background:#cbd5e1;color:#fff;cursor:not-allowed;pointer-events:none}
+
+/* A/B/C自己評価 */
+.abc-row{display:flex;gap:5px;padding:8px 12px 10px}
+.abc-btn{flex:1;padding:6px 2px;border-radius:20px;font-size:.75rem;font-weight:800;font-family:inherit;cursor:pointer;transition:.13s;border:2px solid;text-align:center;background:#fff}
+.abc-a{border-color:#16a34a;color:#16a34a}.abc-a.sel{background:#16a34a;color:#fff}
+.abc-b{border-color:#d97706;color:#d97706}.abc-b.sel{background:#d97706;color:#fff}
+.abc-c{border-color:#dc2626;color:#dc2626}.abc-c.sel{background:#dc2626;color:#fff}
+.abc-btn:hover{opacity:.8}
+
+/* カードのステータス色 */
+.sec-card.s-a{border-color:#16a34a}.sec-card.s-a .sc-hd{background:#dcfce7 !important;border-bottom-color:#16a34a !important}
+.sec-card.s-b{border-color:#d97706}.sec-card.s-b .sc-hd{background:#fef3c7 !important;border-bottom-color:#d97706 !important}
+.sec-card.s-c{border-color:#dc2626}.sec-card.s-c .sc-hd{background:#fee2e2 !important;border-bottom-color:#dc2626 !important}
+
+/* 戻るリンク */
+.back-link{display:flex;gap:10px;justify-content:center;margin:22px 0 6px;flex-wrap:wrap}
+.back-btn{padding:9px 18px;border-radius:10px;border:1.5px solid #b2e0f0;background:#fff;color:#0891b2;font-size:.84rem;font-weight:700;text-decoration:none;transition:.13s}
+.back-btn:hover{border-color:#0891b2;color:#fff;background:#0891b2}
+
+canvas#cnf{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;display:none}
+
+@media(max-width:480px){
+  .unit-title{font-size:.9rem}
+  .sc-btn-row{gap:4px}
+  .sc-btn{font-size:.72rem;padding:6px 2px}
+}
+</style>
+</head>
+<body>
+<canvas id="cnf"></canvas>
+
+<div class="top-header">
+  <h1>💻 GAMBA 高認 情報Ⅰ 単元表</h1>
+  <p>高認情報Ⅰ 最短合格ルート — 4割で合格！この5単元だけ完走しよう</p>
+  <div class="summary-bar">
+    <div class="sum-item"><span class="sum-dot sum-dot-a"></span>A わかった <span class="sum-count" id="cnt-a">0</span></div>
+    <div class="sum-item"><span class="sum-dot sum-dot-b"></span>B 要復習 <span class="sum-count" id="cnt-b">0</span></div>
+    <div class="sum-item"><span class="sum-dot sum-dot-c"></span>C 何度も <span class="sum-count" id="cnt-c">0</span></div>
+    <div class="sum-item"><span class="sum-dot sum-dot-n"></span>未実施 <span class="sum-count" id="cnt-n">5</span></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- 学習の流れ -->
+  <div class="flow">
+    <div class="flow-title">📖 学習の進め方</div>
+    <div class="flow-steps">
+      <div class="flow-step">① 解説を読む</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">② 穴埋め練習</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">③ 繰り返す</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">④ A/B/C 自己評価</div>
+    </div>
+    <div class="flow-note">
+      💡 <strong>合格のコツ</strong>：高認情報Ⅰは <strong>4割の正答で合格</strong> できます。全部完璧に覚えなくてOK。1日1単元、5日間で完走できます。「LINE＝SNS」「メルカリ＝CtoC」など、身近な例で覚えると定着します。
+    </div>
+  </div>
+
+  <!-- ══ 高認 合格ルート 5単元 ══ -->
+  <div class="unit">
+    <div class="unit-hd">
+      <span class="unit-num">🎯 高認</span>
+      <span class="unit-title">合格ルート 必修5単元</span>
+      <span class="unit-badge">joho1〜5</span>
+    </div>
+    <div class="unit-body">
+      <div class="group-label">📋 この5つだけ。順番通りに進めましょう</div>
+      <div class="sec-grid">
+
+        <!-- ① 情報社会と権利 -->
+        <div class="sec-card" data-id="k1">
+          <div class="sc-hd"><span class="sc-num">①</span><span class="sc-title">情報社会と権利</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>情報の3特性（残存性・複製性・伝播性）</li>
+            <li>個人情報・プライバシーの保護</li>
+            <li>著作権と産業財産権の基礎</li>
+          </ul></div>
+          <div class="sc-btn-row">
+            <a class="sc-btn" href="kouninjoho1.html">解説・練習</a>
+          </div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('k1','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('k1','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('k1','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <!-- ② 情報社会の課題 -->
+        <div class="sec-card" data-id="k2">
+          <div class="sc-hd"><span class="sc-num">②</span><span class="sc-title">情報社会の課題</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>サイバー犯罪・クラッキング</li>
+            <li>テクノ不安症・テクノ依存症</li>
+            <li>デジタルデバイド（情報格差）</li>
+          </ul></div>
+          <div class="sc-btn-row">
+            <a class="sc-btn" href="kouninjoho2.html">解説・練習</a>
+          </div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('k2','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('k2','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('k2','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <!-- ③ メディアと通信 -->
+        <div class="sec-card" data-id="k3">
+          <div class="sc-hd"><span class="sc-num">③</span><span class="sc-title">メディアと通信</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>電子商取引（BtoB / BtoC / CtoC）</li>
+            <li>SOHO・SNS・RSS・Wiki・VoIP</li>
+            <li>プル型とプッシュ型の違い</li>
+          </ul></div>
+          <div class="sc-btn-row">
+            <a class="sc-btn" href="kouninjoho3.html">解説・練習</a>
+          </div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('k3','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('k3','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('k3','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <!-- ④ コンピュータの基礎 -->
+        <div class="sec-card" data-id="k4">
+          <div class="sc-hd"><span class="sc-num">④</span><span class="sc-title">コンピュータの基礎</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>発達史（MARK I・ENIAC・ノイマン型）</li>
+            <li>5大装置・CPU の役割</li>
+            <li>2進数の計算・ディジタル化</li>
+          </ul></div>
+          <div class="sc-btn-row">
+            <a class="sc-btn" href="kouninjoho4.html">解説・練習</a>
+          </div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('k4','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('k4','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('k4','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <!-- ⑤ 問題解決とデータ -->
+        <div class="sec-card" data-id="k5">
+          <div class="sc-hd"><span class="sc-num">⑤</span><span class="sc-title">問題解決とデータ</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>PDCAサイクル・KJ法・ブレスト</li>
+            <li>グラフの使い分け</li>
+            <li>代表値（平均・中央値・最頻値）・相関関係</li>
+          </ul></div>
+          <div class="sc-btn-row">
+            <a class="sc-btn" href="kouninjoho5.html">解説・練習</a>
+          </div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('k5','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('k5','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('k5','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+      </div><!-- /sec-grid -->
+    </div><!-- /unit-body -->
+  </div><!-- /unit -->
+
+  <!-- 戻るリンク -->
+  <div class="back-link">
+    <a class="back-btn" href="joho_index.html">📚 共通テスト対応・応用編へ →</a>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+const STORAGE_KEY = 'gamba_joho_status_v1';
+const ACTIVE_IDS = ['k1','k2','k3','k4','k5'];
+let status = {};
+try { const s = localStorage.getItem(STORAGE_KEY); if(s) status = JSON.parse(s); } catch(e){}
+
+function saveStatus(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(status)); }catch(e){} }
+
+function applyAll(){
+  ACTIVE_IDS.forEach(id=>{
+    const g = status[id];
+    if(!g) return;
+    const card = document.querySelector('[data-id="'+id+'"]');
+    if(!card) return;
+    card.classList.remove('s-a','s-b','s-c');
+    card.classList.add('s-'+g);
+    card.querySelectorAll('.abc-btn').forEach(b=>b.classList.remove('sel'));
+    const btn = card.querySelector('.abc-'+g);
+    if(btn) btn.classList.add('sel');
+  });
+  updateSummary();
+}
+
+function setABC(id, grade, btn){
+  const card = document.querySelector('[data-id="'+id+'"]');
+  if(!card) return;
+  if(status[id]===grade){
+    delete status[id];
+    card.classList.remove('s-a','s-b','s-c');
+    card.querySelectorAll('.abc-btn').forEach(b=>b.classList.remove('sel'));
+    saveStatus(); updateSummary(); return;
+  }
+  status[id]=grade;
+  card.classList.remove('s-a','s-b','s-c');
+  card.classList.add('s-'+grade);
+  card.querySelectorAll('.abc-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  saveStatus();
+  if(grade==='a') confetti();
+  updateSummary();
+}
+
+function updateSummary(){
+  let ca=0,cb=0,cc=0,cn=0;
+  ACTIVE_IDS.forEach(id=>{
+    const s=status[id];
+    if(s==='a')ca++; else if(s==='b')cb++; else if(s==='c')cc++; else cn++;
+  });
+  document.getElementById('cnt-a').textContent=ca;
+  document.getElementById('cnt-b').textContent=cb;
+  document.getElementById('cnt-c').textContent=cc;
+  document.getElementById('cnt-n').textContent=cn;
+}
+
+function confetti(){
+  const cv=document.getElementById('cnf');
+  cv.width=innerWidth;cv.height=innerHeight;cv.style.display='block';
+  const ctx=cv.getContext('2d');
+  const cols=['#34d399','#22d3ee','#60a5fa','#fbbf24','#f87171','#a78bfa','#f472b6'];
+  let ps=[];
+  function petal(x,y,vx,vy){return{x,y,vx,vy,s:Math.random()*8+5,c:cols[Math.floor(Math.random()*cols.length)],rot:Math.random()*6,vr:(Math.random()-.5)*.3,sw:Math.random()*6,shape:Math.random()<.5?'p':'s'};}
+  for(let i=0;i<90;i++){ps.push(petal(0,cv.height,4+Math.random()*8,-(10+Math.random()*10)));ps.push(petal(cv.width,cv.height,-(4+Math.random()*8),-(10+Math.random()*10)));}
+  for(let i=0;i<120;i++){ps.push(petal(Math.random()*cv.width,-Math.random()*cv.height*.4,(Math.random()-.5)*2,1.5+Math.random()*2));}
+  let f=0;
+  (function loop(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(p=>{p.vy+=.18;p.sw+=.06;p.x+=p.vx+Math.sin(p.sw)*1.5;p.y+=p.vy;p.rot+=p.vr;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;
+      if(p.shape==='p'){ctx.beginPath();ctx.ellipse(0,0,p.s,p.s*.55,0,0,7);ctx.fill();}
+      else ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s);
+      ctx.restore();});
+    f++;
+    if(f<380)requestAnimationFrame(loop);
+    else{ctx.clearRect(0,0,cv.width,cv.height);cv.style.display='none';}
+  })();
+}
+
+applyAll();
+</script>
+</body>
+</html>

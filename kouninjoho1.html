@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>高認 情報Ⅰ ①：情報社会と権利</title>
+  <style>
+    :root {
+      --primary:      #dc2626;
+      --primary-dark: #991b1b;
+      --teal:    #0F6E56;
+      --purple:  #534AB7;
+      --amber:   #BA7517;
+      --coral:   #dc2626;
+      --gray:    #5F5E5A;
+      --bg:      #fef2f2;
+      --drop-bg: #fff9c4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Hiragino Sans','Meiryo','Yu Gothic','游ゴシック',sans-serif;
+      background: linear-gradient(135deg, #fef2f2 0%, #ffe4e6 100%);
+      margin: 0; padding: 0; font-size: 14px; line-height: 1.9; color: #1e293b;
+      min-height: 100vh;
+    }
+
+    /* ── sticky header ── */
+    .sticky-header {
+      position: sticky; top: 0;
+      background: linear-gradient(135deg, #fef2f2 0%, #ffe4e6 100%);
+      z-index: 1000;
+      border-bottom: 3px solid var(--primary);
+      padding: 8px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .page-nav { max-width: 1050px; margin: 0 auto 6px; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+    .nav-btn {
+      text-decoration: none; background: white;
+      color: var(--primary-dark);
+      border: 2px solid var(--primary);
+      padding: 5px 13px; border-radius: 6px;
+      font-size: .78em; font-weight: bold; transition: .2s;
+    }
+    .nav-btn:hover { background: #fee2e2; }
+    .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary-dark); }
+    .nav-btn.nav-home { background: var(--primary); color: white; }
+    .nav-btn.nav-home:hover { background: var(--primary-dark); }
+
+    /* ── challenge panel ── */
+    .challenge-panel {
+      background: white;
+      border: 2px solid var(--primary);
+      color: var(--primary-dark);
+      padding: 10px 20px; border-radius: 10px;
+      display: flex; justify-content: space-around; align-items: center;
+      max-width: 1050px; margin: 0 auto 8px; flex-wrap: wrap; gap: 8px;
+      box-shadow: 0 2px 8px rgba(220,38,38,0.1);
+    }
+    .timer { font-size: 1.5em; font-family: monospace; font-weight: bold; color: var(--primary-dark); }
+    .ch-btn { border: none; cursor: pointer; padding: 7px 18px; border-radius: 20px; font-weight: bold; font-size: .9em; transition: .2s; }
+    .ch-btn.start  { background: #22c55e; color: #fff; }
+    .ch-btn.start:hover  { background: #16a34a; }
+    .ch-btn.answer { background: #f59e0b; color: #fff; }
+    .ch-btn.answer:hover { background: #d97706; }
+    .ch-btn.check  { background: var(--primary); color: #fff; }
+    .ch-btn.check:hover { background: var(--primary-dark); }
+    .ch-btn.check:hover  { background: var(--primary-dark); }
+    #recordDisplay { font-weight: bold; font-size: .9em; color: #8B6914; }
+
+    /* ── word bank（joho3風：緑系の上品なピル形） ── */
+    .word-bank-wrap { max-width: 1050px; margin: 0 auto; }
+    .word-bank-container {
+      background: #f0fdf4;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid #86efac;
+    }
+    .wb-label {
+      font-size: .82em;
+      color: #166534;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+    .word-bank { display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px; }
+    .drag-item {
+      background: white;
+      color: #166534;
+      border: 2px solid #22c55e;
+      padding: 5px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.92em;
+      border-radius: 18px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .drag-item:hover {
+      background: #22c55e;
+      color: white;
+      transform: scale(1.05);
+    }
+    .drag-item.selected {
+      background: #fed7aa;
+      color: #9a3412;
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px #fdba74;
+      transform: scale(1.08);
+    }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+    .word-bank-container.shake { animation: shake .4s ease; }
+
+    /* ── drop zone（joho3風：上品な淡い黄色＋点線枠） ── */
+    .dz {
+      display: inline-block;
+      min-width: 110px;
+      min-height: 1.7em;
+      padding: 4px 14px;
+      margin: 0 4px;
+      border: 2px dashed #94a3b8;
+      border-radius: 6px;
+      background: #fef9c3;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      color: #1e293b;
+      transition: all 0.2s;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 0.95em;
+      line-height: 1.7em;
+      box-sizing: border-box;
+    }
+    .dz:hover { background: #fef08a; border-color: #64748b; }
+    .dz.filled {
+      background: #dbeafe;
+      border-style: solid;
+      border-color: #3b82f6;
+      color: #1e3a8a;
+    }
+    .dz.correct {
+      background: #bbf7d0 !important;
+      border-style: solid !important;
+      border-color: #16a34a !important;
+      color: #166534 !important;
+      font-weight: bold;
+    }
+    .dz.wrong {
+      background: #fecaca !important;
+      border-style: solid !important;
+      border-color: #dc2626 !important;
+      color: #991b1b !important;
+      animation: shake 0.4s;
+    }
+
+    /* ── main（joho3風カード） ── */
+    .container {
+      max-width: 1050px; margin: 20px auto;
+      background: #fff;
+      padding: 28px 32px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      border-top: 6px solid var(--primary);
+    }
+
+    /* ── section heading ── */
+    .sec-h1 { font-size: 1.25em; font-weight: bold; color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 6px; margin: 28px 0 14px; }
+    .sec-h1 .num { font-size: .95em; margin-right: 8px; }
+    .sec-h2 { font-size: 1em; font-weight: bold; color: var(--primary); border-left: 5px solid var(--primary); padding-left: 10px; margin: 20px 0 10px; }
+
+    /* ── つかみ（なぜ？ボックス）── */
+    .intro-box {
+      background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+      border-left: 5px solid var(--amber); border-radius: 6px;
+      padding: 14px 18px; margin: 16px 0; font-size: .92em;
+    }
+    .intro-box .intro-title {
+      color: var(--amber); font-weight: bold; font-size: 1em; margin-bottom: 6px;
+    }
+
+    /* ── table共通 ── */
+    table.godan { border-collapse: collapse; width: 100%; margin: 12px 0; }
+    table.godan th { background: var(--primary); color: #fff; padding: 8px 12px; text-align: center; font-size: .9em; }
+    table.godan td { padding: 8px 12px; border: 1px solid #ddd; font-size: .9em; vertical-align: top; }
+    table.godan tr:nth-child(even) td { background: #f0f4fa; }
+    .tag { display: inline-block; font-weight: bold; padding: 2px 8px; border-radius: 3px; font-size: .88em; }
+    .tag-amber  { background: #faeeda; color: var(--amber);  border: 1px solid var(--amber); }
+    .tag-teal   { background: #edfaf4; color: var(--teal);   border: 1px solid var(--teal); }
+    .tag-blue   { background: #fef2f2; color: var(--primary);border: 1px solid var(--primary); }
+    .tag-purple { background: #f2f1fd; color: var(--purple); border: 1px solid var(--purple); }
+    .tag-coral  { background: #fdf3f0; color: var(--coral);  border: 1px solid var(--coral); }
+
+    /* ── 3特性カード ── */
+    .props-row { display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
+    .prop-card { flex: 1; min-width: 220px; border: 2px solid; border-radius: 8px; padding: 12px 14px; background: #fff; }
+    .prop-card.p1 { border-color: var(--teal); background: #edfaf4; }
+    .prop-card.p2 { border-color: var(--purple); background: #f2f1fd; }
+    .prop-card.p3 { border-color: var(--coral); background: #fdf3f0; }
+    .prop-card .p-title { font-weight: bold; font-size: 1em; margin-bottom: 4px; }
+    .prop-card.p1 .p-title { color: var(--teal); }
+    .prop-card.p2 .p-title { color: var(--purple); }
+    .prop-card.p3 .p-title { color: var(--coral); }
+    .prop-card .p-sub { font-size: .82em; color: #666; margin-bottom: 6px; }
+    .prop-card .p-body { font-size: .88em; }
+
+    /* ── 覚え方ボックス ── */
+    .memo-box {
+      background: #f9f3ff; border: 2px dashed var(--purple); border-radius: 8px;
+      padding: 12px 16px; margin: 14px 0; font-size: .9em;
+    }
+    .memo-box .memo-title {
+      color: var(--purple); font-weight: bold; margin-bottom: 4px;
+    }
+
+    /* ── ここで9割が間違える ── */
+    .trap-box {
+      background: #fff3f0; border-left: 5px solid var(--coral); border-radius: 6px;
+      padding: 12px 16px; margin: 14px 0; font-size: .9em;
+    }
+    .trap-box .trap-title {
+      color: var(--coral); font-weight: bold; margin-bottom: 6px;
+    }
+
+    /* ── 比較表（2列）── */
+    .cmp-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    .cmp-table th { padding: 9px 14px; text-align: center; font-size: .95em; color: #fff; }
+    .cmp-table th.a-head { background: var(--primary); border: 1px solid var(--primary); }
+    .cmp-table th.b-head { background: var(--teal);    border: 1px solid var(--teal); }
+    .cmp-table td { padding: 9px 14px; font-size: .88em; vertical-align: top; border: 1px solid #ddd; }
+    .cmp-table td.a-body { background: #fef2f2; }
+    .cmp-table td.b-body { background: #edfaf4; }
+
+    /* ── popup button ── */
+    .pb {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: var(--primary); color: #fff;
+      border: none; cursor: pointer; padding: 2px 10px 2px 8px;
+      border-radius: 12px; font-size: .82em; font-weight: bold;
+      margin: 2px; transition: .15s; vertical-align: middle;
+    }
+    .pb:hover { background: var(--primary-dark); }
+
+    /* ── modal ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9000; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: #fff; border-radius: 12px; padding: 26px 30px; max-width: 500px; width: 92%; box-shadow: 0 8px 32px rgba(0,0,0,.2); position: relative; animation: fadeIn .2s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+    .modal-title   { font-size: 1.1em; font-weight: bold; color: var(--primary); margin-bottom: 6px; border-bottom: 2px solid var(--primary); padding-bottom: 6px; }
+    .modal-english { font-family: monospace; font-size: .95em; color: var(--teal); margin-bottom: 10px; font-weight: bold; }
+    .modal-meaning { background: #fef2f2; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; font-size: .88em; color: #333; }
+    .modal-body    { font-size: .92em; line-height: 1.9; color: #333; }
+    .modal-example { background: #f5f5f5; border-left: 4px solid var(--teal); padding: 8px 12px; border-radius: 0 6px 6px 0; margin-top: 10px; font-size: .88em; }
+    .modal-close   { position: absolute; top: 12px; right: 14px; background: none; border: none; font-size: 1.4em; cursor: pointer; color: #888; }
+    .modal-close:hover { color: #333; }
+
+    #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+
+
+    /* ══════════════════════════════════════
+       ホバー型ポップアップ（重要語にカーソルを当てると表示）
+       ══════════════════════════════════════ */
+    .term {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+      color: var(--coral);
+      font-weight: bold;
+      border-bottom: 2px dotted var(--coral);
+      padding: 0 1px;
+      transition: background 0.15s;
+    }
+    .term:hover {
+      background: #fef3c7;
+      border-bottom-style: solid;
+    }
+    .term-popup {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: normal;
+      white-space: normal;
+      min-width: 240px;
+      max-width: 340px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      z-index: 200;
+      line-height: 1.7;
+      text-align: left;
+      display: none;
+      pointer-events: none;
+    }
+    .term:hover .term-popup { display: block; }
+    .term-popup::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-top-color: #1e293b;
+    }
+    .term-popup .tp-title { color: #fbbf24; font-weight: bold; font-size: 1em; margin-bottom: 4px; display: block; border-bottom: 1px solid #475569; padding-bottom: 4px; }
+    .term-popup .tp-en { color: #86efac; font-family: monospace; font-size: 0.88em; display: block; margin-bottom: 5px; }
+    .term-popup .tp-meaning { color: #fcd34d; font-size: 0.85em; display: block; margin-bottom: 5px; font-style: italic; }
+    .term-popup .tp-body { color: #f1f5f9; font-size: 0.88em; }
+    @media (max-width: 640px) {
+      .term-popup { min-width: 200px; max-width: 280px; font-size: 12px; }
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 14px; }
+      .props-row { flex-direction: column; }
+    }
+
+    /* ══════════════════════════════════════
+       ミニテストモジュール（章末展開式）
+       ══════════════════════════════════════ */
+    .minitest { margin: 24px 0 12px; }
+    .mt-toggle {
+      width: 100%;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 3px solid #f59e0b;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 1.05em;
+      font-weight: bold;
+      color: #92400e;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .mt-toggle:hover {
+      background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+      transform: translateY(-1px);
+    }
+    .mt-toggle .arrow { transition: transform 0.3s; font-size: 1.2em; }
+    .mt-toggle.open .arrow { transform: rotate(180deg); }
+
+    .mt-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      border-right: 4px solid #f59e0b;
+      border-bottom: 4px solid #f59e0b;
+      border-radius: 0 0 12px 12px;
+    }
+    .mt-body.open { max-height: 5000px; }
+    .mt-inner { padding: 18px 22px; }
+
+    .mt-section-title {
+      color: #92400e;
+      font-weight: bold;
+      font-size: 1em;
+      margin: 14px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px dashed #fbbf24;
+    }
+    .mt-section-title:first-child { margin-top: 0; }
+
+    .mt-fill-passage {
+      background: #fff;
+      border-left: 5px solid #f59e0b;
+      padding: 14px 18px;
+      border-radius: 8px;
+      line-height: 2.4;
+      font-size: 0.95em;
+      margin-bottom: 12px;
+    }
+    .mt-blank {
+      display: inline-block;
+      min-width: 110px;
+      min-height: 1.7em;
+      padding: 4px 14px;
+      margin: 0 4px;
+      border: 2px dashed #94a3b8;
+      border-radius: 6px;
+      background: #fef9c3;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      color: #166534;
+      transition: all 0.2s;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 0.95em;
+      line-height: 1.7em;
+      box-sizing: border-box;
+    }
+    .mt-blank:hover { background: #fef08a; }
+    .mt-blank.empty { color: #1e293b; }
+    .mt-blank.filled {
+      background: #dbeafe;
+      border-style: solid;
+      border-color: #3b82f6;
+      color: #1e3a8a;
+    }
+    .mt-blank.correct {
+      background: #bbf7d0;
+      border-style: solid;
+      border-color: #16a34a;
+      color: #166534;
+    }
+    .mt-blank.wrong {
+      background: #fecaca;
+      border-style: solid;
+      border-color: #dc2626;
+      color: #991b1b;
+      animation: shake 0.4s;
+    }
+
+    .mt-wordbank {
+      background: #f0fdf4;
+      border: 2px solid #86efac;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .mt-wordbank-label {
+      font-size: 0.82em;
+      color: #166534;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .mt-words { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mt-chip {
+      background: white;
+      color: #166534;
+      border: 2px solid #22c55e;
+      padding: 5px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.92em;
+      border-radius: 18px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .mt-chip:hover { background: #22c55e; color: white; transform: scale(1.05); }
+    .mt-chip.selected {
+      background: #fed7aa;
+      color: #9a3412;
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px #fdba74;
+      transform: scale(1.08);
+    }
+    .mt-chip.used { opacity: 0.3; pointer-events: none; }
+
+    .mt-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+    .mt-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.88em;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .mt-btn-start { background: #dc2626; color: white; }
+    .mt-btn-start:hover { background: #991b1b; }
+    .mt-btn-check { background: #22c55e; color: white; }
+    .mt-btn-check:hover { background: #16a34a; }
+    .mt-btn-show { background: #f59e0b; color: white; }
+    .mt-btn-show:hover { background: #d97706; }
+
+    .mt-quiz-card {
+      background: #fff;
+      border-left: 5px solid #dc2626;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .mt-quiz-num {
+      display: inline-block;
+      background: #dc2626;
+      color: white;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 0.82em;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .mt-quiz-q {
+      font-weight: bold;
+      font-size: 0.98em;
+      margin-bottom: 12px;
+      color: #1e293b;
+    }
+    .mt-quiz-options { display: grid; gap: 8px; }
+    .mt-quiz-opt {
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.92em;
+      text-align: left;
+      font-family: inherit;
+      width: 100%;
+    }
+    .mt-quiz-opt:hover { background: #f1f5f9; border-color: #dc2626; }
+    .mt-quiz-opt.correct {
+      background: #bbf7d0;
+      border-color: #16a34a;
+      color: #166534;
+      font-weight: bold;
+    }
+    .mt-quiz-opt.wrong {
+      background: #fecaca;
+      border-color: #dc2626;
+      color: #991b1b;
+    }
+    .mt-quiz-opt:disabled { cursor: default; }
+    .mt-quiz-explain {
+      display: none;
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: #fef9c3;
+      border-left: 5px solid #facc15;
+      border-radius: 8px;
+      font-size: 0.9em;
+      line-height: 1.7;
+      color: #713f12;
+    }
+    .mt-quiz-explain.show { display: block; }
+    .mt-quiz-explain .ex-title {
+      font-weight: bold;
+      color: #a16207;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .mt-result {
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-align: center;
+      margin: 8px 0;
+      font-size: 0.92em;
+    }
+    .mt-result.success { background: #bbf7d0; color: #166534; }
+    .mt-result.warning { background: #fed7aa; color: #9a3412; }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- modal -->
+<div class="modal-overlay" id="popupModal" onclick="closePopup(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closePopup()">✕</button>
+    <div class="modal-title"   id="popupTitle"></div>
+    <div class="modal-english" id="popupEnglish"></div>
+    <div class="modal-meaning" id="popupMeaning" style="display:none"></div>
+    <div class="modal-body"    id="popupBody"></div>
+    <div class="modal-example" id="popupExample" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══ sticky header ══ -->
+<div class="sticky-header">
+  <div class="page-nav">
+    <a class="nav-btn nav-home" href="kouninjoho_index.html">🏠 単元表</a>
+    <a class="nav-btn active" href="kouninjoho1.html">① 情報社会と権利</a>
+    <a class="nav-btn" href="kouninjoho2.html">② 情報社会の課題</a>
+    <a class="nav-btn" href="kouninjoho3.html">③ メディアと通信</a>
+    <a class="nav-btn" href="kouninjoho4.html">④ コンピュータの基礎</a>
+    <a class="nav-btn" href="kouninjoho5.html">⑤ 問題解決とデータ</a>
+  </div>
+
+  <div class="challenge-panel">
+    <div>
+      <span style="font-size:.85em;font-weight:bold;">⏱ チャレンジタイム</span><br>
+      <span class="timer" id="timerDisplay">00:00.0</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="ch-btn start"  onclick="startChallenge()">▶ チャレンジ開始</button>
+      <button class="ch-btn check"  onclick="checkAnswers()">✓ 答え合わせ</button>
+      <button class="ch-btn answer" onclick="showModel()">📖 お手本を見る</button>
+    </div>
+    <div id="recordDisplay">🏆 ベスト：—</div>
+  </div>
+
+  <div class="word-bank-wrap">
+    <div class="word-bank-container" id="wordBankContainer">
+      <div class="wb-label">📦 語句バンク（クリックで選択 → 空欄をクリックで入力）</div>
+      <div class="word-bank" id="wordBank"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ content ══ -->
+<div class="container">
+
+  <!-- ページタイトル -->
+  <div style="text-align:center;margin-bottom:20px;">
+    <div style="font-size:1.5em;font-weight:bold;color:var(--primary);margin-bottom:4px;">情報社会と個人情報・知的財産</div>
+    <div style="color:var(--teal);font-size:.95em;">なぜSNSの投稿は消せないのか 〜情報の特性から著作権まで〜</div>
+    <p style="font-size:.92em;color:#444;line-height:1.9;text-align:left;margin-top:12px;">
+      「LINEで悪口書いたら本人に伝わった」「昔のSNS投稿が今も検索に出てくる」――
+      こうした身近な出来事は、全部「情報の特性」で説明できます。
+      この章では、<strong>情報社会のルール</strong>と<strong>知的財産権</strong>という、
+      これからネットを使うすべての人が絶対に知っておくべき内容を学びます。
+    </p>
+  </div>
+
+  <!-- ══ 1. 情報の特性 ══ -->
+  <div class="sec-h1"><span class="num">1</span>情報の特性</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 こんな経験はありませんか？</div>
+    <p style="margin:0;">
+      友達にLINEでグチを送ったら、スクリーンショットで保存され、別のグループに回って、数日後に本人に伝わってしまった…<br>
+      あるいは、昔アップロードしたSNSの恥ずかしい写真が、今も検索するとなぜか残っている…<br>
+      <strong>なぜこのようなことが起きるのでしょうか？</strong> 答えは、情報が持つ3つの特性にあります。
+    </p>
+  </div>
+
+  <!-- 1-1 データ・情報・知識 -->
+  <div class="sec-h2">▶ データ・情報・知識の違い</div>
+
+  <p>まず、よく混同される3つの言葉を整理します。これは階段のような関係です。</p>
+
+  <table class="godan">
+    <tr><th>ステップ</th><th>正体</th><th>身近な例（Instagramで考える）</th></tr>
+    <tr>
+      <td><span class="tag tag-blue">【データ】</span></td>
+      <td>生の事実。数字・記号そのもの</td>
+      <td>いいね数が「127」と表示されている</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-teal">【情報】</span></td>
+      <td>データを加工して意味を持たせたもの</td>
+      <td>「普段は80前後なのに今回は127。この投稿は刺さった」</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-purple">【知識】</span></td>
+      <td>情報が蓄積して使えるようになったもの</td>
+      <td>「自分は朝より夜投稿の方が反応がいい」という経験則</td>
+    </tr>
+  </table>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方</div>
+    <p style="margin:0;">
+      <strong>データ（生）→ 情報（加工）→ 知識（蓄積）</strong> の順に"価値"が上がっていきます。<br>
+      よくある出題：「127いいね」はどれに当たるでしょうか？ → 加工されていない生の数値なので、答えは<strong>データ</strong>です。
+    </p>
+  </div>
+
+  <!-- 1-2 情報の3特性 -->
+  <div class="sec-h2">▶ 情報の3つの特性 ― なぜネットは怖いのか</div>
+
+  <p>情報には、モノにはない3つの"厄介な"性質があります。一度ネットに出した情報は、この3連コンボで自分の手を離れます。</p>
+
+  <div class="props-row">
+    <div class="prop-card p1">
+      <div class="p-title">1️⃣ 【残存性】</div>
+      <div class="p-sub">送っても手元から消えない</div>
+      <div class="p-body">
+        手紙は送ると手元から消えますが、メールは送信済みフォルダに残ります。<strong>相手と自分の両方に情報が存在する</strong>状態になります。
+      </div>
+    </div>
+    <div class="prop-card p2">
+      <div class="p-title">2️⃣ 【複製性】</div>
+      <div class="p-sub">一瞬で何個でもコピーできる</div>
+      <div class="p-body">
+        画像は右クリックで無限にコピーでき、スクリーンショットも1タップで取れます。<strong>オリジナルと完全に同じもの</strong>がいくらでも作れます。
+      </div>
+    </div>
+    <div class="prop-card p3">
+      <div class="p-title">3️⃣ 【伝播性】</div>
+      <div class="p-sub">一気に世界中に広がる</div>
+      <div class="p-body">
+        一人に送った情報がSNSで拡散すれば、数分で数万人に届きます。<strong>一度広まると回収できません</strong>。
+      </div>
+    </div>
+  </div>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方：「ざん・ふく・でん」</div>
+    <p style="margin:0;">
+      <strong>残</strong>念！ <strong>複</strong>雑に <strong>伝</strong>播する！<br>
+      この3つがセットで起こるため、ネットに出した情報は「一生消えない」と言われます。これが
+      <button class="pb" onclick="openPopup('tattoo')">💡 デジタルタトゥー</button> の正体です。
+    </p>
+  </div>
+
+  <!-- 穴埋め練習 -->
+  <div class="sec-h2">▶ 確認（穴埋め）</div>
+
+  <p style="font-size:.95em;">
+    情報には、送っても手元から消えない
+    <span class="dz" data-ans="残存性" data-id="c1"></span>、
+    容易にコピーできる
+    <span class="dz" data-ans="複製性" data-id="c2"></span>、
+    短時間で広く伝わる
+    <span class="dz" data-ans="伝播性" data-id="c3"></span>
+    という3つの特性がある。<br>
+    これらは物質である「<span class="dz" data-ans="モノ" data-id="c4"></span>」にはない性質である。
+  </p>
+
+  <!-- ════ ミニテスト①：情報の3特性 ════ -->
+  <div class="minitest" data-mt="mt1">
+    <button class="mt-toggle" onclick="toggleMt('mt1')">
+      <span>📝 ミニテスト①：情報の3特性を確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt1-body">
+      <div class="mt-inner">
+
+        <!-- 穴埋め -->
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt1-passage">
+          情報には、送っても手元から消えない
+          <span class="mt-blank" data-ans="残存性">残存性</span>、
+          一瞬で何個でもコピーできる
+          <span class="mt-blank" data-ans="複製性">複製性</span>、
+          短時間で世界中に広がる
+          <span class="mt-blank" data-ans="伝播性">伝播性</span>
+          という3つの特性があります。これらは物質である
+          <span class="mt-blank" data-ans="モノ">モノ</span>
+          にはない、情報ならではの性質です。
+        </div>
+        <div class="mt-wordbank" id="mt1-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt1-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt1')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt1')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt1')">📖 答えを見る</button>
+        </div>
+        <div id="mt1-result"></div>
+
+        <!-- 4択練習 -->
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            「メールを送っても、送信済みフォルダに残ったままになっている」のは、情報のどの特性ですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q1" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',0)">残存性</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',1)">複製性</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',2)">伝播性</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',3)">物質性</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            送ったあとも手元に情報が残っているのは「残存性」です。手紙は送ると手元から消えますが、メールやSNS投稿は送っても自分の端末に残り続けます。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            「データ・情報・知識」の関係として、最も適切なものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q2" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',0)">データは情報より価値が高い</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',1)">データを加工すると情報になり、情報が蓄積すると知識になる</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',2)">3つはすべて同じ意味の言葉である</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',3)">知識を集めるとデータになる</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            「データ(生の事実)→ 情報(加工して意味を持たせたもの)→ 知識(蓄積して使えるようになったもの)」の順で価値が上がっていきます。たとえば「127いいね」がデータ、「いつもより反応が良い」が情報、「夜投稿は反応がいい」が知識です。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 2. 個人情報とプライバシー ══ -->
+  <div class="sec-h1"><span class="num">2</span>個人情報とプライバシー</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 こんな話を聞いたことはありますか？</div>
+    <p style="margin:0;">
+      「名前だけなら個人情報ではないのでは？」――実はこれは、<strong>間違い</strong>です。<br>
+      個人情報の範囲は意外と広く、法律でしっかり決められています。試験では「これは個人情報に当たるか」を判断させる問題が頻出です。
+    </p>
+  </div>
+
+  <!-- 2-1 個人情報とは -->
+  <div class="sec-h2">▶ 個人情報って、どこまで？</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('personaldata')">💡 【個人情報】</button>
+    とは、<strong>生きている個人を特定できる情報</strong>のことです。単独でも、組み合わせでも、個人を識別できれば個人情報になります。
+  </p>
+
+  <table class="godan">
+    <tr><th>分類</th><th>具体例</th><th>ポイント</th></tr>
+    <tr>
+      <td><span class="tag tag-blue">単独で特定</span></td>
+      <td>氏名、顔写真、マイナンバー、パスポート番号</td>
+      <td>それ1つだけで個人が分かる</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-teal">組み合わせで特定</span></td>
+      <td>「○○高校3年A組の田中」「○月○日生まれの○市在住の男性」</td>
+      <td>一つひとつは弱くても、合わせると個人を特定できる</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-amber">個人識別符号</span></td>
+      <td>マイナンバー、運転免許証番号、指紋データ</td>
+      <td>1つで個人を確実に特定できる番号・記号</td>
+    </tr>
+  </table>
+
+  <div class="trap-box">
+    <div class="trap-title">⚠️ ここで9割が間違える！</div>
+    <p style="margin:0;">
+      <strong>Q.「氏名だけ」は個人情報？</strong><br>
+      → <strong>答え：YES（個人情報です）</strong>。氏名は単独で個人を特定できるため、立派な個人情報。<br>
+      「単なる名前だから大丈夫」と軽く考えてSNSにフルネームを書くと、個人情報漏洩になることもあります。
+    </p>
+  </div>
+
+  <!-- 2-2 個人情報保護法 -->
+  <div class="sec-h2">▶ 個人情報を守る法律・権利</div>
+
+  <table class="godan">
+    <tr><th>名称</th><th>内容</th><th>身近な例</th></tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('pipa')">💡 【個人情報保護法】</button></td>
+      <td>事業者が個人情報を扱う際のルールを定めた法律（2005年施行）</td>
+      <td>企業は無断で個人情報を第三者に渡せない</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('privacy')">💡 【プライバシー】の権利</button></td>
+      <td>私生活をみだりに公開されない権利</td>
+      <td>住所・病歴・宗教・交友関係などを秘密にする権利</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('shozoken')">💡 【肖像権】</button></td>
+      <td>自分の容姿を勝手に撮影・公表されない権利</td>
+      <td>友達の顔写真を無断でSNSにアップしない</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('publicity')">💡 【パブリシティ権】</button></td>
+      <td>有名人の氏名・肖像の経済的価値を守る権利</td>
+      <td>芸能人の写真を勝手に広告に使えない</td>
+    </tr>
+  </table>
+
+  <!-- 2-3 オプトイン/アウト -->
+  <div class="sec-h2">▶ オプトイン と オプトアウト</div>
+
+  <p>個人情報を扱う同意の取り方には、2つの方式があります。試験でほぼ必ず違いを問われます。</p>
+
+  <table class="cmp-table">
+    <tr>
+      <th class="a-head">【オプトイン】</th>
+      <th class="b-head">【オプトアウト】</th>
+    </tr>
+    <tr>
+      <td class="a-body">
+        <strong>事前に同意をとる方式</strong><br>
+        デフォルト：情報を使わない<br>
+        同意があって<strong>初めて</strong>使える
+      </td>
+      <td class="b-body">
+        <strong>同意なしで使い、拒否があれば止める方式</strong><br>
+        デフォルト：情報を使う<br>
+        「やめて」と言わない限り<strong>使い続ける</strong>
+      </td>
+    </tr>
+    <tr>
+      <td class="a-body">
+        <strong>例：</strong>メルマガ登録で「受け取る」にチェックを入れる
+      </td>
+      <td class="b-body">
+        <strong>例：</strong>通販サイトで「ダイレクトメール配信を止める」ボタン
+      </td>
+    </tr>
+  </table>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方：in（中へ）／ out（外へ）</div>
+    <p style="margin:0;">
+      オプト<strong>イン</strong>＝「中に入れて」＝自分からYESを出す方式<br>
+      オプト<strong>アウト</strong>＝「外に出して」＝自分からNOを出す方式<br>
+      YESとNO、どちらを自分から言うかで区別する。
+    </p>
+  </div>
+
+  <!-- 穴埋め練習 -->
+  <p style="font-size:.95em;margin-top:14px;">
+    ※ 同意があって初めて情報を使う方式を
+    <span class="dz" data-ans="オプトイン" data-id="c5"></span>、
+    同意なしで使い拒否があれば止める方式を
+    <span class="dz" data-ans="オプトアウト" data-id="c6"></span>
+    という。
+  </p>
+
+  <!-- ════ ミニテスト②：個人情報とプライバシー ════ -->
+  <div class="minitest" data-mt="mt2">
+    <button class="mt-toggle" onclick="toggleMt('mt2')">
+      <span>📝 ミニテスト②：個人情報とプライバシーを確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt2-body">
+      <div class="mt-inner">
+
+        <!-- 穴埋め -->
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt2-passage">
+          生きている個人を特定できる情報を
+          <span class="mt-blank" data-ans="個人情報">個人情報</span>
+          といいます。自分の容姿を勝手に撮影・公表されない権利を
+          <span class="mt-blank" data-ans="肖像権">肖像権</span>
+          といい、事前に同意をとってから情報を使う方式を
+          <span class="mt-blank" data-ans="オプトイン">オプトイン</span>
+          といいます。
+        </div>
+        <div class="mt-wordbank" id="mt2-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt2-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt2')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt2')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt2')">📖 答えを見る</button>
+        </div>
+        <div id="mt2-result"></div>
+
+        <!-- 4択練習 -->
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            次のうち、個人情報に<strong>当てはまらない</strong>ものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q1" data-ans="3">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',0)">氏名と顔写真</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',1)">マイナンバー</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',2)">「◯◯高校3年A組の田中さん」という表記</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',3)">日本の人口</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            個人情報は「生きている個人を特定できる情報」のことです。日本の人口は統計データで、特定の個人を識別できないため個人情報ではありません。氏名・顔写真・マイナンバーは単独で特定でき、組み合わせ表記も特定できるため個人情報に該当します。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            「メルマガを受け取りたい人だけがチェックボックスにチェックを入れる」という同意の取り方は何ですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q2" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',0)">オプトイン</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',1)">オプトアウト</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',2)">プライバシーポリシー</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',3)">パブリシティ権</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            事前に同意をとってから情報を使う方式は「オプトイン」です。デフォルトは情報を使わず、同意があって初めて使えます。逆に「オプトアウト」は、デフォルトで情報を使い、拒否があれば止める方式です。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 3. 知的財産権 ══ -->
+  <div class="sec-h1"><span class="num">3</span>知的財産権</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 あなたが描いたイラスト、勝手に使われたら？</div>
+    <p style="margin:0;">
+      友達のためにLINEスタンプ風のイラストを描いたとします。数日後、別のクラスの人がそれを<strong>自分の作品としてSNSに投稿</strong>していました…<br>
+      ……「それは私が描いたもののはずだ」と強い違和感を覚えるはずです。<br>
+      この"モヤっと"を守ってくれるのが <strong>知的財産権</strong>です。特に、<span data-term="copyright">著作権</span>はあなたが絵を描いた<strong>その瞬間</strong>に自動で発生しています。
+    </p>
+  </div>
+
+  <!-- 3-1 全体像 -->
+  <div class="sec-h2">▶ 知的財産権の全体像</div>
+
+  <table class="godan">
+    <tr><th>大分類</th><th>小分類</th><th>保護対象</th></tr>
+    <tr>
+      <td rowspan="2"><span class="tag tag-blue">知的財産権</span></td>
+      <td><span class="tag tag-teal">【著作権】</span></td>
+      <td>小説、音楽、イラスト、写真、プログラムなど（創作物）</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-amber">【産業財産権】</span></td>
+      <td>発明、デザイン、ロゴマークなど（産業で使うもの）</td>
+    </tr>
+  </table>
+
+  <!-- 3-2 著作権 -->
+  <div class="sec-h2">▶ 著作権 ― 作った瞬間に発生</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('copyright')">💡 【著作権】</button>
+    は、<strong>思想や感情を創作的に表現した作品</strong>（＝著作物）を保護する権利です。
+  </p>
+
+  <table class="godan">
+    <tr><th>項目</th><th>内容</th></tr>
+    <tr>
+      <td><strong>発生</strong></td>
+      <td>
+        <button class="pb" onclick="openPopup('muhoshiki')">💡 【無方式主義】</button>
+        ＝<strong>登録の手続き不要</strong>。作品を作った瞬間に自動発生する。
+      </td>
+    </tr>
+    <tr>
+      <td><strong>保護期間</strong></td>
+      <td>原則、著作者の<strong>死後70年</strong></td>
+    </tr>
+    <tr>
+      <td><strong>例外</strong></td>
+      <td>
+        <button class="pb" onclick="openPopup('inyou')">💡 【引用】</button>
+        …一定条件下で他人の著作物を使える（出典明記・必然性・主従関係が必要）
+      </td>
+    </tr>
+  </table>
+
+  <div class="trap-box">
+    <div class="trap-title">⚠️ ここで9割が間違える！</div>
+    <p style="margin:0;">
+      <strong>Q. 著作権はどうすれば発生する？</strong><br>
+      ①国に登録する ②作品を完成させる ③お金を払う<br>
+      → 答えは <strong>② 作品を完成させる</strong>（無方式主義）。<br>
+      「登録が必要」と勘違いしている人が多い。<strong>作った瞬間に自動発生</strong>がキーワード。
+    </p>
+  </div>
+
+  <!-- 3-3 産業財産権 -->
+  <div class="sec-h2">▶ 産業財産権 ― 特許庁に登録が必要</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('sangyou')">💡 【産業財産権】</button>
+    は、<strong>特許庁に登録</strong>して初めて発生する4つの権利の総称です（＝方式主義）。
+  </p>
+
+  <table class="godan">
+    <tr><th>権利</th><th>保護対象</th><th>期間</th><th>身近な例</th></tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('patent')">💡 【特許権】</button></td>
+      <td>発明（高度な技術）</td>
+      <td><strong>出願から20年</strong></td>
+      <td>iPS細胞の作製技術、新薬の製法</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('utility')">💡 【実用新案権】</button></td>
+      <td>物品の形状・構造の工夫</td>
+      <td><strong>出願から10年</strong></td>
+      <td>便利な文房具の構造、改良アイディア</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('ishou')">💡 【意匠権】</button></td>
+      <td>デザイン（形・色）</td>
+      <td><strong>出願から25年</strong></td>
+      <td>独特な形のペットボトル、お菓子のパッケージ</td>
+    </tr>
+    <tr>
+      <td><button class="pb" onclick="openPopup('shouhyou')">💡 【商標権】</button></td>
+      <td>ロゴ・商品名</td>
+      <td><strong>10年（更新可・半永久）</strong></td>
+      <td>企業ロゴ、ブランド名、キャラクター名</td>
+    </tr>
+  </table>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方：「特20、実10、意25、商10更新」</div>
+    <p style="margin:0;">
+      期間がバラバラで覚えにくいですが、<strong>商標だけが更新可能で半永久</strong>という点が例外です。<br>
+      理由：コカ・コーラのロゴが20年で消えてしまうと企業活動に支障が出るため、企業ロゴは更新によって永続的に使える仕組みになっています。<br>
+      残る3つ（特許・実用新案・意匠）は、<strong>特許20年、実用新案10年、意匠25年</strong>と順に覚えると整理しやすくなります。
+    </p>
+  </div>
+
+  <!-- 3-4 比較 -->
+  <div class="sec-h2">▶ 著作権 vs 産業財産権 ― 違いを一発で整理</div>
+
+  <table class="cmp-table">
+    <tr>
+      <th class="a-head">【著作権】</th>
+      <th class="b-head">【産業財産権】</th>
+    </tr>
+    <tr>
+      <td class="a-body">
+        <span data-term="muhoshiki">無方式主義</span><br>
+        （登録不要・作った瞬間に発生）
+      </td>
+      <td class="b-body">
+        <strong>方式主義</strong><br>
+        （特許庁への登録が必要）
+      </td>
+    </tr>
+    <tr>
+      <td class="a-body">
+        <strong>文化的な創作物</strong><br>
+        小説・音楽・絵・写真
+      </td>
+      <td class="b-body">
+        <strong>産業で使うもの</strong><br>
+        発明・デザイン・ロゴ
+      </td>
+    </tr>
+    <tr>
+      <td class="a-body">
+        保護期間：<strong>死後70年</strong>
+      </td>
+      <td class="b-body">
+        保護期間：<strong>10〜25年</strong>（商標は更新可）
+      </td>
+    </tr>
+  </table>
+
+  <!-- 穴埋め練習 -->
+  <p style="font-size:.95em;margin-top:14px;">
+    ※ 著作権は
+    <span class="dz" data-ans="無方式主義" data-id="c7"></span>
+    により登録なしで発生する。一方、産業財産権は
+    <span class="dz" data-ans="特許庁" data-id="c8"></span>
+    への登録で発生する方式主義である。<br>
+    特許権の保護期間は出願から
+    <span class="dz" data-ans="20年" data-id="c9"></span>
+    、商標権は登録から10年だが
+    <span class="dz" data-ans="更新" data-id="c10"></span>
+    できる。
+  </p>
+
+  <!-- ════ ミニテスト③：知的財産権 ════ -->
+  <div class="minitest" data-mt="mt3">
+    <button class="mt-toggle" onclick="toggleMt('mt3')">
+      <span>📝 ミニテスト③：知的財産権を確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt3-body">
+      <div class="mt-inner">
+
+        <!-- 穴埋め -->
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt3-passage">
+          創作物の権利を保護するのが
+          <span class="mt-blank" data-ans="著作権">著作権</span>
+          で、作った瞬間に自動で発生する
+          <span class="mt-blank" data-ans="無方式主義">無方式主義</span>
+          が特徴です。一方、発明やデザインなどを保護する
+          <span class="mt-blank" data-ans="産業財産権">産業財産権</span>
+          は、特許庁への登録が必要です。
+        </div>
+        <div class="mt-wordbank" id="mt3-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt3-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt3')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt3')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt3')">📖 答えを見る</button>
+        </div>
+        <div id="mt3-result"></div>
+
+        <!-- 4択練習 -->
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            あなたが描いたイラストの著作権は、いつ発生しますか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q1" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',0)">作品を完成させた瞬間に自動で発生する</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',1)">特許庁に登録した時に発生する</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',2)">SNSなどで公開してから1か月後に発生する</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',3)">お金を払って認定を受けた時に発生する</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            著作権は「無方式主義」が採用されており、登録や申請などの手続きは一切不要で、作品を作った瞬間に自動で発生します。あなたが今ノートに絵を描けば、その瞬間にあなたが著作権者です。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            「商標権」の保護期間として正しいものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q2" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',0)">登録から5年で永続更新できない</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',1)">登録から20年で永続更新できない</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',2)">登録から10年だが、何度でも更新できる</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',3)">登録から70年で永続更新できない</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            商標権は登録から10年ですが、何度でも更新でき、事実上半永久的に保有できます。これは「コカ・コーラ」のような企業ロゴが20年で消えると困るためです。なお、特許権は20年、意匠権は25年で、これらは更新できません。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 4. 試験対策まとめ ══ -->
+  <div class="sec-h1"><span class="num">4</span>試験ではこう出る！</div>
+
+  <table class="godan">
+    <tr><th>出題パターン</th><th>問われ方の例</th><th>答えの出し方</th></tr>
+    <tr>
+      <td><span class="tag tag-blue">特性の判定</span></td>
+      <td>「メールを送っても送信済みに残る」はどの特性か</td>
+      <td>→ <span data-term="zansonsei">残存性</span></td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">データ／情報の区別</span></td>
+      <td>「気温25度」と「今日は暖かい」の違い</td>
+      <td>→ 前者はデータ、後者は情報</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-teal">権利の正しい発生方法</span></td>
+      <td>著作権はどうすれば発生するか</td>
+      <td>→ 作品を作った瞬間（無方式主義）</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-amber">期間の暗記</span></td>
+      <td>特許権の保護期間</td>
+      <td>→ 出願から20年</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-coral">オプトイン/アウト</span></td>
+      <td>「事前同意」はどちらか</td>
+      <td>→ オプトイン</td>
+    </tr>
+  </table>
+
+  <div class="memo-box" style="background:#fef2f2;border-color:var(--primary);">
+    <div class="memo-title" style="color:var(--primary);">🎯 この章で覚えるべきキーワード</div>
+    <p style="margin:0;">
+      残存性・複製性・伝播性／個人情報／肖像権／プライバシー／オプトイン／オプトアウト／<br>
+      著作権／無方式主義／産業財産権／特許権／意匠権／商標権／引用
+    </p>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ══ popup data ══ -->
+<script>
+const POPUP_DATA = {
+  zansonsei: {
+    title:   "残存性",
+    english: "persistence",
+    meaning: "送っても手元から消えない性質",
+    body:    "情報をネットで送っても、自分の端末には残り続けます。手紙は送ると手元からなくなりますが、メールやSNSの投稿は送信後も自分の送信履歴に残ります。相手の端末と自分の端末の両方に情報が存在します。",
+    example: "メールの送信済みフォルダ、LINEのトーク履歴、SNS投稿が削除しても他人のスクショに残るなど。"
+  },
+  fukuseisei: {
+    title:   "複製性",
+    english: "reproducibility",
+    meaning: "一瞬で何個でもコピーできる性質",
+    body:    "情報は、何度でも、いくらでも、まったく同じ内容で複製できます。物の場合は同じものを作るには時間や材料が必要ですが、情報はコピー操作だけでオリジナルと完全に同じものが作れます。",
+    example: "画像の右クリックコピー、スクリーンショット、ファイルのコピー＆ペースト、SNSのリツイート。"
+  },
+  denpasei: {
+    title:   "伝播性",
+    english: "spreadability",
+    meaning: "短時間で広く伝わる性質",
+    body:    "情報はネットを通じて、短時間に世界中に広がります。1人に送った情報がSNSで拡散すれば、数分で数万人に届くこともあります。一度広まってしまうと、回収することは事実上不可能です。",
+    example: "SNSでのバズり、ニュースの拡散、デマの広まり、動画のバイラル化。"
+  },
+  cracker: {
+    title:   "クラッカー",
+    english: "cracker",
+    meaning: "クラッキングを行う人",
+    body:    "悪意のあるコンピュータ侵入行為（クラッキング）を行う人のことです。法律で処罰される犯罪者です。ニュースで「ハッカー」と呼ばれることが多いですが、技術的には区別されます。",
+    example: "他人のIDを使ってSNSに不正ログインする者、企業システムに侵入してデータを盗む者など。"
+  },
+  tattoo: {
+    title:   "デジタルタトゥー（digital tattoo）",
+    english: "digital tattoo",
+    meaning: "digital（デジタル）＋ tattoo（入れ墨）",
+    body:    "一度ネット上に公開された情報は、入れ墨のように消せない、という意味を込めた言葉です。SNSの投稿・コメント・写真などは、削除しても誰かがスクショで保存している可能性があります。",
+    example: "就職活動中に、学生時代のSNS投稿が人事担当者に見つかってトラブルになるケースも。"
+  },
+  personaldata: {
+    title:   "個人情報（personal information）",
+    english: "personal information",
+    meaning: "",
+    body:    "生きている個人を特定できる情報のことです。氏名・顔写真・マイナンバーなど単独で特定できるものだけでなく、「○○高校3年A組の田中」のように組み合わせで特定できるものも含まれます。",
+    example: "電話番号単独では個人情報とは限らないが、氏名や住所と組み合わせれば完全に個人情報。"
+  },
+  pipa: {
+    title:   "個人情報保護法",
+    english: "Act on the Protection of Personal Information（APPI）",
+    meaning: "",
+    body:    "事業者が個人情報を扱う際のルールを定めた法律です。2005年に全面施行されました。本人の同意なしに第三者に提供することを原則禁止しています。",
+    example: "違反すると、個人情報保護委員会から指導や罰則が科されます。"
+  },
+  privacy: {
+    title:   "プライバシーの権利",
+    english: "right to privacy",
+    meaning: "",
+    body:    "私生活をみだりに他人に公開されない権利です。住所・病歴・宗教・交友関係・位置情報・閲覧履歴などが含まれます。個人情報保護法とは別の概念で、判例で確立されてきた権利です。",
+    example: "許可なく友人の家の場所をSNSに投稿するのはプライバシー侵害になり得ます。"
+  },
+  shozoken: {
+    title:   "肖像権",
+    english: "portrait rights / right of one's image",
+    meaning: "",
+    body:    "自分の容姿を勝手に撮影・公表されない権利です。法律に明文化されていませんが、判例で認められています。SNS時代では特に重要な権利です。",
+    example: "友達の顔写真を本人の許可なくSNSにアップするのは肖像権侵害になり得ます。"
+  },
+  publicity: {
+    title:   "パブリシティ権",
+    english: "right of publicity",
+    meaning: "publicity（公にすること・宣伝）",
+    body:    "有名人の氏名・肖像が持つ経済的価値を保護する権利です。芸能人やスポーツ選手の写真・名前には「客を呼ぶ力」があるため、無断で商用利用できません。",
+    example: "人気俳優の写真を勝手に広告に使ったら、パブリシティ権侵害になります。"
+  },
+  copyright: {
+    title:   "著作権（copyright）",
+    english: "copyright",
+    meaning: "copy（複製）＋ right（権利）",
+    body:    "思想や感情を創作的に表現した著作物を保護する権利です。著作者の許諾なく複製・公開・改変することを原則禁止します。保護期間は原則、著作者の死後70年です。",
+    example: "小説・漫画・音楽・イラスト・写真・プログラム・映画・YouTube動画など、創作物はすべて対象。"
+  },
+  muhoshiki: {
+    title:   "無方式主義",
+    english: "automatic protection",
+    meaning: "方式（手続き）が無い主義",
+    body:    "著作権を得るのに、登録や申請などの手続きが一切不要という考え方です。作品を創作したその瞬間に自動で発生します。日本を含め、多くの国が採用しています。",
+    example: "あなたが今ノートに絵を描いた瞬間、その絵の著作権はあなたにあります。"
+  },
+  inyou: {
+    title:   "引用（quotation）",
+    english: "quotation",
+    meaning: "",
+    body:    "他人の著作物を、自分の著作物の中で利用すること。著作権の例外として、一定条件下で許諾なく使えます。条件：①公表された著作物であること、②出典を明記、③必然性がある、④自分の部分が「主」で引用が「従」の関係。",
+    example: "レポートで他人の文章を「」で囲み、著者名・書名・ページを明記すれば引用として合法。"
+  },
+  sangyou: {
+    title:   "産業財産権",
+    english: "industrial property rights",
+    meaning: "",
+    body:    "特許権・実用新案権・意匠権・商標権の4つの総称です。著作権と違い、特許庁への出願・登録が必要な方式主義を採用しています。産業の発展を目的とする権利です。",
+    example: "企業のロゴマークは商標権、ペットボトルの形は意匠権、新薬の製法は特許権で保護されます。"
+  },
+  patent: {
+    title:   "特許権（patent）",
+    english: "patent",
+    meaning: "",
+    body:    "新しく高度な発明を保護する権利です。出願から20年間、発明者が独占的に利用できます。期間が切れると誰でも自由に使えるようになり、技術が社会に還元されます。",
+    example: "iPS細胞の作製技術、青色LEDの製造法、新薬の製法など。"
+  },
+  utility: {
+    title:   "実用新案権",
+    english: "utility model right",
+    meaning: "utility（実用性）＋ model（考案）",
+    body:    "物品の形状・構造・組み合わせに関する小さな工夫（考案）を保護する権利です。特許ほど高度ではない「ちょっとした改良アイディア」が対象。出願から10年間保護されます。",
+    example: "便利な文房具の構造、使いやすい容器の改良など。"
+  },
+  ishou: {
+    title:   "意匠権（design right）",
+    english: "design right",
+    meaning: "意匠＝デザイン",
+    body:    "製品のデザイン（形・模様・色彩）を保護する権利です。出願から25年間保護されます。見た目で消費者を引きつける価値を守ります。",
+    example: "独特な形のペットボトル、お菓子のパッケージデザイン、家電製品の外観。"
+  },
+  shouhyou: {
+    title:   "商標権（trademark）",
+    english: "trademark",
+    meaning: "trade（商売）＋ mark（しるし）",
+    body:    "商品やサービスに使うロゴ・マーク・名前を保護する権利です。登録から10年間ですが、何度でも更新できるため、事実上半永久的に保有できます。これは企業ロゴが永続的である必要があるためです。",
+    example: "「コカ・コーラ」の文字、マクドナルドの「M」のロゴ、任天堂のキャラクター名など。"
+  },
+};
+
+function openPopup(key) {
+  const d = POPUP_DATA[key]; if (!d) return;
+  document.getElementById('popupTitle').textContent   = d.title;
+  document.getElementById('popupEnglish').textContent = d.english || '';
+  const mg = document.getElementById('popupMeaning');
+  if (d.meaning) { mg.textContent = d.meaning; mg.style.display=''; }
+  else { mg.style.display='none'; }
+  document.getElementById('popupBody').textContent    = d.body;
+  const ex = document.getElementById('popupExample');
+  if (d.example) { ex.textContent = '📌 ' + d.example; ex.style.display=''; }
+  else { ex.style.display='none'; }
+  document.getElementById('popupModal').classList.add('show');
+}
+function closePopup(e) {
+  if (!e || e.target === document.getElementById('popupModal'))
+    document.getElementById('popupModal').classList.remove('show');
+}
+
+// ── 穴埋め：10か所 ──
+const WORDS = ["残存性", "複製性", "伝播性", "モノ", "オプトイン", "オプトアウト", "無方式主義", "特許庁", "20年", "更新"];
+
+let selectedWord = null, isRunning = false, startTime = null, timerInt = null, bestTime = null;
+
+function fmtTime(ms) {
+  const m = Math.floor(ms/60000).toString().padStart(2,'0');
+  const s = Math.floor((ms%60000)/1000).toString().padStart(2,'0');
+  return `${m}:${s}.${Math.floor((ms%1000)/100)}`;
+}
+
+function startChallenge() {
+  document.querySelectorAll('.dz').forEach(z => {
+    z.textContent = '';
+    z.classList.remove('correct','wrong','filled');
+  });
+  selectedWord = null;
+  renderWordBank([...WORDS].sort(()=>Math.random()-.5));
+  clearInterval(timerInt);
+  startTime = Date.now(); isRunning = true;
+  timerInt = setInterval(()=>{ document.getElementById('timerDisplay').textContent = fmtTime(Date.now()-startTime); }, 100);
+}
+
+function renderWordBank(words) {
+  const wb = document.getElementById('wordBank'); wb.innerHTML='';
+  words.forEach(w => { wb.appendChild(makeItem(w)); });
+}
+
+function makeItem(w) {
+  const el = document.createElement('span');
+  el.className='drag-item'; el.textContent=w;
+  el.onclick = () => {
+    document.querySelectorAll('.drag-item').forEach(d=>d.classList.remove('selected'));
+    if (selectedWord===w) { selectedWord=null; return; }
+    el.classList.add('selected'); selectedWord=w;
+  };
+  return el;
+}
+
+document.querySelectorAll('.dz').forEach(z => {
+  z.addEventListener('click', () => {
+    if (!isRunning) return;
+    if (selectedWord) {
+      if (z.textContent.trim()) {
+        const oldWord = z.textContent.trim();
+        document.getElementById('wordBank').appendChild(makeItem(oldWord));
+      }
+      z.textContent = selectedWord;
+      z.classList.remove('correct','wrong');
+      z.classList.add('filled');
+      const found = [...document.querySelectorAll('#wordBank .drag-item')].find(i=>i.textContent===selectedWord);
+      if (found) found.remove();
+      selectedWord=null;
+      document.querySelectorAll('.drag-item').forEach(d=>d.classList.remove('selected'));
+    } else if (z.textContent.trim()) {
+      const word = z.textContent.trim();
+      z.textContent = '';
+      z.classList.remove('correct','wrong','filled');
+      document.getElementById('wordBank').appendChild(makeItem(word));
+    }
+  });
+});
+
+function checkAnswers() {
+  if (!isRunning) return;
+  let allOk=true;
+  document.querySelectorAll('.dz').forEach(z => {
+    const input = z.textContent.trim();
+    if (!input) { allOk=false; return; }
+    if (input===z.dataset.ans) { z.classList.add('correct'); z.classList.remove('wrong'); }
+    else { z.classList.add('wrong'); z.classList.remove('correct'); allOk=false; }
+  });
+  if (allOk) {
+    clearInterval(timerInt); isRunning=false;
+    const elapsed = Date.now()-startTime;
+    if (bestTime===null||elapsed<bestTime) { bestTime=elapsed; document.getElementById('recordDisplay').textContent='🏆 ベスト：'+fmtTime(bestTime); }
+    startConfetti();
+  } else {
+    const wbc=document.getElementById('wordBankContainer');
+    wbc.classList.remove('shake'); void wbc.offsetWidth; wbc.classList.add('shake');
+    setTimeout(()=>wbc.classList.remove('shake'),500);
+  }
+}
+
+function showModel() {
+  clearInterval(timerInt); isRunning=false; selectedWord=null;
+  document.querySelectorAll('.dz').forEach(z=>{
+    z.textContent = z.dataset.ans;
+    z.classList.remove('correct','wrong');
+    z.classList.add('filled');
+  });
+  document.getElementById('wordBank').innerHTML='<span style="color:#888;font-size:.9em;">お手本表示中。「チャレンジ開始」で練習できます。</span>';
+  document.getElementById('timerDisplay').textContent='00:00.0';
+}
+
+// confetti
+const cvs=document.getElementById('confetti-canvas'), ctx=cvs.getContext('2d');
+let pts=[], cnfOn=false;
+function startConfetti() {
+  cvs.width=window.innerWidth; cvs.height=window.innerHeight; pts=[];
+  for(let i=0;i<200;i++) pts.push({x:Math.random()*cvs.width,y:Math.random()*cvs.height-cvs.height,s:Math.random()*9+4,c:`hsl(${Math.random()*360},75%,65%)`,sp:Math.random()*3+2});
+  cnfOn=true; animCnf();
+  setTimeout(()=>{cnfOn=false;ctx.clearRect(0,0,cvs.width,cvs.height);pts=[];},4000);
+}
+function animCnf() {
+  if(!cnfOn)return;
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  pts.forEach(p=>{p.y+=p.sp;ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,p.s,p.s);if(p.y>cvs.height)p.y=-20;});
+  requestAnimationFrame(animCnf);
+}
+
+showModel();
+
+// ══════════════════════════════════════════
+// ホバー型ポップアップの初期化
+// ══════════════════════════════════════════
+function initTermPopups() {
+  document.querySelectorAll('[data-term]').forEach(el => {
+    const key = el.dataset.term;
+    const d = POPUP_DATA[key];
+    if (!d) return;
+    el.classList.add('term');
+    const old = el.querySelector('.term-popup');
+    if (old) old.remove();
+    const popup = document.createElement('span');
+    popup.className = 'term-popup';
+    let html = `<span class="tp-title">${d.title}</span>`;
+    if (d.english) html += `<span class="tp-en">${d.english}</span>`;
+    if (d.meaning) html += `<span class="tp-meaning">${d.meaning}</span>`;
+    html += `<span class="tp-body">${d.body}</span>`;
+    popup.innerHTML = html;
+    el.appendChild(popup);
+  });
+}
+initTermPopups();
+
+
+// ══════════════════════════════════════════
+// ミニテスト機能（章末展開式）
+// ══════════════════════════════════════════
+const mtState = {};
+
+function toggleMt(mtId) {
+  const body = document.getElementById(mtId + '-body');
+  const toggle = document.querySelector(`[data-mt="${mtId}"] .mt-toggle`);
+  if (!body || !toggle) return;
+  const isOpen = body.classList.contains('open');
+  if (isOpen) {
+    body.classList.remove('open');
+    toggle.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    toggle.classList.add('open');
+  }
+}
+
+function mtStart(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  const words = [];
+  blanks.forEach(b => {
+    words.push(b.dataset.ans);
+    b.textContent = '';
+    b.classList.remove('filled','correct','wrong');
+    b.classList.add('empty');
+  });
+  const wordsEl = document.getElementById(mtId + '-words');
+  const bankLabel = document.querySelector(`#${mtId}-bank-wrap .mt-wordbank-label`);
+  if (bankLabel) bankLabel.textContent = '📦 語群（タップして選択 → 空欄をクリックで入力）';
+  wordsEl.innerHTML = '';
+  const shuffled = [...words].sort(() => Math.random() - 0.5);
+  shuffled.forEach(w => wordsEl.appendChild(mtMakeChip(mtId, w)));
+  mtState[mtId] = { selectedWord: null, running: true };
+  document.getElementById(mtId + '-result').innerHTML = '';
+  blanks.forEach(b => {
+    b.onclick = () => mtBlankClick(mtId, b);
+  });
+}
+
+function mtMakeChip(mtId, word) {
+  const chip = document.createElement('span');
+  chip.className = 'mt-chip';
+  chip.textContent = word;
+  chip.onclick = () => {
+    const s = mtState[mtId];
+    if (!s || !s.running) return;
+    if (s.selectedWord === word) {
+      chip.classList.remove('selected');
+      s.selectedWord = null;
+      return;
+    }
+    document.querySelectorAll(`#${mtId}-words .mt-chip`).forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    s.selectedWord = word;
+  };
+  return chip;
+}
+
+function mtBlankClick(mtId, blank) {
+  const s = mtState[mtId];
+  if (!s || !s.running) return;
+  if (s.selectedWord) {
+    if (blank.textContent.trim()) {
+      const old = blank.textContent.trim();
+      document.getElementById(mtId + '-words').appendChild(mtMakeChip(mtId, old));
+    }
+    blank.textContent = s.selectedWord;
+    blank.classList.remove('empty','correct','wrong');
+    blank.classList.add('filled');
+    const chips = document.querySelectorAll(`#${mtId}-words .mt-chip`);
+    chips.forEach(c => {
+      if (c.textContent === s.selectedWord && !c.classList.contains('used')) {
+        c.remove();
+        return;
+      }
+    });
+    s.selectedWord = null;
+    document.querySelectorAll(`#${mtId}-words .mt-chip`).forEach(c => c.classList.remove('selected'));
+  } else if (blank.textContent.trim()) {
+    const word = blank.textContent.trim();
+    blank.textContent = '';
+    blank.classList.remove('filled','correct','wrong');
+    blank.classList.add('empty');
+    document.getElementById(mtId + '-words').appendChild(mtMakeChip(mtId, word));
+  }
+}
+
+function mtCheck(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  let allOk = true;
+  let unanswered = 0;
+  blanks.forEach(b => {
+    const input = b.textContent.trim();
+    if (!input) { allOk = false; unanswered++; return; }
+    if (input === b.dataset.ans) {
+      b.classList.add('correct');
+      b.classList.remove('wrong','filled');
+    } else {
+      b.classList.add('wrong');
+      b.classList.remove('correct','filled');
+      allOk = false;
+    }
+  });
+  const result = document.getElementById(mtId + '-result');
+  if (allOk) {
+    result.innerHTML = '<div class="mt-result success">🎉 全問正解！すばらしいです。</div>';
+    startConfetti();
+  } else if (unanswered === blanks.length) {
+    result.innerHTML = '<div class="mt-result warning">📝 「チャレンジ開始」を押してから始めてください。</div>';
+  } else {
+    result.innerHTML = '<div class="mt-result warning">⚠️ 赤くなった箇所をもう一度考えてみましょう。</div>';
+  }
+}
+
+function mtShowAns(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  blanks.forEach(b => {
+    b.textContent = b.dataset.ans;
+    b.classList.remove('empty','correct','wrong','filled');
+  });
+  const wordsEl = document.getElementById(mtId + '-words');
+  if (wordsEl) wordsEl.innerHTML = '<span style="color:#888;font-size:.85em;">お手本表示中。チャレンジ開始で練習できます。</span>';
+  document.getElementById(mtId + '-result').innerHTML = '';
+  if (mtState[mtId]) mtState[mtId].running = false;
+}
+
+function mtAnswer(btnEl, qId, idx) {
+  const optionsEl = document.querySelector(`[data-q="${qId}"]`);
+  if (!optionsEl) return;
+  const correct = parseInt(optionsEl.dataset.ans, 10);
+  if (optionsEl.dataset.answered === 'yes') return;
+  optionsEl.dataset.answered = 'yes';
+  const isRight = (idx === correct);
+  optionsEl.dataset.result = isRight ? 'correct' : 'wrong';
+  const opts = optionsEl.querySelectorAll('.mt-quiz-opt');
+  opts.forEach((o, i) => {
+    o.disabled = true;
+    if (i === correct) o.classList.add('correct');
+    if (i === idx && idx !== correct) o.classList.add('wrong');
+  });
+  const ex = document.getElementById(qId + '-ex');
+  if (ex) ex.classList.add('show');
+  const mtId = qId.split('-')[0];
+  checkAllQuizCorrect(mtId);
+}
+
+function checkAllQuizCorrect(mtId) {
+  const mtBody = document.getElementById(mtId + '-body');
+  if (!mtBody) return;
+  const allOptions = mtBody.querySelectorAll('.mt-quiz-options');
+  if (allOptions.length === 0) return;
+  let allAnswered = true;
+  let allCorrect = true;
+  allOptions.forEach(o => {
+    if (o.dataset.answered !== 'yes') allAnswered = false;
+    if (o.dataset.result !== 'correct') allCorrect = false;
+  });
+  if (allAnswered && allCorrect) {
+    startConfetti();
+  }
+}
+</script>
+</body>
+</html>

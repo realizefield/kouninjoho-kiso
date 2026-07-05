@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>高認 情報Ⅰ ⑤：問題解決とデータ</title>
+  <style>
+    :root {
+      --primary:       #0891B2;  /* ティール */
+      --primary-dark:  #0E7490;  /* 濃いティール */
+      --primary-light: #CFFAFE;  /* 薄いティール */
+      --primary-pale:  #ECFEFF;  /* 極薄ティール */
+      --accent-amber:  #F59E0B;
+      --accent-amber-light: #FEF3C7;
+      --accent-pink:   #EC4899;
+      --green:         #10B981;
+      --red:           #EF4444;
+      --teal:          #0F6E56;
+      --purple:        #7C3AED;
+      --amber:         #BA7517;
+      --coral:         #0891B2;  /* coral互換でティールに */
+      --gray:          #6B7280;
+      --bg:            #F9FAFB;
+      --card-bg:       #FFFFFF;
+      --border:        #E5E7EB;
+      --text:          #1F2937;
+      --drop-bg:       #FEF9C3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Hiragino Sans','Yu Gothic','游ゴシック',sans-serif;
+      background: var(--bg);
+      margin: 0; padding: 0 0 40px;
+      font-size: 14px; line-height: 1.7;
+      color: var(--text);
+    }
+
+    /* ── sticky header（joho4風グラデーション） ── */
+    .sticky-header {
+      position: sticky; top: 0;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 10px 0;
+      color: #fff;
+    }
+    .page-nav { max-width: 1100px; margin: 0 auto; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; padding: 0 16px; }
+    .nav-btn {
+      text-decoration: none;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: .82em;
+      font-weight: 700;
+      transition: .2s;
+      border: 2px solid transparent;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.28); }
+    .nav-btn.active {
+      background: #fff;
+      color: var(--primary-dark);
+      border-color: rgba(255,255,255,0.5);
+    }
+    .nav-btn.nav-home {
+      background: #fff;
+      color: var(--primary-dark);
+    }
+    .nav-btn.nav-home:hover { background: var(--primary-pale); color: var(--primary-dark); }
+
+    /* ── challenge panel（joho4風） ── */
+    .challenge-panel {
+      background: #fff;
+      border: 2px solid var(--primary);
+      color: var(--primary-dark);
+      padding: 12px 20px;
+      border-radius: 12px;
+      display: flex; justify-content: space-around; align-items: center;
+      max-width: 1100px; margin: 16px auto 12px;
+      flex-wrap: wrap; gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .timer {
+      font-size: 1.3em;
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--primary-dark);
+      background: var(--primary-pale);
+      padding: 4px 14px;
+      border-radius: 14px;
+    }
+    .ch-btn {
+      border: none; cursor: pointer;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: .9em;
+      transition: .2s;
+      color: #fff;
+    }
+    .ch-btn.start  { background: var(--green); }
+    .ch-btn.start:hover  { background: #059669; }
+    .ch-btn.answer { background: var(--accent-amber); }
+    .ch-btn.answer:hover { background: #D97706; }
+    .ch-btn.check  { background: var(--primary); }
+    .ch-btn.check:hover  { background: var(--primary-dark); }
+    #recordDisplay { font-weight: 700; font-size: .88em; color: var(--accent-amber); }
+
+    /* ── word bank（joho4風：上品なピル） ── */
+    .word-bank-wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+    .word-bank-container {
+      background: #fff;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 2px dashed var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .wb-label {
+      font-size: .85em;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .word-bank { display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; }
+    .drag-item {
+      padding: 6px 14px;
+      background: linear-gradient(135deg, #fff, var(--primary-pale));
+      border: 2px solid var(--primary);
+      color: var(--primary-dark);
+      cursor: pointer;
+      font-weight: 700;
+      font-size: .9em;
+      border-radius: 18px;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .drag-item:hover { transform: scale(1.05); }
+    .drag-item.selected {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 0 3px rgba(8,145,178,0.3);
+      transform: scale(1.08);
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+    .word-bank-container.shake { animation: shake .4s ease; }
+
+    /* ── drop zone（joho4風） ── */
+    .dz {
+      display: inline-block;
+      min-width: 90px;
+      min-height: 32px;
+      padding: 4px 12px;
+      margin: 0 4px;
+      background: #fff;
+      border: 2px dashed var(--primary);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--primary-dark);
+      transition: all 0.2s;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 0.95em;
+      line-height: 1.7em;
+      box-sizing: border-box;
+    }
+    .dz:hover { background: var(--primary-pale); }
+    .dz.filled {
+      background: var(--primary);
+      color: #fff;
+      border-style: solid;
+    }
+    .dz.correct {
+      background: var(--green) !important;
+      color: #fff !important;
+      border-color: var(--green) !important;
+      border-style: solid !important;
+    }
+    .dz.wrong {
+      background: var(--red) !important;
+      color: #fff !important;
+      border-color: var(--red) !important;
+      border-style: solid !important;
+      animation: shake 0.4s;
+    }
+
+    /* ── main（joho4風カード） ── */
+    .container {
+      max-width: 1100px;
+      margin: 24px auto;
+      background: var(--card-bg);
+      padding: 24px 28px;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* ── section heading（joho4風） ── */
+    .sec-h1 {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #fff;
+      padding: 14px 20px;
+      font-size: 1.15em;
+      font-weight: 700;
+      margin: 28px -28px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sec-h1:first-child { margin-top: -24px; }
+    .sec-h1 .num {
+      background: rgba(255,255,255,0.25);
+      padding: 3px 11px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.85em;
+    }
+    .sec-h2 {
+      font-size: 1em;
+      font-weight: 700;
+      color: var(--primary-dark);
+      border-left: 5px solid var(--primary);
+      padding-left: 12px;
+      margin: 24px 0 12px;
+    }
+
+    /* ── つかみ ── */
+    .intro-box {
+      background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+      border-left: 5px solid var(--amber); border-radius: 6px;
+      padding: 14px 18px; margin: 16px 0; font-size: .92em;
+    }
+    .intro-box .intro-title {
+      color: var(--amber); font-weight: bold; font-size: 1em; margin-bottom: 6px;
+    }
+
+    /* ── 図表ボックス ── */
+    .figure-box {
+      background: #f9fafb;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    .figure-box img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .figure-box .fig-caption {
+      font-size: .85em;
+      color: #555;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    /* ── table共通 ── */
+    table.godan { border-collapse: collapse; width: 100%; margin: 12px 0; }
+    table.godan th { background: var(--coral); color: #fff; padding: 8px 12px; text-align: center; font-size: .9em; }
+    table.godan td { padding: 8px 12px; border: 1px solid #ddd; font-size: .9em; vertical-align: top; }
+    table.godan tr:nth-child(even) td { background: #fdf3f0; }
+    .tag { display: inline-block; font-weight: bold; padding: 2px 8px; border-radius: 3px; font-size: .88em; }
+    .tag-amber  { background: #faeeda; color: var(--amber);  border: 1px solid var(--amber); }
+    .tag-teal   { background: #edfaf4; color: var(--teal);   border: 1px solid var(--teal); }
+    .tag-blue   { background: #eff5fc; color: var(--primary);border: 1px solid var(--primary); }
+    .tag-purple { background: #f2f1fd; color: var(--purple); border: 1px solid var(--purple); }
+    .tag-coral  { background: #fdf3f0; color: var(--coral);  border: 1px solid var(--coral); }
+
+    /* ── 3カード ── */
+    .props-row { display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
+    .prop-card { flex: 1; min-width: 220px; border: 2px solid; border-radius: 8px; padding: 12px 14px; background: #fff; }
+    .prop-card.p1 { border-color: var(--coral); background: #fdf3f0; }
+    .prop-card.p2 { border-color: var(--purple); background: #f2f1fd; }
+    .prop-card.p3 { border-color: var(--teal); background: #edfaf4; }
+    .prop-card .p-title { font-weight: bold; font-size: 1em; margin-bottom: 4px; }
+    .prop-card.p1 .p-title { color: var(--coral); }
+    .prop-card.p2 .p-title { color: var(--purple); }
+    .prop-card.p3 .p-title { color: var(--teal); }
+    .prop-card .p-sub { font-size: .82em; color: #666; margin-bottom: 6px; }
+    .prop-card .p-body { font-size: .88em; }
+
+    /* ── 覚え方 ── */
+    .memo-box {
+      background: #f9f3ff; border: 2px dashed var(--purple); border-radius: 8px;
+      padding: 12px 16px; margin: 14px 0; font-size: .9em;
+    }
+    .memo-box .memo-title {
+      color: var(--purple); font-weight: bold; margin-bottom: 4px;
+    }
+
+    /* ── よくある間違い ── */
+    .trap-box {
+      background: #fff3f0; border-left: 5px solid var(--coral); border-radius: 6px;
+      padding: 12px 16px; margin: 14px 0; font-size: .9em;
+    }
+    .trap-box .trap-title {
+      color: var(--coral); font-weight: bold; margin-bottom: 6px;
+    }
+
+    /* ── popup ── */
+    .pb {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: var(--coral); color: #fff;
+      border: none; cursor: pointer; padding: 2px 10px 2px 8px;
+      border-radius: 12px; font-size: .82em; font-weight: bold;
+      margin: 2px; transition: .15s; vertical-align: middle;
+    }
+    .pb:hover { background: #7a2f17; }
+
+    /* ── modal ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9000; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: #fff; border-radius: 12px; padding: 26px 30px; max-width: 600px; width: 92%; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,.2); position: relative; animation: fadeIn .2s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+    .modal-title   { font-size: 1.1em; font-weight: bold; color: var(--coral); margin-bottom: 6px; border-bottom: 2px solid var(--coral); padding-bottom: 6px; }
+    .modal-english { font-family: monospace; font-size: .95em; color: var(--teal); margin-bottom: 10px; font-weight: bold; }
+    .modal-meaning { background: #f0f4fa; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; font-size: .88em; color: #333; }
+    .modal-body    { font-size: .92em; line-height: 1.9; color: #333; }
+    .modal-example { background: #f5f5f5; border-left: 4px solid var(--teal); padding: 8px 12px; border-radius: 0 6px 6px 0; margin-top: 10px; font-size: .88em; }
+    .modal-close   { position: absolute; top: 12px; right: 14px; background: none; border: none; font-size: 1.4em; cursor: pointer; color: #888; }
+    .modal-close:hover { color: #333; }
+
+    #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+
+    /* ══════════════════════════════════════
+       ホバー型ポップアップ（重要語にカーソルを当てると表示）
+       ══════════════════════════════════════ */
+    .term {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+      color: var(--coral);
+      font-weight: bold;
+      border-bottom: 2px dotted var(--coral);
+      padding: 0 1px;
+      transition: background 0.15s;
+    }
+    .term:hover {
+      background: #fef3c7;
+      border-bottom-style: solid;
+    }
+    .term-popup {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: normal;
+      white-space: normal;
+      min-width: 240px;
+      max-width: 340px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      z-index: 200;
+      line-height: 1.7;
+      text-align: left;
+      display: none;
+      pointer-events: none;
+    }
+    .term:hover .term-popup { display: block; }
+    .term-popup::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-top-color: #1e293b;
+    }
+    .term-popup .tp-title {
+      color: #fbbf24;
+      font-weight: bold;
+      font-size: 1em;
+      margin-bottom: 4px;
+      display: block;
+      border-bottom: 1px solid #475569;
+      padding-bottom: 4px;
+    }
+    .term-popup .tp-en {
+      color: #86efac;
+      font-family: monospace;
+      font-size: 0.88em;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .term-popup .tp-meaning {
+      color: #fcd34d;
+      font-size: 0.85em;
+      display: block;
+      margin-bottom: 5px;
+      font-style: italic;
+    }
+    .term-popup .tp-body {
+      color: #f1f5f9;
+      font-size: 0.88em;
+    }
+    /* スマホでは左右の余白を考慮 */
+    @media (max-width: 640px) {
+      .term-popup {
+        min-width: 200px;
+        max-width: 280px;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 14px; }
+      .props-row { flex-direction: column; }
+    }
+
+    /* ══════════════════════════════════════
+       ミニテストモジュール（章末展開式）
+       ══════════════════════════════════════ */
+    .minitest {
+      margin: 24px 0 12px;
+    }
+    .mt-toggle {
+      width: 100%;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 3px solid #f59e0b;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 1.05em;
+      font-weight: bold;
+      color: #92400e;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .mt-toggle:hover {
+      background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+      transform: translateY(-1px);
+    }
+    .mt-toggle .arrow {
+      transition: transform 0.3s;
+      font-size: 1.2em;
+    }
+    .mt-toggle.open .arrow { transform: rotate(180deg); }
+
+    .mt-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      border-right: 4px solid #f59e0b;
+      border-bottom: 4px solid #f59e0b;
+      border-radius: 0 0 12px 12px;
+    }
+    .mt-body.open { max-height: 5000px; }
+    .mt-inner { padding: 18px 22px; }
+
+    .mt-section-title {
+      color: #92400e;
+      font-weight: bold;
+      font-size: 1em;
+      margin: 14px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px dashed #fbbf24;
+    }
+    .mt-section-title:first-child { margin-top: 0; }
+
+    /* 穴埋め部分（joho3スタイル） */
+    .mt-fill-passage {
+      background: #fff;
+      border-left: 5px solid #f59e0b;
+      padding: 14px 18px;
+      border-radius: 8px;
+      line-height: 2.4;
+      font-size: 0.95em;
+      margin-bottom: 12px;
+    }
+    .mt-blank {
+      display: inline-block;
+      min-width: 110px;
+      min-height: 1.7em;
+      padding: 4px 14px;
+      margin: 0 4px;
+      border: 2px dashed #94a3b8;
+      border-radius: 6px;
+      background: #fef9c3;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      color: #166534;
+      transition: all 0.2s;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 0.95em;
+      line-height: 1.7em;
+      box-sizing: border-box;
+    }
+    .mt-blank:hover { background: #fef08a; }
+    .mt-blank.empty { color: #1e293b; }
+    .mt-blank.filled {
+      background: #dbeafe;
+      border-style: solid;
+      border-color: #3b82f6;
+      color: #1e3a8a;
+    }
+    .mt-blank.correct {
+      background: #bbf7d0;
+      border-style: solid;
+      border-color: #16a34a;
+      color: #166534;
+    }
+    .mt-blank.wrong {
+      background: #fecaca;
+      border-style: solid;
+      border-color: #dc2626;
+      color: #991b1b;
+      animation: shake 0.4s;
+    }
+
+    .mt-wordbank {
+      background: #f0fdf4;
+      border: 2px solid #86efac;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .mt-wordbank-label {
+      font-size: 0.82em;
+      color: #166534;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .mt-words { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mt-chip {
+      background: white;
+      color: #166534;
+      border: 2px solid #22c55e;
+      padding: 5px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.92em;
+      border-radius: 18px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .mt-chip:hover { background: #22c55e; color: white; transform: scale(1.05); }
+    .mt-chip.selected {
+      background: #fed7aa;
+      color: #9a3412;
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px #fdba74;
+      transform: scale(1.08);
+    }
+    .mt-chip.used { opacity: 0.3; pointer-events: none; }
+
+    .mt-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+    .mt-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.88em;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .mt-btn-start { background: #dc2626; color: white; }
+    .mt-btn-start:hover { background: #991b1b; }
+    .mt-btn-check { background: #22c55e; color: white; }
+    .mt-btn-check:hover { background: #16a34a; }
+    .mt-btn-show { background: #f59e0b; color: white; }
+    .mt-btn-show:hover { background: #d97706; }
+
+    /* 4択練習部分 */
+    .mt-quiz-card {
+      background: #fff;
+      border-left: 5px solid #dc2626;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .mt-quiz-num {
+      display: inline-block;
+      background: #dc2626;
+      color: white;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 0.82em;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .mt-quiz-q {
+      font-weight: bold;
+      font-size: 0.98em;
+      margin-bottom: 12px;
+      color: #1e293b;
+    }
+    .mt-quiz-options { display: grid; gap: 8px; }
+    .mt-quiz-opt {
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.92em;
+      text-align: left;
+      font-family: inherit;
+      width: 100%;
+    }
+    .mt-quiz-opt:hover { background: #f1f5f9; border-color: #dc2626; }
+    .mt-quiz-opt.correct {
+      background: #bbf7d0;
+      border-color: #16a34a;
+      color: #166534;
+      font-weight: bold;
+    }
+    .mt-quiz-opt.wrong {
+      background: #fecaca;
+      border-color: #dc2626;
+      color: #991b1b;
+    }
+    .mt-quiz-opt:disabled { cursor: default; }
+    .mt-quiz-explain {
+      display: none;
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: #fef9c3;
+      border-left: 5px solid #facc15;
+      border-radius: 8px;
+      font-size: 0.9em;
+      line-height: 1.7;
+      color: #713f12;
+    }
+    .mt-quiz-explain.show { display: block; }
+    .mt-quiz-explain .ex-title {
+      font-weight: bold;
+      color: #a16207;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .mt-result {
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-align: center;
+      margin: 8px 0;
+      font-size: 0.92em;
+    }
+    .mt-result.success { background: #bbf7d0; color: #166534; }
+    .mt-result.warning { background: #fed7aa; color: #9a3412; }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- modal -->
+<div class="modal-overlay" id="popupModal" onclick="closePopup(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closePopup()">✕</button>
+    <div class="modal-title"   id="popupTitle"></div>
+    <div class="modal-english" id="popupEnglish"></div>
+    <div class="modal-meaning" id="popupMeaning" style="display:none"></div>
+    <div class="modal-body"    id="popupBody"></div>
+    <div class="modal-example" id="popupExample" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══ sticky header ══ -->
+<div class="sticky-header">
+  <div class="page-nav">
+    <a class="nav-btn nav-home" href="kouninjoho_index.html">🏠 単元表</a>
+    <a class="nav-btn" href="kouninjoho1.html">① 情報社会と権利</a>
+    <a class="nav-btn" href="kouninjoho2.html">② 情報社会の課題</a>
+    <a class="nav-btn" href="kouninjoho3.html">③ メディアと通信</a>
+    <a class="nav-btn" href="kouninjoho4.html">④ コンピュータの基礎</a>
+    <a class="nav-btn active" href="kouninjoho5.html">⑤ 問題解決とデータ</a>
+  </div>
+
+  <div class="challenge-panel">
+    <div>
+      <span style="font-size:.85em;font-weight:bold;">⏱ チャレンジタイム</span><br>
+      <span class="timer" id="timerDisplay">00:00.0</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="ch-btn start"  onclick="startChallenge()">▶ チャレンジ開始</button>
+      <button class="ch-btn check"  onclick="checkAnswers()">✓ 答え合わせ</button>
+      <button class="ch-btn answer" onclick="showModel()">📖 お手本を見る</button>
+    </div>
+    <div id="recordDisplay">🏆 ベスト：—</div>
+  </div>
+
+  <div class="word-bank-wrap">
+    <div class="word-bank-container" id="wordBankContainer">
+      <div class="wb-label">📦 語句バンク（クリックで選択 → 空欄をクリックで入力）</div>
+      <div class="word-bank" id="wordBank"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ content ══ -->
+<div class="container">
+
+  <!-- ページタイトル -->
+  <div style="text-align:center;margin-bottom:20px;">
+    <div style="font-size:1.5em;font-weight:700;color:var(--primary-dark);margin-bottom:4px;">⑤ 問題解決とデータ</div>
+    <div style="color:var(--gray);font-size:.95em;">問題解決のステップ・データ分析・統計の基礎</div>
+    <p style="font-size:.92em;color:#444;line-height:1.9;text-align:left;margin-top:12px;">
+      高認情報Ⅰの<strong>大問5</strong>は、データを読み取って分析する力が問われます。グラフ・代表値・相関――数学が苦手でも、コツをつかめば確実に得点できます。<br>
+      この単元では、<strong>問題解決の進め方</strong>と<strong>データ分析の基本</strong>を学びます。
+    </p>
+  </div>
+
+  <!-- ══ 1. 問題解決のステップ ══ -->
+  <div class="sec-h1"><span class="num">1</span>問題解決のステップ</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 「問題を解決する」って、どうやるの？</div>
+    <p style="margin:0;">
+      テスト勉強で点数が伸びない、ダイエットがうまくいかない、部屋が散らかる――<br>
+      私たちは日常で多くの「問題」に直面します。これらを<strong>段階的に整理して解決する方法</strong>があります。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ 問題解決の5ステップ</div>
+
+  <table class="godan">
+    <tr><th>STEP</th><th>名前</th><th>内容</th></tr>
+    <tr>
+      <td>STEP 1</td>
+      <td><span data-term="mondaihakken"><strong>問題発見</strong></span></td>
+      <td>「何が問題か」を明確にする</td>
+    </tr>
+    <tr>
+      <td>STEP 2</td>
+      <td><span data-term="bunseki"><strong>問題分析</strong></span></td>
+      <td>原因を調べる、データを集める</td>
+    </tr>
+    <tr>
+      <td>STEP 3</td>
+      <td><span data-term="kaikettsuan"><strong>解決案検討</strong></span></td>
+      <td>解決方法を考える、複数の案を比較</td>
+    </tr>
+    <tr>
+      <td>STEP 4</td>
+      <td><span data-term="jisshi"><strong>実施</strong></span></td>
+      <td>計画を実行する</td>
+    </tr>
+    <tr>
+      <td>STEP 5</td>
+      <td><span data-term="hyoka"><strong>評価・改善</strong></span></td>
+      <td>結果を確認し、次に活かす</td>
+    </tr>
+  </table>
+
+  <div class="sec-h2">▶ PDCAサイクル</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('pdca')">💡 【PDCAサイクル】</button>
+    は、問題解決を<strong>4ステップでくり返す</strong>方法です。多くの企業や学校で使われています。
+  </p>
+
+  <!-- PDCAサイクル図 -->
+  <div style="background: linear-gradient(135deg, #fafdff, #ecfeff); border: 2px dashed var(--primary); border-radius: 10px; padding: 16px; margin: 14px 0; text-align: center;">
+    <svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg" style="max-width:100%; height:auto;">
+      <defs>
+        <marker id="arPdca" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <polygon points="0 0, 10 3, 0 6" fill="#0891B2"/>
+        </marker>
+      </defs>
+      <!-- 中心円 -->
+      <circle cx="250" cy="150" r="50" fill="#CFFAFE" stroke="#0891B2" stroke-width="2"/>
+      <text x="250" y="145" text-anchor="middle" font-size="14" font-weight="700" fill="#0E7490">PDCA</text>
+      <text x="250" y="165" text-anchor="middle" font-size="11" fill="#0E7490">サイクル</text>
+      
+      <!-- P：Plan -->
+      <g transform="translate(180, 30)">
+        <rect x="0" y="0" width="140" height="60" fill="#DBEAFE" stroke="#3B82F6" stroke-width="2" rx="8"/>
+        <text x="70" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#1E40AF">P：Plan</text>
+        <text x="70" y="42" text-anchor="middle" font-size="11" fill="#1E40AF">計画を立てる</text>
+      </g>
+      
+      <!-- D：Do -->
+      <g transform="translate(370, 120)">
+        <rect x="0" y="0" width="120" height="60" fill="#D1FAE5" stroke="#10B981" stroke-width="2" rx="8"/>
+        <text x="60" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#065F46">D：Do</text>
+        <text x="60" y="42" text-anchor="middle" font-size="11" fill="#065F46">実行する</text>
+      </g>
+      
+      <!-- C：Check -->
+      <g transform="translate(180, 210)">
+        <rect x="0" y="0" width="140" height="60" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2" rx="8"/>
+        <text x="70" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#92400E">C：Check</text>
+        <text x="70" y="42" text-anchor="middle" font-size="11" fill="#92400E">評価・確認</text>
+      </g>
+      
+      <!-- A：Action -->
+      <g transform="translate(10, 120)">
+        <rect x="0" y="0" width="120" height="60" fill="#FEE2E2" stroke="#DC2626" stroke-width="2" rx="8"/>
+        <text x="60" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#991B1B">A：Action</text>
+        <text x="60" y="42" text-anchor="middle" font-size="11" fill="#991B1B">改善</text>
+      </g>
+      
+      <!-- 矢印 -->
+      <path d="M 320 90 Q 370 100 380 120" fill="none" stroke="#0891B2" stroke-width="2.5" marker-end="url(#arPdca)"/>
+      <path d="M 430 180 Q 380 210 320 220" fill="none" stroke="#0891B2" stroke-width="2.5" marker-end="url(#arPdca)"/>
+      <path d="M 180 260 Q 90 230 70 180" fill="none" stroke="#0891B2" stroke-width="2.5" marker-end="url(#arPdca)"/>
+      <path d="M 70 120 Q 90 80 180 70" fill="none" stroke="#0891B2" stroke-width="2.5" marker-end="url(#arPdca)"/>
+    </svg>
+    <div style="margin-top:8px; font-size:.85em; color:#6B7280; font-weight:700;">図：PDCAサイクル ― Plan → Do → Check → Action をくり返す</div>
+  </div>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 覚え方：「ピー・ディー・シー・エー」</div>
+    <p style="margin:0;">
+      <strong>P</strong>lan（計画）→ <strong>D</strong>o（実行）→ <strong>C</strong>heck（評価）→ <strong>A</strong>ction（改善）<br>
+      4つの英単語の頭文字を取って「PDCA」。最後の「A」が次の「P」に戻ることで、<strong>螺旋状に改善が続く</strong>のがポイントです。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ ブレーンストーミングとKJ法</div>
+
+  <p>問題解決のための<strong>アイデア出し</strong>と<strong>整理</strong>の方法です。</p>
+
+  <table class="cmp-table">
+    <tr>
+      <th class="a-head">【ブレーンストーミング】</th>
+      <th class="b-head">【KJ法】</th>
+    </tr>
+    <tr>
+      <td class="a-body">
+        <strong>アイデアを大量に出す</strong>方法<br>
+        ・批判しない<br>
+        ・自由奔放<br>
+        ・量を求める<br>
+        ・便乗OK
+      </td>
+      <td class="b-body">
+        <strong>アイデアを整理する</strong>方法<br>
+        ・カードに書く<br>
+        ・グループ分けする<br>
+        ・関係を線で結ぶ<br>
+        ・川喜田二郎が考案
+      </td>
+    </tr>
+  </table>
+
+  <!-- 穴埋め1 -->
+  <p style="font-size:.95em;">
+    ※ 問題解決の4ステップを
+    <span class="dz" data-ans="PDCA" data-id="c1"></span>
+    という。アイデアを大量に出す方法を
+    <span class="dz" data-ans="ブレーンストーミング" data-id="c2"></span>、
+    アイデアを整理する方法を
+    <span class="dz" data-ans="KJ法" data-id="c3"></span>
+    という。
+  </p>
+
+  <!-- ════ ミニテスト①：問題解決 ════ -->
+  <div class="minitest" data-mt="mt1">
+    <button class="mt-toggle" onclick="toggleMt('mt1')">
+      <span>📝 ミニテスト①：問題解決を確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt1-body">
+      <div class="mt-inner">
+
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt1-passage">
+          問題解決をくり返す4ステップの方法を
+          <span class="mt-blank" data-ans="PDCA">PDCA</span>
+          サイクルといいます。最初のPは
+          <span class="mt-blank" data-ans="計画">計画</span>
+          を立てる段階、Dは実行、Cは評価、Aは
+          <span class="mt-blank" data-ans="改善">改善</span>
+          を意味します。アイデアをカードに書いてグループ分けする整理法は
+          <span class="mt-blank" data-ans="KJ法">KJ法</span>
+          といいます。
+        </div>
+        <div class="mt-wordbank" id="mt1-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt1-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt1')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt1')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt1')">📖 答えを見る</button>
+        </div>
+        <div id="mt1-result"></div>
+
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            PDCAサイクルの「P」は何を表しますか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q1" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',0)">Plan（計画）</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',1)">Process（過程）</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',2)">Practice（練習）</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q1',3)">Product（製品）</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            PDCAの<strong>P</strong>は<strong>Plan（計画）</strong>です。最初に計画を立て、実行（D）、評価（C）、改善（A）という流れになります。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            ブレーンストーミングの基本ルールとして<strong>正しくない</strong>ものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q2" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',0)">批判しない</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',1)">自由奔放にアイデアを出す</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',2)">少数の優れたアイデアだけ重視する</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q2',3)">他人のアイデアに便乗してよい</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            ブレーンストーミングは<strong>「量を求める」</strong>のがルールです。少数の優れたアイデアだけを重視するのではなく、まず大量にアイデアを出すことを大事にします。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第3問</span>
+            KJ法の特徴として正しいものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q3" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q3',0)">アイデアを順位づけて評価する方法</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q3',1)">アイデアをカードに書いてグループ分けする方法</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q3',2)">アイデアを多数決で選ぶ方法</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q3',3)">アイデアを時間順に並べる方法</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q3-ex">
+            <span class="ex-title">💡 解説</span>
+            KJ法は、文化人類学者の<strong>川喜田二郎</strong>が考案したアイデア整理法。アイデアをカードに書き、似たものをグループ分けし、関係を線で結ぶことで全体像を見る方法です。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第4問</span>
+            PDCAサイクルの順番として正しいものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt1-q4" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q4',0)">Plan → Do → Check → Action</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q4',1)">Do → Plan → Action → Check</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q4',2)">Plan → Check → Do → Action</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt1-q4',3)">Action → Plan → Check → Do</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt1-q4-ex">
+            <span class="ex-title">💡 解説</span>
+            正しい順番は<strong>Plan（計画）→ Do（実行）→ Check（評価）→ Action（改善）</strong>です。最後のActionが次のPlanに戻り、改善が続いていきます。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 2. データの種類とグラフ ══ -->
+  <div class="sec-h1"><span class="num">2</span>データの種類とグラフ</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 なぜ目的に合わせてグラフを使い分けるの？</div>
+    <p style="margin:0;">
+      テストの平均点をグラフにするとき、円グラフ・棒グラフ・折れ線グラフ――どれを使うべきでしょうか？<br>
+      実は、<strong>データの種類とグラフの種類は対応している</strong>のです。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ データの種類</div>
+
+  <table class="godan">
+    <tr><th>分類</th><th>種類</th><th>例</th></tr>
+    <tr>
+      <td rowspan="2"><span data-term="ryoteki"><strong>量的データ</strong></span><br>（数値）</td>
+      <td>連続データ</td>
+      <td>身長、体重、温度</td>
+    </tr>
+    <tr>
+      <td>離散データ</td>
+      <td>人数、点数、回数</td>
+    </tr>
+    <tr>
+      <td rowspan="2"><span data-term="shitsuteki"><strong>質的データ</strong></span><br>（カテゴリ）</td>
+      <td>名義データ</td>
+      <td>性別、血液型、好きな色</td>
+    </tr>
+    <tr>
+      <td>順序データ</td>
+      <td>満足度（5段階）、成績の順位</td>
+    </tr>
+  </table>
+
+  <div class="sec-h2">▶ グラフの種類と使い分け</div>
+
+  <!-- グラフの種類と使い分け図 -->
+  <div class="figure-box" style="text-align:center; margin: 14px 0;">
+    <img src="images/fig_graphs.png" alt="グラフの種類と使い分け" style="max-width:100%; height:auto; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div class="fig-caption" style="margin-top:8px; font-size:.85em; color:#6B7280; font-weight:700;">▲ 6種類のグラフと目的別の選び方</div>
+  </div>
+
+  <table class="godan">
+    <tr><th>グラフ</th><th>適した使い方</th><th>例</th></tr>
+    <tr>
+      <td><span data-term="bougraph"><strong>棒グラフ</strong></span></td>
+      <td>項目ごとの<strong>大小比較</strong></td>
+      <td>クラス別の人数、商品別の売上</td>
+    </tr>
+    <tr>
+      <td><span data-term="oresengraph"><strong>折れ線グラフ</strong></span></td>
+      <td>時間に伴う<strong>変化</strong></td>
+      <td>気温の推移、株価の変動</td>
+    </tr>
+    <tr>
+      <td><span data-term="enggraph"><strong>円グラフ</strong></span></td>
+      <td>全体に対する<strong>割合</strong></td>
+      <td>支出の割合、得票率</td>
+    </tr>
+    <tr>
+      <td><span data-term="obigraph"><strong>帯グラフ</strong></span></td>
+      <td>割合の<strong>比較</strong>（年度別など）</td>
+      <td>各国の電力源比較</td>
+    </tr>
+    <tr>
+      <td><span data-term="hist"><strong>ヒストグラム</strong></span></td>
+      <td>データの<strong>分布</strong>を見る</td>
+      <td>テスト点数の分布、身長の分布</td>
+    </tr>
+    <tr>
+      <td><span data-term="sanpu"><strong>散布図</strong></span></td>
+      <td>2つの量の<strong>関係</strong>を見る</td>
+      <td>身長と体重、勉強時間と点数</td>
+    </tr>
+  </table>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 目的別の選び方</div>
+    <p style="margin:0;">
+      <strong>比較したい</strong> → 棒グラフ／帯グラフ<br>
+      <strong>変化を見たい</strong> → 折れ線グラフ<br>
+      <strong>割合を見たい</strong> → 円グラフ／帯グラフ<br>
+      <strong>分布を見たい</strong> → ヒストグラム<br>
+      <strong>関係を見たい</strong> → 散布図
+    </p>
+  </div>
+
+  <!-- 穴埋め2 -->
+  <p style="font-size:.95em;">
+    ※ 数値で表されるデータを
+    <span class="dz" data-ans="量的" data-id="c4"></span>
+    データ、カテゴリで表されるデータを
+    <span class="dz" data-ans="質的" data-id="c5"></span>
+    データという。データの分布を見たいときに使うグラフは
+    <span class="dz" data-ans="ヒストグラム" data-id="c6"></span>
+    である。
+  </p>
+
+  <!-- ════ ミニテスト②：グラフ ════ -->
+  <div class="minitest" data-mt="mt2">
+    <button class="mt-toggle" onclick="toggleMt('mt2')">
+      <span>📝 ミニテスト②：グラフを確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt2-body">
+      <div class="mt-inner">
+
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt2-passage">
+          時間に伴う変化を見るには
+          <span class="mt-blank" data-ans="折れ線">折れ線</span>
+          グラフが適しています。全体に対する割合を見るには
+          <span class="mt-blank" data-ans="円">円</span>
+          グラフ、データの分布を見るには
+          <span class="mt-blank" data-ans="ヒストグラム">ヒストグラム</span>、
+          2つの量の関係を見るには
+          <span class="mt-blank" data-ans="散布図">散布図</span>
+          を使います。
+        </div>
+        <div class="mt-wordbank" id="mt2-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt2-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt2')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt2')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt2')">📖 答えを見る</button>
+        </div>
+        <div id="mt2-result"></div>
+
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            「過去10年間の日本の人口の変化」を表すのに最も適したグラフはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q1" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',0)">円グラフ</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',1)">折れ線グラフ</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',2)">散布図</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q1',3)">ヒストグラム</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            <strong>時間に伴う変化</strong>を見るには<strong>折れ線グラフ</strong>が最適です。気温・株価・人口推移などすべてこのタイプです。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            「クラスの50人のテスト点数の分布」を見るのに適したグラフはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q2" data-ans="3">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',0)">円グラフ</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',1)">折れ線グラフ</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',2)">帯グラフ</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q2',3)">ヒストグラム</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            データの<strong>分布</strong>を見たいときは<strong>ヒストグラム</strong>です。点数を区間（0-9点、10-19点...）に分けて、それぞれの度数を棒で表します。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第3問</span>
+            「身長と体重の関係」を見るのに適したグラフはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q3" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q3',0)">円グラフ</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q3',1)">折れ線グラフ</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q3',2)">散布図</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q3',3)">帯グラフ</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q3-ex">
+            <span class="ex-title">💡 解説</span>
+            <strong>2つの量の関係</strong>を見るには<strong>散布図</strong>です。横軸に身長、縦軸に体重をとり、各人を点でプロット。点の散らばり方で関係性が見えます。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第4問</span>
+            血液型のような「カテゴリ」のデータを何といいますか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt2-q4" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q4',0)">量的データ</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q4',1)">質的データ</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q4',2)">時系列データ</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt2-q4',3)">統計データ</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt2-q4-ex">
+            <span class="ex-title">💡 解説</span>
+            血液型・性別・好きな色のようにカテゴリで表すデータを<strong>質的データ</strong>といいます。一方、身長・体重・点数のような数値データは<strong>量的データ</strong>です。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 3. 代表値と散らばり ══ -->
+  <div class="sec-h1"><span class="num">3</span>代表値と散らばり</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 「クラスの平均は70点」って、本当に「真ん中」？</div>
+    <p style="margin:0;">
+      平均点が70点でも、実は全員が70点とは限りません。<br>
+      ・全員が70点 → 平均70点<br>
+      ・半分が100点、半分が40点 → 平均70点<br>
+      この2つは全く違うデータなのに、平均は同じです。だから<strong>「平均」だけでは不十分</strong>なのです。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ 3つの代表値</div>
+
+  <table class="godan">
+    <tr><th>代表値</th><th>意味</th><th>計算例</th></tr>
+    <tr>
+      <td><span data-term="heikin"><strong>平均値</strong></span></td>
+      <td>すべての値を足して個数で割る</td>
+      <td>(60+70+80+90+100)÷5 = <strong>80</strong></td>
+    </tr>
+    <tr>
+      <td><span data-term="chuou"><strong>中央値（メジアン）</strong></span></td>
+      <td>大小順に並べた<strong>真ん中の値</strong></td>
+      <td>60,70,<strong>80</strong>,90,100 の真ん中 = <strong>80</strong></td>
+    </tr>
+    <tr>
+      <td><span data-term="saihindo"><strong>最頻値（モード）</strong></span></td>
+      <td><strong>最も多く現れる値</strong></td>
+      <td>70,80,80,80,90 の中で = <strong>80</strong></td>
+    </tr>
+  </table>
+
+  <div class="trap-box">
+    <div class="trap-title">⚠️ 平均値の落とし穴</div>
+    <p style="margin:0;">
+      平均値は<strong>外れ値（極端な値）に影響されやすい</strong>です。<br>
+      例：5人の年収「300万・350万・400万・450万・1億円」<br>
+      → 平均 ≒ <strong>2,500万円</strong>（実態とかけ離れる！）<br>
+      → 中央値 = <strong>400万円</strong>（実態に近い）<br>
+      <strong>外れ値があるときは中央値の方が代表的</strong>です。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ データの散らばり（分散と標準偏差）</div>
+
+  <p>同じ平均でも、データのバラつき方が違うことがあります。これを表すのが<strong>分散</strong>と<strong>標準偏差</strong>です。</p>
+
+  <table class="godan">
+    <tr><th>用語</th><th>意味</th></tr>
+    <tr>
+      <td><span data-term="bunsan"><strong>分散</strong></span></td>
+      <td>各値が平均からどれだけ離れているかの<strong>2乗の平均</strong></td>
+    </tr>
+    <tr>
+      <td><span data-term="hyojun"><strong>標準偏差</strong></span></td>
+      <td>分散の<strong>平方根（ルート）</strong>。データのバラつきの目安</td>
+    </tr>
+    <tr>
+      <td><span data-term="hanni"><strong>範囲（レンジ）</strong></span></td>
+      <td>最大値 − 最小値</td>
+    </tr>
+  </table>
+
+  <div class="memo-box">
+    <div class="memo-title">💡 標準偏差の意味（直感的に）</div>
+    <p style="margin:0;">
+      <strong>標準偏差が小さい</strong> → データが平均近くに集まっている（バラつきが少ない）<br>
+      <strong>標準偏差が大きい</strong> → データが広く散らばっている（バラつきが大きい）<br>
+      テストの偏差値もこの「標準偏差」を使って計算されます。
+    </p>
+  </div>
+
+  <!-- 穴埋め3 -->
+  <p style="font-size:.95em;">
+    ※ 全データを足して個数で割った値を
+    <span class="dz" data-ans="平均値" data-id="c7"></span>、
+    並べたときの真ん中の値を
+    <span class="dz" data-ans="中央値" data-id="c8"></span>、
+    最も多く現れる値を
+    <span class="dz" data-ans="最頻値" data-id="c9"></span>
+    という。
+  </p>
+
+  <!-- ════ ミニテスト③：代表値 ════ -->
+  <div class="minitest" data-mt="mt3">
+    <button class="mt-toggle" onclick="toggleMt('mt3')">
+      <span>📝 ミニテスト③：代表値を確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt3-body">
+      <div class="mt-inner">
+
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt3-passage">
+          すべての値を足して個数で割った値を
+          <span class="mt-blank" data-ans="平均値">平均値</span>、
+          大小順に並べた真ん中の値を
+          <span class="mt-blank" data-ans="中央値">中央値</span>、
+          最も多く現れる値を
+          <span class="mt-blank" data-ans="最頻値">最頻値</span>
+          といいます。データの散らばりの大きさを表すのは
+          <span class="mt-blank" data-ans="標準偏差">標準偏差</span>
+          です。
+        </div>
+        <div class="mt-wordbank" id="mt3-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt3-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt3')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt3')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt3')">📖 答えを見る</button>
+        </div>
+        <div id="mt3-result"></div>
+
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            データ「2, 4, 4, 6, 9」の平均値はいくつですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q1" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',0)">4</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',1)">5</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',2)">6</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q1',3)">9</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            (2+4+4+6+9) ÷ 5 = 25 ÷ 5 = <strong>5</strong>。すべての値を足して個数で割れば平均値が出ます。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            データ「2, 4, 4, 6, 9」の中央値はいくつですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q2" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',0)">2</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',1)">4</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',2)">5</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q2',3)">6</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            既に小さい順に並んでいる「2, 4, <strong>4</strong>, 6, 9」の真ん中は<strong>4</strong>。5個の中央（3番目）です。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第3問</span>
+            データ「2, 4, 4, 6, 9」の最頻値はいくつですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q3" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q3',0)">2</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q3',1)">4</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q3',2)">5</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q3',3)">9</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q3-ex">
+            <span class="ex-title">💡 解説</span>
+            「4」が2回、他は1回ずつ出現しているので、最頻値は<strong>4</strong>。「最も多く現れる値」が最頻値です。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第4問</span>
+            ある会社の社員5人の年収が「300万、350万、400万、450万、1億円」の場合、最も適切な代表値はどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt3-q4" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q4',0)">平均値</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q4',1)">中央値</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q4',2)">最頻値</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt3-q4',3)">最大値</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt3-q4-ex">
+            <span class="ex-title">💡 解説</span>
+            1億円という<strong>外れ値</strong>があるため、平均値（約2500万円）は実態とかけ離れます。このときは<strong>中央値（400万円）</strong>のほうが代表的な値となります。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 4. 相関関係 ══ -->
+  <div class="sec-h1"><span class="num">4</span>相関関係</div>
+
+  <div class="intro-box">
+    <div class="intro-title">🤔 勉強時間とテストの点数の関係って？</div>
+    <p style="margin:0;">
+      「勉強時間が長いほど点数が高い」――こんな関係を<strong>相関関係</strong>といいます。<br>
+      ただし、「関係がある」ことと「原因と結果」は別の話です。注意が必要です。
+    </p>
+  </div>
+
+  <div class="sec-h2">▶ 3種類の相関</div>
+
+  <!-- 相関関係の図 -->
+  <div class="figure-box" style="text-align:center; margin: 14px 0;">
+    <img src="images/fig_sokan.png" alt="相関関係（正の相関・負の相関・無相関）" style="max-width:100%; height:auto; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div class="fig-caption" style="margin-top:8px; font-size:.85em; color:#6B7280; font-weight:700;">▲ 3種類の相関・相関係数・「相関 ≠ 因果」の注意</div>
+  </div>
+
+  <table class="godan">
+    <tr><th>相関</th><th>意味</th><th>例</th></tr>
+    <tr>
+      <td><span data-term="seinosokan"><strong>正の相関</strong></span></td>
+      <td>一方が増えるともう一方も<strong>増える</strong></td>
+      <td>身長と体重、勉強時間と点数</td>
+    </tr>
+    <tr>
+      <td><span data-term="meinosokan"><strong>負の相関</strong></span></td>
+      <td>一方が増えるともう一方は<strong>減る</strong></td>
+      <td>気温とコートの売上、年齢と握力(高齢)</td>
+    </tr>
+    <tr>
+      <td><span data-term="muusokan"><strong>無相関</strong></span></td>
+      <td>関係性が<strong>見られない</strong></td>
+      <td>身長とテストの点数</td>
+    </tr>
+  </table>
+
+  <div class="sec-h2">▶ 相関係数</div>
+
+  <p>
+    <button class="pb" onclick="openPopup('sokankeisu')">💡 【相関係数】</button>
+    は、2つの量の関係の強さを<strong>-1 〜 +1</strong>の数値で表します。
+  </p>
+
+  <table class="godan">
+    <tr><th>相関係数の値</th><th>意味</th></tr>
+    <tr>
+      <td><strong>+1</strong> に近い（+0.7以上）</td>
+      <td>強い正の相関</td>
+    </tr>
+    <tr>
+      <td>0 付近</td>
+      <td>相関なし</td>
+    </tr>
+    <tr>
+      <td><strong>-1</strong> に近い（-0.7以下）</td>
+      <td>強い負の相関</td>
+    </tr>
+  </table>
+
+  <div class="trap-box">
+    <div class="trap-title">⚠️ 相関と因果は違う！</div>
+    <p style="margin:0;">
+      「アイスクリームの売上が増えると、水難事故が増える」<br>
+      → これは「アイスを食べると溺れる」という因果ではありません。<br>
+      → <strong>どちらも気温が高いから増える</strong>のです（共通の原因＝気温）。<br>
+      <strong>相関関係 ≠ 因果関係</strong>。これは試験でもよく問われます。
+    </p>
+  </div>
+
+  <!-- 穴埋め4 -->
+  <p style="font-size:.95em;">
+    ※ 一方が増えるともう一方も増える関係を
+    <span class="dz" data-ans="正の相関" data-id="c10"></span>、
+    一方が増えるともう一方が減る関係を
+    <span class="dz" data-ans="負の相関" data-id="c11"></span>
+    という。関係の強さを示す数値を
+    <span class="dz" data-ans="相関係数" data-id="c12"></span>
+    という。
+  </p>
+
+  <!-- ════ ミニテスト④：相関 ════ -->
+  <div class="minitest" data-mt="mt4">
+    <button class="mt-toggle" onclick="toggleMt('mt4')">
+      <span>📝 ミニテスト④：相関を確認しよう</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="mt-body" id="mt4-body">
+      <div class="mt-inner">
+
+        <div class="mt-section-title">📚 穴埋め問題（クリックで語句を入れ替え）</div>
+        <div class="mt-fill-passage" id="mt4-passage">
+          一方が増えるともう一方も増える関係を
+          <span class="mt-blank" data-ans="正の相関">正の相関</span>、
+          一方が増えるともう一方は減る関係を
+          <span class="mt-blank" data-ans="負の相関">負の相関</span>
+          といいます。関係の強さは
+          <span class="mt-blank" data-ans="相関係数">相関係数</span>
+          で表され、-1〜+1の値をとります。ただし、相関と
+          <span class="mt-blank" data-ans="因果">因果</span>
+          は違うので注意が必要です。
+        </div>
+        <div class="mt-wordbank" id="mt4-bank-wrap">
+          <div class="mt-wordbank-label">📦 語群（チャレンジ開始で表示されます）</div>
+          <div class="mt-words" id="mt4-words"></div>
+        </div>
+        <div class="mt-btns">
+          <button class="mt-btn mt-btn-start" onclick="mtStart('mt4')">🚀 チャレンジ開始</button>
+          <button class="mt-btn mt-btn-check" onclick="mtCheck('mt4')">✓ 答え合わせ</button>
+          <button class="mt-btn mt-btn-show" onclick="mtShowAns('mt4')">📖 答えを見る</button>
+        </div>
+        <div id="mt4-result"></div>
+
+        <div class="mt-section-title">🎯 4択練習</div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第1問</span>
+            「勉強時間が増えるほどテストの点数が上がる」関係を何といいますか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt4-q1" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q1',0)">正の相関</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q1',1)">負の相関</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q1',2)">無相関</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q1',3)">因果関係</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt4-q1-ex">
+            <span class="ex-title">💡 解説</span>
+            一方が増えるともう一方も<strong>増える</strong>関係は<strong>正の相関</strong>です。散布図に描くと、右肩上がりの傾向が見えます。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第2問</span>
+            相関係数の値域として正しいものはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt4-q2" data-ans="1">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q2',0)">0 〜 100</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q2',1)">-1 〜 +1</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q2',2)">-100 〜 +100</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q2',3)">0 〜 1</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt4-q2-ex">
+            <span class="ex-title">💡 解説</span>
+            相関係数は<strong>-1 〜 +1</strong>の値をとります。+1で完全な正の相関、-1で完全な負の相関、0で無相関。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第3問</span>
+            「アイスクリームの売上と水難事故の件数」に正の相関が見られる場合、適切な解釈はどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt4-q3" data-ans="2">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q3',0)">アイスを食べると溺れやすくなる</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q3',1)">水難事故で疲れた人がアイスを食べる</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q3',2)">気温が高い夏に両方とも増える（共通の原因）</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q3',3)">2つは全く無関係である</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt4-q3-ex">
+            <span class="ex-title">💡 解説</span>
+            これは「相関関係 ≠ 因果関係」の典型例。両方とも<strong>気温が高い夏に増える</strong>ので、共通の原因（気温）によって相関が生まれているだけです。
+          </div>
+        </div>
+
+        <div class="mt-quiz-card">
+          <div class="mt-quiz-q">
+            <span class="mt-quiz-num">第4問</span>
+            散布図で点が右下がりに分布している場合、相関係数の値として最も近いのはどれですか。
+          </div>
+          <div class="mt-quiz-options" data-q="mt4-q4" data-ans="0">
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q4',0)">-0.8</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q4',1)">0</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q4',2)">+0.8</button>
+            <button class="mt-quiz-opt" onclick="mtAnswer(this,'mt4-q4',3)">+1.5</button>
+          </div>
+          <div class="mt-quiz-explain" id="mt4-q4-ex">
+            <span class="ex-title">💡 解説</span>
+            散布図が右下がり＝<strong>負の相関</strong>。よって相関係数は<strong>マイナスの値</strong>（-0.8）になります。+1.5は相関係数の範囲（-1〜+1）外なので不正解。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5. 試験対策まとめ ══ -->
+  <div class="sec-h1"><span class="num">5</span>試験ではこう出る！</div>
+
+  <table class="godan">
+    <tr><th>出題パターン</th><th>問われ方の例</th><th>答えの出し方</th></tr>
+    <tr>
+      <td><span class="tag tag-coral">問題解決</span></td>
+      <td>「PDCAサイクルとは？」</td>
+      <td>→ Plan-Do-Check-Action</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-coral">アイデア法</span></td>
+      <td>「KJ法は誰が考案？」</td>
+      <td>→ 川喜田二郎</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">グラフ選択</span></td>
+      <td>「人口推移は何グラフ？」</td>
+      <td>→ 折れ線グラフ</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-teal">代表値</span></td>
+      <td>「外れ値があるときは？」</td>
+      <td>→ 中央値が適切</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-purple">相関</span></td>
+      <td>「相関係数の範囲は？」</td>
+      <td>→ -1〜+1</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-amber">罠</span></td>
+      <td>「相関 = 因果関係？」</td>
+      <td>→ 違う！共通原因の可能性</td>
+    </tr>
+  </table>
+
+  <div class="memo-box" style="background:var(--primary-pale);border-color:var(--primary);">
+    <div class="memo-title" style="color:var(--primary-dark);">🎯 この単元で覚えるべきキーワード</div>
+    <p style="margin:0;">
+      PDCA／Plan・Do・Check・Action／ブレーンストーミング／KJ法／<br>
+      量的データ／質的データ／棒グラフ／折れ線／円／帯／ヒストグラム／散布図／<br>
+      平均値／中央値／最頻値／分散／標準偏差／<br>
+      正の相関／負の相関／無相関／相関係数／相関と因果は違う
+    </p>
+  </div>
+
+  <!-- 単元まとめ -->
+  <div class="intro-box" style="background:linear-gradient(135deg,#edfaf4 0%,#d4edda 100%);border-left-color:var(--green);">
+    <div class="intro-title" style="color:#065f46;">✅ この単元のまとめ（30秒で振り返り）</div>
+    <p style="margin:0;">
+      ① <strong>問題解決</strong>＝PDCAサイクル／ブレーンストーミング／KJ法<br>
+      ② <strong>グラフ</strong>＝目的（比較・変化・割合・分布・関係）で使い分ける<br>
+      ③ <strong>代表値</strong>＝平均・中央値・最頻値／外れ値があるときは中央値<br>
+      ④ <strong>相関</strong>＝正・負・無相関／相関係数(-1〜+1)／相関 ≠ 因果<br>
+      これらが言えれば、高認大問5は確実に得点できます。
+    </p>
+  </div>
+
+</div><!-- /container -->
+
+
+
+<!-- ══ popup data ══ -->
+<script>
+const POPUP_DATA = {
+  mondaihakken: {
+    title:   "問題発見",
+    english: "problem identification",
+    meaning: "何が問題かを明確にすること",
+    body:    "問題解決の最初のステップ。現状と理想のギャップを認識し、何を解決すべきかを言語化する段階です。「何となく困っている」では解決できません。"
+  },
+  bunseki: {
+    title:   "問題分析",
+    english: "problem analysis",
+    meaning: "問題の原因や背景を調べること",
+    body:    "問題が発見できたら、なぜ起こっているのかを分析します。データを集めたり、関係者にヒアリングしたりして、原因を特定します。"
+  },
+  kaikettsuan: {
+    title:   "解決案検討",
+    english: "solution planning",
+    meaning: "複数の解決方法を考え比較すること",
+    body:    "1つの解決策に飛びつかず、複数の案を出して比較検討します。ブレーンストーミングが役立つ段階です。"
+  },
+  jisshi: {
+    title:   "実施",
+    english: "implementation",
+    meaning: "計画を実行すること",
+    body:    "選んだ解決案を実際に実行します。計画通りに進めることと、状況に応じた柔軟な対応の両方が大切です。"
+  },
+  hyoka: {
+    title:   "評価・改善",
+    english: "evaluation",
+    meaning: "結果を確認し次に活かすこと",
+    body:    "実施結果を客観的に評価し、うまくいかなかった点を改善します。PDCAサイクルの「C」と「A」に対応します。"
+  },
+  pdca: {
+    title:   "PDCAサイクル",
+    english: "Plan-Do-Check-Action cycle",
+    meaning: "Plan（計画）→ Do（実行）→ Check（評価）→ Action（改善）",
+    body:    "問題解決を4ステップでくり返す手法です。最後のActionが次のPlanにつながることで、継続的な改善が実現します。多くの企業や学校で標準的な問題解決手法として使われています。",
+    example: "新商品の開発、業務改善、学習計画など、あらゆる場面で活用されます。"
+  },
+  ryoteki: {
+    title:   "量的データ",
+    english: "quantitative data",
+    meaning: "数値で表せるデータ",
+    body:    "身長・体重・点数のように、数値で測れるデータです。連続データ（小数も含む）と離散データ（整数のみ）に分けられます。"
+  },
+  shitsuteki: {
+    title:   "質的データ",
+    english: "qualitative data",
+    meaning: "カテゴリで表すデータ",
+    body:    "性別・血液型・好きな色のように、カテゴリで分類するデータです。名義データ（順序なし）と順序データ（順序あり）に分けられます。"
+  },
+  bougraph: {
+    title:   "棒グラフ",
+    english: "bar graph",
+    meaning: "項目ごとの大小比較",
+    body:    "縦または横の棒の長さで、項目ごとの数量を表すグラフ。クラス別の人数、商品別の売上など、比較に最適です。"
+  },
+  oresengraph: {
+    title:   "折れ線グラフ",
+    english: "line graph",
+    meaning: "時間の流れと変化を見る",
+    body:    "時間軸に沿って点を線でつなぐグラフ。気温の推移、株価の変動、人口の変化などの時系列データの可視化に使います。"
+  },
+  enggraph: {
+    title:   "円グラフ",
+    english: "pie chart",
+    meaning: "全体に対する割合",
+    body:    "円を扇形に分割して、全体に対する各項目の割合を表すグラフ。「何が何割か」を一目で示すのに向きます。"
+  },
+  obigraph: {
+    title:   "帯グラフ",
+    english: "stacked bar graph",
+    meaning: "割合の比較",
+    body:    "細長い帯を分割して割合を示すグラフ。複数の帯を並べることで、年度別の割合変化なども比較できます。"
+  },
+  hist: {
+    title:   "ヒストグラム",
+    english: "histogram",
+    meaning: "データの分布を見る",
+    body:    "データを区間（階級）に分けて、それぞれの度数を棒で表すグラフ。点数分布や身長分布など、データ全体の散らばり方を見るのに使います。"
+  },
+  sanpu: {
+    title:   "散布図",
+    english: "scatter plot",
+    meaning: "2つの量の関係を見る",
+    body:    "横軸と縦軸に2つの量をとり、データを点でプロットするグラフ。点の散らばり方から、2つの量の相関関係が見えます。"
+  },
+  heikin: {
+    title:   "平均値",
+    english: "mean / average",
+    meaning: "すべての値の合計を個数で割る",
+    body:    "もっとも一般的な代表値です。ただし、外れ値（極端な値）があるとそれに引っぱられる弱点があります。"
+  },
+  chuou: {
+    title:   "中央値（メジアン）",
+    english: "median",
+    meaning: "大小順に並べた真ん中の値",
+    body:    "外れ値の影響を受けにくい代表値です。データが偶数個のときは、真ん中の2つの平均をとります。"
+  },
+  saihindo: {
+    title:   "最頻値（モード）",
+    english: "mode",
+    meaning: "最も多く現れる値",
+    body:    "「最も出現回数が多い値」を表します。質的データ（カテゴリ）にも使える唯一の代表値です。"
+  },
+  bunsan: {
+    title:   "分散",
+    english: "variance",
+    meaning: "データの散らばりを表す指標",
+    body:    "各データと平均値の差（偏差）を2乗して平均したもの。値が大きいほどバラつきが大きいことを示します。"
+  },
+  hyojun: {
+    title:   "標準偏差",
+    english: "standard deviation",
+    meaning: "分散の平方根（ルート）",
+    body:    "分散にルートをとったもの。データのバラつきの目安として最もよく使われます。テストの偏差値もこれを使って計算されます。"
+  },
+  hanni: {
+    title:   "範囲（レンジ）",
+    english: "range",
+    meaning: "最大値 − 最小値",
+    body:    "もっとも単純な散らばりの指標。最大値から最小値を引くだけで計算できます。"
+  },
+  seinosokan: {
+    title:   "正の相関",
+    english: "positive correlation",
+    meaning: "一方が増えるともう一方も増える",
+    body:    "散布図に描くと、右肩上がりの傾向が見えます。例：身長と体重、勉強時間と点数など。"
+  },
+  meinosokan: {
+    title:   "負の相関",
+    english: "negative correlation",
+    meaning: "一方が増えるともう一方は減る",
+    body:    "散布図に描くと、右肩下がりの傾向が見えます。例：気温とコートの売上、運動量と体脂肪率など。"
+  },
+  muusokan: {
+    title:   "無相関",
+    english: "no correlation",
+    meaning: "関係性が見られない",
+    body:    "2つの量の間に明確な関係がない状態。散布図に描くと点がランダムに散らばります。例：身長とテストの点数。"
+  },
+  sokankeisu: {
+    title:   "相関係数",
+    english: "correlation coefficient",
+    meaning: "関係の強さを示す数値（-1〜+1）",
+    body:    "2つの量の関係の強さと方向を-1〜+1の値で表す指標。+1に近いほど強い正の相関、-1に近いほど強い負の相関、0付近は無相関を意味します。",
+    example: "0.9なら強い正の相関、-0.8なら強い負の相関、0.1なら相関ほぼなし。"
+  },
+};
+
+function openPopup(key) {
+  const d = POPUP_DATA[key]; if (!d) return;
+  document.getElementById('popupTitle').textContent   = d.title;
+  document.getElementById('popupEnglish').textContent = d.english || '';
+  const mg = document.getElementById('popupMeaning');
+  if (d.meaning) { mg.textContent = d.meaning; mg.style.display=''; }
+  else { mg.style.display='none'; }
+  const bodyEl = document.getElementById('popupBody');
+  if (d.bodyHtml) { bodyEl.innerHTML = d.bodyHtml; }
+  else { bodyEl.textContent = d.body; }
+  const ex = document.getElementById('popupExample');
+  if (d.example) { ex.textContent = '📌 ' + d.example; ex.style.display=''; }
+  else { ex.style.display='none'; }
+  document.getElementById('popupModal').classList.add('show');
+}
+function closePopup(e) {
+  if (!e || e.target === document.getElementById('popupModal'))
+    document.getElementById('popupModal').classList.remove('show');
+}
+
+// ── 穴埋め：9か所 ──
+const WORDS = ["PDCA", "ブレーンストーミング", "KJ法", "量的", "質的", "ヒストグラム", "平均値", "中央値", "最頻値", "正の相関", "負の相関", "相関係数"];
+
+let selectedWord = null, isRunning = false, startTime = null, timerInt = null, bestTime = null;
+
+function fmtTime(ms) {
+  const m = Math.floor(ms/60000).toString().padStart(2,'0');
+  const s = Math.floor((ms%60000)/1000).toString().padStart(2,'0');
+  return `${m}:${s}.${Math.floor((ms%1000)/100)}`;
+}
+
+function startChallenge() {
+  document.querySelectorAll('.dz').forEach(z => {
+    z.textContent = '';
+    z.classList.remove('correct','wrong','filled');
+  });
+  selectedWord = null;
+  renderWordBank([...WORDS].sort(()=>Math.random()-.5));
+  clearInterval(timerInt);
+  startTime = Date.now(); isRunning = true;
+  timerInt = setInterval(()=>{ document.getElementById('timerDisplay').textContent = fmtTime(Date.now()-startTime); }, 100);
+}
+
+function renderWordBank(words) {
+  const wb = document.getElementById('wordBank'); wb.innerHTML='';
+  words.forEach(w => { wb.appendChild(makeItem(w)); });
+}
+
+function makeItem(w) {
+  const el = document.createElement('span');
+  el.className='drag-item'; el.textContent=w;
+  el.onclick = () => {
+    document.querySelectorAll('.drag-item').forEach(d=>d.classList.remove('selected'));
+    if (selectedWord===w) { selectedWord=null; return; }
+    el.classList.add('selected'); selectedWord=w;
+  };
+  return el;
+}
+
+document.querySelectorAll('.dz').forEach(z => {
+  z.addEventListener('click', () => {
+    if (!isRunning) return;
+    if (selectedWord) {
+      // 既に何か入っている場合は語群に戻す
+      if (z.textContent.trim()) {
+        const oldWord = z.textContent.trim();
+        document.getElementById('wordBank').appendChild(makeItem(oldWord));
+      }
+      z.textContent = selectedWord;
+      z.classList.remove('correct','wrong');
+      z.classList.add('filled');
+      const found = [...document.querySelectorAll('#wordBank .drag-item')].find(i=>i.textContent===selectedWord);
+      if (found) found.remove();
+      selectedWord=null;
+      document.querySelectorAll('.drag-item').forEach(d=>d.classList.remove('selected'));
+    } else if (z.textContent.trim()) {
+      // 何も選択していない状態で空欄をクリック → 語群に戻す
+      const word = z.textContent.trim();
+      z.textContent = '';
+      z.classList.remove('correct','wrong','filled');
+      document.getElementById('wordBank').appendChild(makeItem(word));
+    }
+  });
+});
+
+function checkAnswers() {
+  if (!isRunning) return;
+  let allOk=true;
+  document.querySelectorAll('.dz').forEach(z => {
+    const input = z.textContent.trim().replace(/　/g,'');
+    if (!input) { allOk=false; return; }
+    if (input===z.dataset.ans) { z.classList.add('correct'); z.classList.remove('wrong'); }
+    else { z.classList.add('wrong'); z.classList.remove('correct'); allOk=false; }
+  });
+  if (allOk) {
+    clearInterval(timerInt); isRunning=false;
+    const elapsed = Date.now()-startTime;
+    if (bestTime===null||elapsed<bestTime) { bestTime=elapsed; document.getElementById('recordDisplay').textContent='🏆 ベスト：'+fmtTime(bestTime); }
+    startConfetti();
+  } else {
+    const wbc=document.getElementById('wordBankContainer');
+    wbc.classList.remove('shake'); void wbc.offsetWidth; wbc.classList.add('shake');
+    setTimeout(()=>wbc.classList.remove('shake'),500);
+  }
+}
+
+function showModel() {
+  clearInterval(timerInt); isRunning=false; selectedWord=null;
+  document.querySelectorAll('.dz').forEach(z=>{
+    z.textContent = z.dataset.ans;
+    z.classList.remove('correct','wrong');
+    z.classList.add('filled');
+  });
+  document.getElementById('wordBank').innerHTML='<span style="color:#888;font-size:.9em;">お手本表示中。「チャレンジ開始」で練習できます。</span>';
+  document.getElementById('timerDisplay').textContent='00:00.0';
+}
+
+// confetti
+const cvs=document.getElementById('confetti-canvas'), ctx=cvs.getContext('2d');
+let pts=[], cnfOn=false;
+function startConfetti() {
+  cvs.width=window.innerWidth; cvs.height=window.innerHeight; pts=[];
+  for(let i=0;i<200;i++) pts.push({x:Math.random()*cvs.width,y:Math.random()*cvs.height-cvs.height,s:Math.random()*9+4,c:`hsl(${Math.random()*360},75%,65%)`,sp:Math.random()*3+2});
+  cnfOn=true; animCnf();
+  setTimeout(()=>{cnfOn=false;ctx.clearRect(0,0,cvs.width,cvs.height);pts=[];},4000);
+}
+function animCnf() {
+  if(!cnfOn)return;
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  pts.forEach(p=>{p.y+=p.sp;ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,p.s,p.s);if(p.y>cvs.height)p.y=-20;});
+  requestAnimationFrame(animCnf);
+}
+
+showModel();
+
+// ══════════════════════════════════════════
+// ホバー型ポップアップの初期化
+// data-term="xxx" 属性を持つ要素にカーソルを当てると、
+// POPUP_DATAの内容を吹き出しで表示します。
+// ══════════════════════════════════════════
+function initTermPopups() {
+  document.querySelectorAll('[data-term]').forEach(el => {
+    const key = el.dataset.term;
+    const d = POPUP_DATA[key];
+    if (!d) return;
+    el.classList.add('term');
+    // 既存のポップアップを削除（多重呼び出し対策）
+    const old = el.querySelector('.term-popup');
+    if (old) old.remove();
+    const popup = document.createElement('span');
+    popup.className = 'term-popup';
+    let html = `<span class="tp-title">${d.title}</span>`;
+    if (d.english) html += `<span class="tp-en">${d.english}</span>`;
+    if (d.meaning) html += `<span class="tp-meaning">${d.meaning}</span>`;
+    html += `<span class="tp-body">${d.body}</span>`;
+    popup.innerHTML = html;
+    el.appendChild(popup);
+  });
+}
+initTermPopups();
+
+// ══════════════════════════════════════════
+// ミニテスト機能（章末展開式）
+// ══════════════════════════════════════════
+const mtState = {}; // { mt1: { selectedWord, running }, mt2: {...}, ... }
+
+// 開閉トグル
+function toggleMt(mtId) {
+  const body = document.getElementById(mtId + '-body');
+  const toggle = document.querySelector(`[data-mt="${mtId}"] .mt-toggle`);
+  if (!body || !toggle) return;
+  const isOpen = body.classList.contains('open');
+  if (isOpen) {
+    body.classList.remove('open');
+    toggle.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    toggle.classList.add('open');
+  }
+}
+
+// 穴埋めチャレンジ開始：空欄をクリアし、語群を生成
+function mtStart(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  const words = [];
+  blanks.forEach(b => {
+    words.push(b.dataset.ans);
+    b.textContent = '';
+    b.classList.remove('filled','correct','wrong');
+    b.classList.add('empty');
+  });
+  // 語群を表示
+  const wordsEl = document.getElementById(mtId + '-words');
+  const bankLabel = document.querySelector(`#${mtId}-bank-wrap .mt-wordbank-label`);
+  if (bankLabel) bankLabel.textContent = '📦 語群（タップして選択 → 空欄をクリックで入力）';
+  wordsEl.innerHTML = '';
+  const shuffled = [...words].sort(() => Math.random() - 0.5);
+  shuffled.forEach(w => wordsEl.appendChild(mtMakeChip(mtId, w)));
+  mtState[mtId] = { selectedWord: null, running: true };
+  // 結果表示クリア
+  document.getElementById(mtId + '-result').innerHTML = '';
+  // 空欄にクリックハンドラを設定
+  blanks.forEach(b => {
+    b.onclick = () => mtBlankClick(mtId, b);
+  });
+}
+
+// 語群チップ生成
+function mtMakeChip(mtId, word) {
+  const chip = document.createElement('span');
+  chip.className = 'mt-chip';
+  chip.textContent = word;
+  chip.onclick = () => {
+    const s = mtState[mtId];
+    if (!s || !s.running) return;
+    // 同じものを再選択 → 解除
+    if (s.selectedWord === word) {
+      chip.classList.remove('selected');
+      s.selectedWord = null;
+      return;
+    }
+    // 他の選択を解除
+    document.querySelectorAll(`#${mtId}-words .mt-chip`).forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    s.selectedWord = word;
+  };
+  return chip;
+}
+
+// 空欄クリック
+function mtBlankClick(mtId, blank) {
+  const s = mtState[mtId];
+  if (!s || !s.running) return;
+  if (s.selectedWord) {
+    // 既に何か入っていたら語群に戻す
+    if (blank.textContent.trim()) {
+      const old = blank.textContent.trim();
+      document.getElementById(mtId + '-words').appendChild(mtMakeChip(mtId, old));
+    }
+    // 語句を入れる
+    blank.textContent = s.selectedWord;
+    blank.classList.remove('empty','correct','wrong');
+    blank.classList.add('filled');
+    // 語群から削除
+    const chips = document.querySelectorAll(`#${mtId}-words .mt-chip`);
+    chips.forEach(c => {
+      if (c.textContent === s.selectedWord && !c.classList.contains('used')) {
+        c.remove();
+        return;
+      }
+    });
+    s.selectedWord = null;
+    document.querySelectorAll(`#${mtId}-words .mt-chip`).forEach(c => c.classList.remove('selected'));
+  } else if (blank.textContent.trim()) {
+    // 何も選択していないとき → 中身を語群に戻す
+    const word = blank.textContent.trim();
+    blank.textContent = '';
+    blank.classList.remove('filled','correct','wrong');
+    blank.classList.add('empty');
+    document.getElementById(mtId + '-words').appendChild(mtMakeChip(mtId, word));
+  }
+}
+
+// 答え合わせ
+function mtCheck(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  let allOk = true;
+  let unanswered = 0;
+  blanks.forEach(b => {
+    const input = b.textContent.trim();
+    if (!input) { allOk = false; unanswered++; return; }
+    if (input === b.dataset.ans) {
+      b.classList.add('correct');
+      b.classList.remove('wrong','filled');
+    } else {
+      b.classList.add('wrong');
+      b.classList.remove('correct','filled');
+      allOk = false;
+    }
+  });
+  const result = document.getElementById(mtId + '-result');
+  if (allOk) {
+    result.innerHTML = '<div class="mt-result success">🎉 全問正解！すばらしいです。</div>';
+    startConfetti();  // 🎊 花吹雪
+  } else if (unanswered === blanks.length) {
+    result.innerHTML = '<div class="mt-result warning">📝 「チャレンジ開始」を押してから始めてください。</div>';
+  } else {
+    result.innerHTML = '<div class="mt-result warning">⚠️ 赤くなった箇所をもう一度考えてみましょう。</div>';
+  }
+}
+
+// 答えを見る（お手本）
+function mtShowAns(mtId) {
+  const passage = document.getElementById(mtId + '-passage');
+  if (!passage) return;
+  const blanks = passage.querySelectorAll('.mt-blank');
+  blanks.forEach(b => {
+    b.textContent = b.dataset.ans;
+    b.classList.remove('empty','correct','wrong','filled');
+  });
+  // 語群をクリア
+  const wordsEl = document.getElementById(mtId + '-words');
+  if (wordsEl) wordsEl.innerHTML = '<span style="color:#888;font-size:.85em;">お手本表示中。チャレンジ開始で練習できます。</span>';
+  document.getElementById(mtId + '-result').innerHTML = '';
+  if (mtState[mtId]) mtState[mtId].running = false;
+}
+
+// 4択：回答
+function mtAnswer(btnEl, qId, idx) {
+  const optionsEl = document.querySelector(`[data-q="${qId}"]`);
+  if (!optionsEl) return;
+  const correct = parseInt(optionsEl.dataset.ans, 10);
+  // 既に回答済みならスキップ
+  if (optionsEl.dataset.answered === 'yes') return;
+  optionsEl.dataset.answered = 'yes';
+  // 正誤判定（後で参照できるよう保存）
+  const isRight = (idx === correct);
+  optionsEl.dataset.result = isRight ? 'correct' : 'wrong';
+  // 全ボタンを無効化
+  const opts = optionsEl.querySelectorAll('.mt-quiz-opt');
+  opts.forEach((o, i) => {
+    o.disabled = true;
+    if (i === correct) o.classList.add('correct');
+    if (i === idx && idx !== correct) o.classList.add('wrong');
+  });
+  // 解説表示
+  const ex = document.getElementById(qId + '-ex');
+  if (ex) ex.classList.add('show');
+
+  // 同じミニテスト内の4択がすべて正解か判定
+  // qId は "mt1-q1" のような形式
+  const mtId = qId.split('-')[0];  // "mt1"
+  checkAllQuizCorrect(mtId);
+}
+
+// 同じミニテスト内の4択がすべて回答済みかつ全問正解なら花吹雪
+function checkAllQuizCorrect(mtId) {
+  const mtBody = document.getElementById(mtId + '-body');
+  if (!mtBody) return;
+  const allOptions = mtBody.querySelectorAll('.mt-quiz-options');
+  if (allOptions.length === 0) return;
+  let allAnswered = true;
+  let allCorrect = true;
+  allOptions.forEach(o => {
+    if (o.dataset.answered !== 'yes') allAnswered = false;
+    if (o.dataset.result !== 'correct') allCorrect = false;
+  });
+  if (allAnswered && allCorrect) {
+    startConfetti();
+  }
+}
+</script>
+</body>
+</html>
