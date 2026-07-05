@@ -5,100 +5,162 @@
   <title>高認 情報Ⅰ ③：メディアと通信</title>
   <style>
     :root {
-      --primary: #185FA5;
-      --teal:    #0F6E56;
-      --purple:  #534AB7;
-      --amber:   #BA7517;
-      --coral:   #993C1D;
-      --gray:    #5F5E5A;
-      --bg:      #f5f7fa;
-      --drop-bg: #fff9c4;
+      --primary:       #0891B2;  /* ティール */
+      --primary-dark:  #0E7490;  /* 濃いティール */
+      --primary-light: #CFFAFE;  /* 薄いティール */
+      --primary-pale:  #ECFEFF;  /* 極薄ティール */
+      --accent-amber:  #F59E0B;
+      --accent-amber-light: #FEF3C7;
+      --accent-pink:   #EC4899;
+      --green:         #10B981;
+      --red:           #EF4444;
+      --teal:          #0F6E56;
+      --purple:        #7C3AED;
+      --amber:         #BA7517;
+      --coral:         #0891B2;  /* coral互換でティールに */
+      --gray:          #6B7280;
+      --bg:            #F9FAFB;
+      --card-bg:       #FFFFFF;
+      --border:        #E5E7EB;
+      --text:          #1F2937;
+      --drop-bg:       #FEF9C3;
     }
     * { box-sizing: border-box; }
-    body { font-family: "Yu Gothic","游ゴシック",sans-serif; background: var(--bg); margin: 0; padding: 0; font-size: 14px; line-height: 1.9; color: #222; }
-
-    /* ── sticky header ── */
-    .sticky-header { position: sticky; top: 0; background: var(--bg); z-index: 1000; border-bottom: 2px solid #ddd; padding: 8px 0; }
-    .page-nav { max-width: 1050px; margin: 0 auto 6px; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
-    .nav-btn { text-decoration: none; background: #7f8c8d; color: #fff; padding: 5px 13px; border-radius: 4px; font-size: .78em; font-weight: bold; transition: .2s; }
-    .nav-btn:hover { background: #34495e; }
-    .nav-btn.active { background: var(--coral); border: 2px solid #f1c40f; }
-    .nav-btn.nav-home { background: #c0392b; }
-    .nav-btn.nav-home:hover { background: #922b21; }
-
-    /* ── challenge panel ── */
-    .challenge-panel {
-      background: #fbeae5; border: 1.5px solid #f5b7a8; color: var(--coral);
-      padding: 8px 20px; border-radius: 8px;
-      display: flex; justify-content: space-around; align-items: center;
-      max-width: 1050px; margin: 0 auto 8px; flex-wrap: wrap; gap: 8px;
+    body {
+      font-family: 'Hiragino Sans','Yu Gothic','游ゴシック',sans-serif;
+      background: var(--bg);
+      margin: 0; padding: 0 0 40px;
+      font-size: 14px; line-height: 1.7;
+      color: var(--text);
     }
-    .timer { font-size: 1.5em; font-family: monospace; font-weight: bold; color: var(--coral); }
-    .ch-btn { border: none; cursor: pointer; padding: 7px 18px; border-radius: 20px; font-weight: bold; font-size: .9em; transition: .2s; }
-    .ch-btn.start  { background: var(--teal);    color: #fff; }
-    .ch-btn.start:hover  { background: #0a4f3c; }
-    .ch-btn.answer { background: #f39c12;        color: #fff; }
-    .ch-btn.answer:hover { background: #d68910; }
-    .ch-btn.check  { background: var(--coral);   color: #fff; }
-    .ch-btn.check:hover  { background: #7a2f17; }
-    #recordDisplay { font-weight: bold; font-size: .9em; color: #8B6914; }
 
-    /* ── word bank（joho3風：緑系の上品なピル形） ── */
-    .word-bank-wrap { max-width: 1050px; margin: 0 auto; }
+    /* ── sticky header（joho4風グラデーション） ── */
+    .sticky-header {
+      position: sticky; top: 0;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 10px 0;
+      color: #fff;
+    }
+    .page-nav { max-width: 1100px; margin: 0 auto; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; padding: 0 16px; }
+    .nav-btn {
+      text-decoration: none;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: .82em;
+      font-weight: 700;
+      transition: .2s;
+      border: 2px solid transparent;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.28); }
+    .nav-btn.active {
+      background: #fff;
+      color: var(--primary-dark);
+      border-color: rgba(255,255,255,0.5);
+    }
+    .nav-btn.nav-home {
+      background: #fff;
+      color: var(--primary-dark);
+    }
+    .nav-btn.nav-home:hover { background: var(--primary-pale); color: var(--primary-dark); }
+
+    /* ── challenge panel（joho4風） ── */
+    .challenge-panel {
+      background: #fff;
+      border: 2px solid var(--primary);
+      color: var(--primary-dark);
+      padding: 12px 20px;
+      border-radius: 12px;
+      display: flex; justify-content: space-around; align-items: center;
+      max-width: 1100px; margin: 16px auto 12px;
+      flex-wrap: wrap; gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .timer {
+      font-size: 1.3em;
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--primary-dark);
+      background: var(--primary-pale);
+      padding: 4px 14px;
+      border-radius: 14px;
+    }
+    .ch-btn {
+      border: none; cursor: pointer;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: .9em;
+      transition: .2s;
+      color: #fff;
+    }
+    .ch-btn.start  { background: var(--green); }
+    .ch-btn.start:hover  { background: #059669; }
+    .ch-btn.answer { background: var(--accent-amber); }
+    .ch-btn.answer:hover { background: #D97706; }
+    .ch-btn.check  { background: var(--primary); }
+    .ch-btn.check:hover  { background: var(--primary-dark); }
+    #recordDisplay { font-weight: 700; font-size: .88em; color: var(--accent-amber); }
+
+    /* ── word bank（joho4風：上品なピル） ── */
+    .word-bank-wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
     .word-bank-container {
-      background: #f0fdf4;
+      background: #fff;
       padding: 12px 16px;
-      border-radius: 10px;
-      border: 2px solid #86efac;
+      border-radius: 12px;
+      border: 2px dashed var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .wb-label {
-      font-size: .82em;
-      color: #166534;
-      margin-bottom: 6px;
-      font-weight: bold;
+      font-size: .85em;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+      font-weight: 700;
     }
-    .word-bank { display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px; }
+    .word-bank { display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; }
     .drag-item {
-      background: white;
-      color: #166534;
-      border: 2px solid #22c55e;
-      padding: 5px 14px;
+      padding: 6px 14px;
+      background: linear-gradient(135deg, #fff, var(--primary-pale));
+      border: 2px solid var(--primary);
+      color: var(--primary-dark);
       cursor: pointer;
-      font-weight: bold;
-      font-size: 0.92em;
+      font-weight: 700;
+      font-size: .9em;
       border-radius: 18px;
-      transition: all 0.2s;
+      transition: all 0.15s;
       user-select: none;
     }
-    .drag-item:hover {
-      background: #22c55e;
-      color: white;
-      transform: scale(1.05);
-    }
+    .drag-item:hover { transform: scale(1.05); }
     .drag-item.selected {
-      background: #fed7aa;
-      color: #9a3412;
-      border-color: #f97316;
-      box-shadow: 0 0 0 3px #fdba74;
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 0 3px rgba(8,145,178,0.3);
       transform: scale(1.08);
     }
-    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
     .word-bank-container.shake { animation: shake .4s ease; }
 
-    /* ── drop zone（joho3風：上品な淡い黄色＋点線枠） ── */
+    /* ── drop zone（joho4風） ── */
     .dz {
       display: inline-block;
-      min-width: 110px;
-      min-height: 1.7em;
-      padding: 4px 14px;
+      min-width: 90px;
+      min-height: 32px;
+      padding: 4px 12px;
       margin: 0 4px;
-      border: 2px dashed #94a3b8;
-      border-radius: 6px;
-      background: #fef9c3;
+      background: #fff;
+      border: 2px dashed var(--primary);
+      border-radius: 8px;
       text-align: center;
       cursor: pointer;
-      font-weight: bold;
-      color: #1e293b;
+      font-weight: 700;
+      color: var(--primary-dark);
       transition: all 0.2s;
       vertical-align: middle;
       white-space: nowrap;
@@ -106,35 +168,64 @@
       line-height: 1.7em;
       box-sizing: border-box;
     }
-    .dz:hover { background: #fef08a; border-color: #64748b; }
+    .dz:hover { background: var(--primary-pale); }
     .dz.filled {
-      background: #dbeafe;
+      background: var(--primary);
+      color: #fff;
       border-style: solid;
-      border-color: #3b82f6;
-      color: #1e3a8a;
     }
     .dz.correct {
-      background: #bbf7d0 !important;
+      background: var(--green) !important;
+      color: #fff !important;
+      border-color: var(--green) !important;
       border-style: solid !important;
-      border-color: #16a34a !important;
-      color: #166534 !important;
-      font-weight: bold;
     }
     .dz.wrong {
-      background: #fecaca !important;
+      background: var(--red) !important;
+      color: #fff !important;
+      border-color: var(--red) !important;
       border-style: solid !important;
-      border-color: #dc2626 !important;
-      color: #991b1b !important;
       animation: shake 0.4s;
     }
 
-    /* ── main ── */
-    .container { max-width: 1050px; margin: 16px auto; background: #fff; padding: 28px 32px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+    /* ── main（joho4風カード） ── */
+    .container {
+      max-width: 1100px;
+      margin: 24px auto;
+      background: var(--card-bg);
+      padding: 24px 28px;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
 
-    /* ── section heading ── */
-    .sec-h1 { font-size: 1.25em; font-weight: bold; color: var(--coral); border-bottom: 3px solid var(--coral); padding-bottom: 6px; margin: 28px 0 14px; }
-    .sec-h1 .num { font-size: .95em; margin-right: 8px; }
-    .sec-h2 { font-size: 1em; font-weight: bold; color: var(--coral); border-left: 5px solid var(--coral); padding-left: 10px; margin: 20px 0 10px; }
+    /* ── section heading（joho4風） ── */
+    .sec-h1 {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #fff;
+      padding: 14px 20px;
+      font-size: 1.15em;
+      font-weight: 700;
+      margin: 28px -28px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sec-h1:first-child { margin-top: -24px; }
+    .sec-h1 .num {
+      background: rgba(255,255,255,0.25);
+      padding: 3px 11px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.85em;
+    }
+    .sec-h2 {
+      font-size: 1em;
+      font-weight: 700;
+      color: var(--primary-dark);
+      border-left: 5px solid var(--primary);
+      padding-left: 12px;
+      margin: 24px 0 12px;
+    }
 
     /* ── つかみ ── */
     .intro-box {
@@ -223,7 +314,7 @@
     /* ── modal ── */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9000; align-items: center; justify-content: center; }
     .modal-overlay.show { display: flex; }
-    .modal-box { background: #fff; border-radius: 12px; padding: 26px 30px; max-width: 500px; width: 92%; box-shadow: 0 8px 32px rgba(0,0,0,.2); position: relative; animation: fadeIn .2s ease; }
+    .modal-box { background: #fff; border-radius: 12px; padding: 26px 30px; max-width: 600px; width: 92%; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,.2); position: relative; animation: fadeIn .2s ease; }
     @keyframes fadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
     .modal-title   { font-size: 1.1em; font-weight: bold; color: var(--coral); margin-bottom: 6px; border-bottom: 2px solid var(--coral); padding-bottom: 6px; }
     .modal-english { font-family: monospace; font-size: .95em; color: var(--teal); margin-bottom: 10px; font-weight: bold; }
